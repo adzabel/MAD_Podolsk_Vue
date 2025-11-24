@@ -67,7 +67,6 @@ function formatNumber(v){ if (v === null || v === undefined) return '-'; return 
           <SmetaDetailsTable :items="store.smetaDetails" @select="(item)=>{ store.setSelectedDescription(item.title); $emit('open-details', item) }" />
         </div>
       </div>
-    </div>
   </section>
 
 </template>
