@@ -2,6 +2,34 @@
 import { defineStore } from 'pinia'
 import * as api from '../api/dashboard.js'
 
+// Простые mock-данные для демо в фронтенде (используются как fallback)
+const MOCK_MONTHLY_SUMMARY = {
+  kpi: { plan_total: 1200000, fact_total: 980000 },
+  contract: { contract_planfact_pct: 0.82 }
+}
+
+const MOCK_SMETA_CARDS = {
+  cards: [
+    { smeta_key: 'leto', label: 'Лето', type: 'Лето', plan: 400000, fact: 380000, delta: -20000, progressPercent: 95 },
+    { smeta_key: 'zima', label: 'Зима', type: 'Зима', plan: 300000, fact: 250000, delta: -50000, progressPercent: 83 },
+    { smeta_key: 'vnereg', label: 'Внерегламент', type: 'Внерегламент', plan: 500000, fact: 350000, delta: -150000, progressPercent: 70 }
+  ]
+}
+
+const MOCK_SMETA_DETAILS = {
+  rows: [
+    { id: 1, title: 'Работа A', plan: 100000, fact: 95000, delta: -5000, progressPercent: 95, type: 'Лето' },
+    { id: 2, title: 'Работа B', plan: 200000, fact: 180000, delta: -20000, progressPercent: 90, type: 'Лето' }
+  ]
+}
+
+const MOCK_DAILY_ROWS = {
+  rows: [
+    { id: 'd1', date: '2025-11-01', name: 'Работа A', unit: 'шт', volume: 10, amount: 25000 },
+    { id: 'd2', date: '2025-11-02', name: 'Работа B', unit: 'м2', volume: 5, amount: 12500 }
+  ]
+}
+
 export const useDashboardStore = defineStore('dashboard', {
   state: () => ({
     // фильтры / режимы
@@ -55,7 +83,7 @@ export const useDashboardStore = defineStore('dashboard', {
       this.monthlyError = null
       try {
         const res = await api.getMonthlySummary(this.selectedMonth)
-        this.monthlySummary = res
+        this.monthlySummary = res || MOCK_MONTHLY_SUMMARY
       } catch (err) {
         this.monthlyError = err?.message || 'Не удалось загрузить summary'
       } finally {
@@ -67,7 +95,7 @@ export const useDashboardStore = defineStore('dashboard', {
       this.smetaCardsLoading = true
       try {
         const res = await api.getBySmeta(this.selectedMonth)
-        this.smetaCards = res.cards || []
+        this.smetaCards = (res && res.cards) || MOCK_SMETA_CARDS.cards || []
       } catch (err) {
         this.smetaCards = []
       } finally {
@@ -80,7 +108,7 @@ export const useDashboardStore = defineStore('dashboard', {
       this.smetaDetails = []
       try {
         const res = await api.getSmetaDetails(this.selectedMonth, smetaKey)
-        this.smetaDetails = res.rows || []
+        this.smetaDetails = (res && res.rows) || MOCK_SMETA_DETAILS.rows || []
       } catch (err) {
         this.smetaDetails = []
       } finally {
@@ -92,7 +120,7 @@ export const useDashboardStore = defineStore('dashboard', {
       this.dailyLoading = true
       try {
         const res = await api.getDaily(date)
-        this.dailyRows = res.rows || []
+        this.dailyRows = (res && res.rows) || MOCK_DAILY_ROWS.rows || []
       } catch (err) {
         this.dailyRows = []
       } finally {

@@ -2,6 +2,13 @@
 import { onMounted } from 'vue'
 import { useDashboardStore } from '../store/dashboardStore.js'
 import SmetaCardsSection from '../components/sections/SmetaCardsSection.vue'
+import SmetaDetailsTable from '../components/sections/SmetaDetailsTable.vue'
+import DailyTable from '../components/sections/DailyTable.vue'
+import ContractExecutionSection from '../components/sections/ContractExecutionSection.vue'
+import SummaryKpiSection from '../components/sections/SummaryKpiSection.vue'
+import DailyRevenueModal from '../components/modals/DailyRevenueModal.vue'
+import SmetaDescriptionDailyModal from '../components/modals/SmetaDescriptionDailyModal.vue'
+import { ref } from 'vue'
 
 const store = useDashboardStore()
 
@@ -9,6 +16,18 @@ onMounted(async () => {
   // загрузим основные данные для текущего месяца
   await Promise.all([store.fetchMonthlySummary(), store.fetchSmetaCards()])
 })
+
+const dailyRevenueVisible = ref(false)
+const smetaDescVisible = ref(false)
+
+function openDailyRevenue(){
+  dailyRevenueVisible.value = true
+}
+
+// открыть попап расшифровки при выборе description
+function openSmetaDescription(){
+  smetaDescVisible.value = true
+}
 
 function refreshMonthData() {
   store.fetchMonthlySummary()
@@ -22,17 +41,35 @@ function refreshMonthData() {
       <div v-if="store.monthlyLoading" class="dashboard__state">Загружаем данные…</div>
       <div v-else-if="store.monthlyError" class="dashboard__state dashboard__state--error">Ошибка загрузки: {{ store.monthlyError }}</div>
 
+
       <div v-else-if="store.monthlySummary" class="dashboard__grid">
-        <!-- Основные KPI -->
-        <section class="dashboard-card">
-          <h2 class="dashboard-card__title">Контракт</h2>
-          <div class="dashboard-card__row"><span class="dashboard-card__label">План:</span><span class="dashboard-card__value">{{ store.monthlySummary.kpi?.plan_total?.toLocaleString() }}</span></div>
-          <div class="dashboard-card__row"><span class="dashboard-card__label">Факт:</span><span class="dashboard-card__value">{{ store.monthlySummary.kpi?.fact_total?.toLocaleString() }}</span></div>
-          <div class="dashboard-card__row"><span class="dashboard-card__label">Исполнение:</span><span class="dashboard-card__value">{{ Math.round((store.monthlySummary.contract?.contract_planfact_pct || 0) * 100) }} %</span></div>
-        </section>
+        <!-- Исполнение контракта -->
+        <ContractExecutionSection :contract="store.monthlySummary.contract" />
+
+        <!-- Summary KPI -->
+        <SummaryKpiSection :kpi="store.monthlySummary.kpi" @open-daily="openDailyRevenue" />
 
         <!-- Сметные карточки -->
         <SmetaCardsSection />
+
+        <!-- Детали сметы (появляются при выборе сметы) -->
+        <section v-if="store.smetaDetails && store.smetaDetails.length" class="dashboard-section">
+          <h3 class="dashboard-section__title">Детали сметы</h3>
+          <SmetaDetailsTable :items="store.smetaDetails" @select="(item)=>{ store.setSelectedDescription(item.title); smetaDescVisible = true }" />
+        </section>
+
+        <!-- Дневная таблица (можно загрузить вручную для выбранной даты) -->
+        <section class="dashboard-section">
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+            <button class="btn" @click="store.fetchDaily(store.selectedDate)">Загрузить дневную таблицу</button>
+            <div class="dashboard__small">Дата: <strong>{{ store.selectedDate }}</strong></div>
+          </div>
+          <DailyTable :rows="store.dailyRows" />
+        </section>
+
+        <!-- Модальные окна -->
+        <DailyRevenueModal :visible="dailyRevenueVisible" :month="store.selectedMonth" @close="dailyRevenueVisible = false" />
+        <SmetaDescriptionDailyModal :visible="smetaDescVisible" :month="store.selectedMonth" :smeta_key="store.selectedSmeta" :description="store.selectedDescription" @close="smetaDescVisible = false" />
       </div>
 
       <div v-else class="dashboard__state">Данные ещё не загружены.</div>
