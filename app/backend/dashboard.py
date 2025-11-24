@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Query, HTTPException
 from typing import Optional, List
-import os
 from datetime import date, datetime
+from calendar import monthrange
 from app.backend import db
 
 router = APIRouter()
@@ -17,77 +17,106 @@ def smeta_key_to_codes(smeta_key: str):
     return []
 
 
-def validate_month(month: str):
+def normalize_month(month: str) -> str:
+    """Validate and normalize incoming month value to YYYY-MM."""
     try:
-        datetime.strptime(month + "-01", "%Y-%m-%d")
+        if len(month) >= 7:
+            normalized = (month or "")[:7]
+            datetime.strptime(normalized + "-01", "%Y-%m-%d")
+            return normalized
     except Exception:
-        raise HTTPException(status_code=400, detail="invalid month format")
+        pass
+    raise HTTPException(status_code=400, detail="invalid month format")
 
 
-@router.get("/monthly/summary")
-def monthly_summary(month: str = Query(..., description="YYYY-MM")):
-    validate_month(month)
+def validate_month(month: str):
+    normalize_month(month)
 
-    # plan sums
+
+def compute_plan_fact(month: str):
+    """Вернуть план/факт по сметам и сводные суммы за месяц."""
+    month_key = normalize_month(month)
+
     plan_leto_row = db.query_one(
         "SELECT COALESCE(SUM(planned_amount),0) AS sum FROM skpdi_plan_vs_fact_monthly WHERE to_char(month_start,'YYYY-MM')=%s AND smeta_code=%s",
-        (month, 'лето'),
+        (month_key, 'лето'),
     )
     plan_zima_row = db.query_one(
         "SELECT COALESCE(SUM(planned_amount),0) AS sum FROM skpdi_plan_vs_fact_monthly WHERE to_char(month_start,'YYYY-MM')=%s AND smeta_code=%s",
-        (month, 'зима'),
+        (month_key, 'зима'),
     )
     plan_leto = int(plan_leto_row['sum'] or 0)
     plan_zima = int(plan_zima_row['sum'] or 0)
-    # Внерегламент рассчитывается как 43% от суммы лето+зима (округляем до целых)
     plan_vnereglament = int(round((plan_leto + plan_zima) * 0.43))
     plan_total = plan_leto + plan_zima + plan_vnereglament
 
-    # fact sums
     fact_leto_row = db.query_one(
         "SELECT COALESCE(SUM(fact_amount_done),0) AS sum FROM skpdi_plan_vs_fact_monthly WHERE to_char(month_start,'YYYY-MM')=%s AND smeta_code=%s",
-        (month, 'лето'),
+        (month_key, 'лето'),
     )
     fact_zima_row = db.query_one(
         "SELECT COALESCE(SUM(fact_amount_done),0) AS sum FROM skpdi_plan_vs_fact_monthly WHERE to_char(month_start,'YYYY-MM')=%s AND smeta_code=%s",
-        (month, 'зима'),
+        (month_key, 'зима'),
     )
     fact_vn_row = db.query_one(
         "SELECT COALESCE(SUM(fact_amount_done),0) AS sum FROM skpdi_plan_vs_fact_monthly WHERE to_char(month_start,'YYYY-MM')=%s AND smeta_code IN ('внерегл_ч_1','внерегл_ч_2')",
-        (month, ),
+        (month_key,),
     )
     fact_leto = int(fact_leto_row['sum'] or 0)
     fact_zima = int(fact_zima_row['sum'] or 0)
     fact_vnereglament = int(fact_vn_row['sum'] or 0)
     fact_total = fact_leto + fact_zima + fact_vnereglament
 
-    # contract amount
-    contract_row = db.query_one("SELECT COALESCE(SUM(contract_amount),0) AS sum FROM podolsk_mad_2025_contract_amount")
-    summa_contract = int(contract_row['sum'] or 0)
-    contract_planfact_pct = float(fact_total / summa_contract) if summa_contract else None
+    return {
+        "month_key": month_key,
+        "plan_leto": plan_leto,
+        "plan_zima": plan_zima,
+        "plan_vnereglament": plan_vnereglament,
+        "plan_total": plan_total,
+        "fact_leto": fact_leto,
+        "fact_zima": fact_zima,
+        "fact_vnereglament": fact_vnereglament,
+        "fact_total": fact_total,
+    }
 
-    # avg daily revenue: if requested month is current month, divide by days passed minus 1, else by full days in month
-    ym = datetime.strptime(month + "-01", "%Y-%m-%d")
-    from calendar import monthrange
+
+def compute_contract_amount():
+    contract_row = db.query_one("SELECT COALESCE(SUM(contract_amount),0) AS sum FROM podolsk_mad_2025_contract_amount")
+    return int(contract_row['sum'] or 0)
+
+
+def compute_avg_daily_revenue(month_key: str, fact_total: int):
+    ym = datetime.strptime(month_key + "-01", "%Y-%m-%d")
     days_in_month = monthrange(ym.year, ym.month)[1]
     today = datetime.utcnow().date()
     if today.year == ym.year and today.month == ym.month:
         denom = max(1, today.day - 1)
     else:
         denom = days_in_month
-    avg_daily_revenue = int(fact_total / denom) if denom else 0
+    return int(fact_total / denom) if denom else 0
+
+
+@router.get("/monthly/summary")
+def monthly_summary(month: str = Query(..., description="YYYY-MM")):
+    month_key = normalize_month(month)
+    plan_fact = compute_plan_fact(month_key)
+
+    summa_contract = compute_contract_amount()
+    contract_planfact_pct = float(plan_fact["fact_total"] / summa_contract) if summa_contract else None
+
+    avg_daily_revenue = compute_avg_daily_revenue(month_key, plan_fact["fact_total"])
 
     return {
-        "month": month,
+        "month": month_key,
         "contract": {
             "summa_contract": summa_contract,
-            "fact_total": fact_total,
+            "fact_total": plan_fact["fact_total"],
             "contract_planfact_pct": contract_planfact_pct,
         },
         "kpi": {
-            "plan_total": plan_total,
-            "fact_total": fact_total,
-            "delta": fact_total - plan_total,
+            "plan_total": plan_fact["plan_total"],
+            "fact_total": plan_fact["fact_total"],
+            "delta": plan_fact["fact_total"] - plan_fact["plan_total"],
             "avg_daily_revenue": avg_daily_revenue,
         },
     }
@@ -102,14 +131,7 @@ def combined_dashboard(month: Optional[str] = Query(None, description="YYYY-MM o
     """
     month_key = None
     if month:
-        # поддерживаем оба формата: YYYY-MM и YYYY-MM-DD
-        try:
-            if len(month) >= 7:
-                month_key = month[:7]
-                # валидация простая: пробуем собрать дату
-                datetime.strptime(month_key + "-01", "%Y-%m-%d")
-        except Exception:
-            raise HTTPException(status_code=400, detail="invalid month format")
+        month_key = normalize_month(month)
 
     # summary: повторяем логику из monthly_summary, если month указан
     summary = {
@@ -127,48 +149,16 @@ def combined_dashboard(month: Optional[str] = Query(None, description="YYYY-MM o
     items = []
 
     if month_key:
-        # план
-        pl_leto_row = db.query_one(
-            "SELECT COALESCE(SUM(planned_amount),0) AS sum FROM skpdi_plan_vs_fact_monthly WHERE to_char(month_start,'YYYY-MM')=%s AND smeta_code=%s",
-            (month_key, 'лето'),
-        )
-        pl_zima_row = db.query_one(
-            "SELECT COALESCE(SUM(planned_amount),0) AS sum FROM skpdi_plan_vs_fact_monthly WHERE to_char(month_start,'YYYY-MM')=%s AND smeta_code=%s",
-            (month_key, 'зима'),
-        )
-        pl_leto = float(pl_leto_row['sum'] or 0)
-        pl_zima = float(pl_zima_row['sum'] or 0)
-        pl_vn = round((pl_leto + pl_zima) * 0.43)
-        plan_total = int(pl_leto + pl_zima + pl_vn)
-
-        # факт
-        f_leto = float(db.query_one("SELECT COALESCE(SUM(fact_amount_done),0) AS sum FROM skpdi_plan_vs_fact_monthly WHERE to_char(month_start,'YYYY-MM')=%s AND smeta_code=%s", (month_key, 'лето'))['sum'] or 0)
-        f_zima = float(db.query_one("SELECT COALESCE(SUM(fact_amount_done),0) AS sum FROM skpdi_plan_vs_fact_monthly WHERE to_char(month_start,'YYYY-MM')=%s AND smeta_code=%s", (month_key, 'зима'))['sum'] or 0)
-        f_vn = float(db.query_one("SELECT COALESCE(SUM(fact_amount_done),0) AS sum FROM skpdi_plan_vs_fact_monthly WHERE to_char(month_start,'YYYY-MM')=%s AND smeta_code IN ('внерегл_ч_1','внерегл_ч_2')", (month_key, ))['sum'] or 0)
-        fact_total = int(f_leto + f_zima + f_vn)
-
-        # contract
-        contract_row = db.query_one("SELECT COALESCE(SUM(contract_amount),0) AS sum FROM podolsk_mad_2025_contract_amount")
-        contract_amount = int(contract_row['sum'] or 0)
-
-        contract_completion_pct = (float(fact_total) / contract_amount) if contract_amount else None
-
-        # avg daily revenue
-        ym = datetime.strptime(month_key + "-01", "%Y-%m-%d")
-        from calendar import monthrange
-        days_in_month = monthrange(ym.year, ym.month)[1]
-        today = datetime.utcnow().date()
-        if today.year == ym.year and today.month == ym.month:
-            denom = max(1, today.day - 1)
-        else:
-            denom = days_in_month
-        avg_daily_revenue = int(fact_total / denom) if denom else 0
+        plan_fact = compute_plan_fact(month_key)
+        contract_amount = compute_contract_amount()
+        contract_completion_pct = (float(plan_fact["fact_total"]) / contract_amount) if contract_amount else None
+        avg_daily_revenue = compute_avg_daily_revenue(month_key, plan_fact["fact_total"])
 
         summary.update({
-            "planned_amount": float(plan_total),
-            "fact_amount": float(fact_total),
+            "planned_amount": float(plan_fact["plan_total"]),
+            "fact_amount": float(plan_fact["fact_total"]),
             "completion_pct": None,
-            "delta_amount": float(fact_total - plan_total),
+            "delta_amount": float(plan_fact["fact_total"] - plan_fact["plan_total"]),
             "contract_amount": contract_amount,
             "contract_executed": None,
             "contract_completion_pct": contract_completion_pct,
@@ -193,42 +183,50 @@ def combined_dashboard(month: Optional[str] = Query(None, description="YYYY-MM o
 
 @router.get("/monthly/daily-revenue")
 def monthly_daily_revenue(month: str = Query(..., description="YYYY-MM")):
-    validate_month(month)
+    month_key = normalize_month(month)
     rows = db.query(
         "SELECT to_char(date_done,'YYYY-MM-DD') AS date, COALESCE(SUM(total_amount),0) AS amount FROM skpdi_fact_with_money WHERE to_char(date_done,'YYYY-MM')=%s AND status='Рассмотрено' GROUP BY date_done ORDER BY date_done",
-        (month, ),
+        (month_key,),
     )
     # convert amounts to int
     for r in rows:
         r['amount'] = int(r['amount'] or 0)
-    return {"month": month, "rows": rows}
+    return {"month": month_key, "rows": rows}
 
 
 @router.get("/monthly/by-smeta")
 def monthly_by_smeta(month: str = Query(..., description="YYYY-MM")):
-    validate_month(month)
-    # compute plan and fact per smeta
-    plan_leto = db.query_one("SELECT COALESCE(SUM(planned_amount),0) AS sum FROM skpdi_plan_vs_fact_monthly WHERE to_char(month_start,'YYYY-MM')=%s AND smeta_code=%s", (month, 'лето'))
-    plan_zima = db.query_one("SELECT COALESCE(SUM(planned_amount),0) AS sum FROM skpdi_plan_vs_fact_monthly WHERE to_char(month_start,'YYYY-MM')=%s AND smeta_code=%s", (month, 'зима'))
-    p_leto = int(plan_leto['sum'] or 0)
-    p_zima = int(plan_zima['sum'] or 0)
-    p_vn = int((p_leto + p_zima) * 0.43)
-
-    fact_leto = int(db.query_one("SELECT COALESCE(SUM(fact_amount_done),0) AS sum FROM skpdi_plan_vs_fact_monthly WHERE to_char(month_start,'YYYY-MM')=%s AND smeta_code=%s", (month, 'лето'))['sum'] or 0)
-    fact_zima = int(db.query_one("SELECT COALESCE(SUM(fact_amount_done),0) AS sum FROM skpdi_plan_vs_fact_monthly WHERE to_char(month_start,'YYYY-MM')=%s AND smeta_code=%s", (month, 'зима'))['sum'] or 0)
-    fact_vn = int(db.query_one("SELECT COALESCE(SUM(fact_amount_done),0) AS sum FROM skpdi_plan_vs_fact_monthly WHERE to_char(month_start,'YYYY-MM')=%s AND smeta_code IN ('внерегл_ч_1','внерегл_ч_2')", (month, ))['sum'] or 0)
+    plan_fact = compute_plan_fact(month)
 
     cards = [
-        {"smeta_key": "leto", "label": "Лето", "plan": p_leto, "fact": fact_leto, "delta": fact_leto - p_leto},
-        {"smeta_key": "zima", "label": "Зима", "plan": p_zima, "fact": fact_zima, "delta": fact_zima - p_zima},
-        {"smeta_key": "vnereglement", "label": "Внерегламент", "plan": p_vn, "fact": fact_vn, "delta": fact_vn - p_vn},
+        {
+            "smeta_key": "leto",
+            "label": "Лето",
+            "plan": plan_fact["plan_leto"],
+            "fact": plan_fact["fact_leto"],
+            "delta": plan_fact["fact_leto"] - plan_fact["plan_leto"],
+        },
+        {
+            "smeta_key": "zima",
+            "label": "Зима",
+            "plan": plan_fact["plan_zima"],
+            "fact": plan_fact["fact_zima"],
+            "delta": plan_fact["fact_zima"] - plan_fact["plan_zima"],
+        },
+        {
+            "smeta_key": "vnereglement",
+            "label": "Внерегламент",
+            "plan": plan_fact["plan_vnereglament"],
+            "fact": plan_fact["fact_vnereglament"],
+            "delta": plan_fact["fact_vnereglament"] - plan_fact["plan_vnereglament"],
+        },
     ]
-    return {"month": month, "cards": cards}
+    return {"month": plan_fact["month_key"], "cards": cards}
 
 
 @router.get("/monthly/smeta-details")
 def monthly_smeta_details(month: str = Query(..., description="YYYY-MM"), smeta_key: str = Query(...)):
-    validate_month(month)
+    month_key = normalize_month(month)
     codes = smeta_key_to_codes(smeta_key)
     if not codes:
         raise HTTPException(status_code=400, detail="invalid smeta_key")
@@ -239,19 +237,19 @@ def monthly_smeta_details(month: str = Query(..., description="YYYY-MM"), smeta_
     else:
         plan_rows = db.query(
             "SELECT description, COALESCE(SUM(planned_amount),0) AS plan FROM skpdi_plan_vs_fact_monthly WHERE to_char(month_start,'YYYY-MM')=%s AND smeta_code=%s GROUP BY description",
-            (month, codes[0]),
+            (month_key, codes[0]),
         )
 
     # Fact rows
     if smeta_key == 'vnereglement':
         fact_rows = db.query(
             "SELECT description, COALESCE(SUM(fact_amount_done),0) AS fact FROM skpdi_plan_vs_fact_monthly WHERE to_char(month_start,'YYYY-MM')=%s AND smeta_code IN ('внерегл_ч_1','внерегл_ч_2') GROUP BY description",
-            (month, ),
+            (month_key,),
         )
     else:
         fact_rows = db.query(
             "SELECT description, COALESCE(SUM(fact_amount_done),0) AS fact FROM skpdi_plan_vs_fact_monthly WHERE to_char(month_start,'YYYY-MM')=%s AND smeta_code=%s GROUP BY description",
-            (month, codes[0]),
+            (month_key, codes[0]),
         )
 
     # merge by description
@@ -274,12 +272,12 @@ def monthly_smeta_details(month: str = Query(..., description="YYYY-MM"), smeta_
             rows.append(v)
 
     # If vnereglement and no plan_rows, still present fact_rows
-    return {"month": month, "smeta_key": smeta_key, "rows": rows}
+    return {"month": month_key, "smeta_key": smeta_key, "rows": rows}
 
 
 @router.get("/monthly/smeta-description-daily")
 def monthly_smeta_description_daily(month: str = Query(..., description="YYYY-MM"), smeta_key: str = Query(...), description: str = Query(...)):
-    validate_month(month)
+    month_key = normalize_month(month)
     codes = smeta_key_to_codes(smeta_key)
     if not codes:
         raise HTTPException(status_code=400, detail="invalid smeta_key")
@@ -291,17 +289,17 @@ def monthly_smeta_description_daily(month: str = Query(..., description="YYYY-MM
         code_clause = "smeta_code = %s"
 
     if smeta_key == 'vnereglement':
-        params = (month, description)
+        params = (month_key, description)
         sql = f"SELECT to_char(date_done,'YYYY-MM-DD') AS date, COALESCE(SUM(total_volume),0) AS volume, MIN(unit) AS unit, COALESCE(SUM(total_amount),0) AS amount FROM skpdi_fact_with_money WHERE to_char(date_done,'YYYY-MM')=%s AND status='Рассмотрено' AND description=%s AND {code_clause} GROUP BY date_done ORDER BY date_done"
     else:
-        params = (month, description, codes[0])
+        params = (month_key, description, codes[0])
         sql = f"SELECT to_char(date_done,'YYYY-MM-DD') AS date, COALESCE(SUM(total_volume),0) AS volume, MIN(unit) AS unit, COALESCE(SUM(total_amount),0) AS amount FROM skpdi_fact_with_money WHERE to_char(date_done,'YYYY-MM')=%s AND status='Рассмотрено' AND description=%s AND {code_clause} GROUP BY date_done ORDER BY date_done"
 
     rows = db.query(sql, params)
     for r in rows:
         r['volume'] = int(r['volume'] or 0)
         r['amount'] = int(r['amount'] or 0)
-    return {"month": month, "smeta_key": smeta_key, "description": description, "rows": rows}
+    return {"month": month_key, "smeta_key": smeta_key, "description": description, "rows": rows}
 
 
 @router.get("/last-loaded")
@@ -323,19 +321,26 @@ def last_loaded():
         return {"loaded_at": str(loaded)}
 
 @router.get("/daily")
-def daily(date: str = Query(..., description="YYYY-MM-DD")):
+def daily(date: Optional[str] = Query(None, alias="date", description="YYYY-MM-DD"), day: Optional[str] = Query(None, alias="day", description="YYYY-MM-DD")):
+    date_value = date or day
+    if not date_value:
+        raise HTTPException(status_code=400, detail="date is required")
+
     try:
-        datetime.strptime(date, "%Y-%m-%d")
+        datetime.strptime(date_value, "%Y-%m-%d")
     except Exception:
         raise HTTPException(status_code=400, detail="invalid date format")
 
     rows = db.query(
         "SELECT description, MIN(unit) AS unit, COALESCE(SUM(total_volume),0) AS volume, COALESCE(SUM(total_amount),0) AS amount FROM skpdi_fact_with_money WHERE to_char(date_done,'YYYY-MM-DD')=%s AND status='Рассмотрено' GROUP BY description ORDER BY description",
-        (date, ),
+        (date_value,),
     )
-    total_row = db.query_one("SELECT COALESCE(SUM(total_amount),0) AS total FROM skpdi_fact_with_money WHERE to_char(date_done,'YYYY-MM-DD')=%s AND status='Рассмотрено'", (date, ))
+    total_row = db.query_one(
+        "SELECT COALESCE(SUM(total_amount),0) AS total FROM skpdi_fact_with_money WHERE to_char(date_done,'YYYY-MM-DD')=%s AND status='Рассмотрено'",
+        (date_value,),
+    )
     for r in rows:
         r['volume'] = int(r['volume'] or 0)
         r['amount'] = int(r['amount'] or 0)
     total_amount = int(total_row['total'] or 0) if total_row else 0
-    return {"date": date, "rows": rows, "total": {"amount": total_amount}}
+    return {"date": date_value, "rows": rows, "total": {"amount": total_amount}}

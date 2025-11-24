@@ -1,10 +1,10 @@
 import { request } from './client.js'
 
 // Функции API: пробуем старые конкретные пути, а при 404 фолбэчим на единый эндпойнт
-function ensureMonthFull(month) {
-  // ожидаем формат YYYY-MM или YYYY-MM-01; приводим к YYYY-MM-01
+function normalizeMonth(month) {
   if (!month) return month
-  if (/^\d{4}-\d{2}$/.test(month)) return `${month}-01`
+  if (/^\d{4}-\d{2}$/.test(month)) return month
+  if (/^\d{4}-\d{2}-\d{2}$/.test(month)) return month.slice(0, 7)
   return month
 }
 
@@ -17,7 +17,7 @@ function smetaKeyFromLabel(label) {
 }
 
 export async function getMonthlySummary(month) {
-  const m = ensureMonthFull(month)
+  const m = normalizeMonth(month)
   try {
     return await request(`/api/dashboard/monthly/summary?month=${encodeURIComponent(m)}`)
   } catch (err) {
@@ -61,7 +61,7 @@ export async function getLastLoaded() {
 }
 
 export async function getBySmeta(month) {
-  const m = ensureMonthFull(month)
+  const m = normalizeMonth(month)
   try {
     return await request(`/api/dashboard/monthly/by-smeta?month=${encodeURIComponent(m)}`)
   } catch (err) {
@@ -83,7 +83,7 @@ export async function getBySmeta(month) {
 }
 
 export async function getSmetaDetails(month, smeta_key) {
-  const m = ensureMonthFull(month)
+  const m = normalizeMonth(month)
   try {
     return await request(`/api/dashboard/monthly/smeta-details?month=${encodeURIComponent(m)}&smeta_key=${encodeURIComponent(smeta_key)}`)
   } catch (err) {
@@ -121,7 +121,7 @@ export async function getSmetaDetails(month, smeta_key) {
 }
 
 export async function getMonthlyDailyRevenue(month) {
-  const m = ensureMonthFull(month)
+  const m = normalizeMonth(month)
   try {
     return await request(`/api/dashboard/monthly/daily-revenue?month=${encodeURIComponent(m)}`)
   } catch (err) {
@@ -134,20 +134,11 @@ export async function getMonthlyDailyRevenue(month) {
 }
 
 export async function getDaily(date) {
-  // backend accepts `day` query param on production host
-  try {
-    return await request(`/api/dashboard/daily?day=${encodeURIComponent(date)}`)
-  } catch (err) {
-    // try legacy param name
-    if (err && (err.status === 404 || (err.message && err.message.includes('Not Found')))) {
-      return await request(`/api/dashboard/daily?date=${encodeURIComponent(date)}`)
-    }
-    throw err
-  }
+  return await request(`/api/dashboard/daily?date=${encodeURIComponent(date)}`)
 }
 
 export async function getSmetaDescriptionDaily(month, smeta_key, description) {
-  const m = ensureMonthFull(month)
+  const m = normalizeMonth(month)
   try {
     return await request(`/api/dashboard/monthly/smeta-description-daily?month=${encodeURIComponent(m)}&smeta_key=${encodeURIComponent(smeta_key)}&description=${encodeURIComponent(description)}`)
   } catch (err) {
