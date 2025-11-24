@@ -434,13 +434,7 @@
   border: 1px solid var(--border-soft);
   overflow: hidden;
 }
-.smeta-card__accent{
-  width: 8px;
-  background: linear-gradient(180deg, var(--accent) 0%, #f39c12 100%);
-  border-radius: 8px;
-  margin-right: 16px;
-  flex: 0 0 8px;
-}
+/* accent removed: left vertical strip was removed per design */
 .smeta-card__body{ flex:1; display:flex; flex-direction:column; gap:12px }
 .smeta-card__head{ display:flex; justify-content:space-between; align-items:center }
 .smeta-card__title{ margin:0; font-size:20px; font-weight:700; color:var(--text-main) }

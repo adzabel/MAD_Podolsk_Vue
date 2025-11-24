@@ -27,7 +27,6 @@ function formatNumber(v){ if (v === null || v === undefined) return '-'; return 
 
       <div v-else class="smeta-cards__list">
       <article v-for="c in cards" :key="c.smeta_key" class="smeta-card smeta-card--large card--interactive" @click="onCardClick(c.smeta_key)">
-        <div class="smeta-card__accent" aria-hidden="true"></div>
         <div class="smeta-card__body">
           <header class="smeta-card__head">
             <h3 class="smeta-card__title">{{ c.label }}</h3>
