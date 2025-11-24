@@ -1,7 +1,8 @@
 import { createApp } from 'vue'
 import App from './App.vue'
+import router from './router/index.js'
 
-// Глобальные стили твоего дашборда
+// глобальные стили
 import './styles/base.css'
 import './styles/layout.css'
 import './styles/components.css'
@@ -14,4 +15,7 @@ import './styles/tokens.css'
 import './styles/utilities.css'
 import './styles/work.css'
 
-createApp(App).mount('#app')
+const app = createApp(App)
+
+app.use(router)
+app.mount('#app')
