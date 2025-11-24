@@ -399,7 +399,19 @@
 }
 
 /* Smeta cards */
-.smeta-cards__list { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start }
+/* Use a responsive grid: 1 column on small screens, 3 columns on desktop */
+.smeta-cards__list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+@media (min-width: 1000px) {
+  .smeta-cards__list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
 
 /* panel body adjustments for smeta block */
 .smeta-panel { padding: 20px; }
@@ -414,8 +426,7 @@
 .smeta-card--large {
   position: relative;
   display: flex;
-  min-width: 520px;
-  max-width: 720px;
+  width: 100%;
   background: var(--bg-card);
   border-radius: 18px;
   padding: 18px 20px 16px 20px;
