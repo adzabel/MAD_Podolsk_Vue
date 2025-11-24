@@ -1,83 +1,54 @@
-<!-- frontend/src/components/MonthSelector.vue -->
-<template>
-  <div class="month-selector">
-    <label class="month-selector__label" for="month">
-      Месяц:
-    </label>
-
-    <select
-      id="month"
-      class="month-selector__select"
-      v-model="localMonth"
-    >
-      <option
-        v-for="month in months"
-        :key="month.value"
-        :value="month.value"
-      >
-        {{ month.label }}
-      </option>
-    </select>
-  </div>
-</template>
-
 <script setup>
-import { computed } from 'vue'
-import { useDashboardStore } from '../store/dashboardStore'
-
-const store = useDashboardStore()
-
-// список месяцев – пока простая «лесенка» из 12 последних месяцев
-const months = computed(() => {
-  const result = []
-  const now = new Date()
-
-  for (let i = 0; i < 12; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    const value = d.toISOString().slice(0, 7) // YYYY-MM
-
-    const formatter = new Intl.DateTimeFormat('ru-RU', {
-      month: 'long',
-      year: 'numeric',
-    })
-
-    result.push({
-      value,
-      label: formatter.format(d), // например: "ноябрь 2025 г."
-    })
+const props = defineProps({
+  modelValue: {
+    type: String,
+    default: ''
+  },
+  label: {
+    type: String,
+    default: 'Месяц'
   }
-
-  return result
 })
 
-// локальное значение, связанное со store.selectedMonth
-const localMonth = computed({
-  get() {
-    return store.selectedMonth
-  },
-  async set(value) {
-    // при смене месяца в селекте обновляем store и грузим данные
-    await store.setMonth(value)
-  },
-})
+const emit = defineEmits(['update:modelValue'])
+
+const onChange = (event) => {
+  const value = event.target.value
+  emit('update:modelValue', value)
+}
 </script>
+
+<template>
+  <label class="month-selector">
+    <span class="month-selector__label">{{ label }}</span>
+    <input
+      :value="modelValue"
+      type="month"
+      class="month-selector__input"
+      @input="onChange"
+    />
+  </label>
+</template>
 
 <style scoped>
 .month-selector {
   display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  font-size: 13px;
 }
 
 .month-selector__label {
-  font-size: 14px;
-  color: #555;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #777;
 }
 
-.month-selector__select {
-  padding: 4px 8px;
-  font-size: 14px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+.month-selector__input {
+  display: block;
+  margin-top: 4px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #d0d0d0;
 }
 </style>

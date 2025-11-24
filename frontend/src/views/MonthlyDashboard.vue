@@ -1,55 +1,53 @@
 <script setup>
 import { computed, onMounted } from 'vue'
-import { useDashboardStore } from '../store/dashboardStore.js' // путь из папки views
+import { useDashboardStore } from '../store/dashboardStore.js'
+import MonthSelector from '../components/MonthSelector.vue'
 
+// store
 const store = useDashboardStore()
 
-// Привязываем input type="month" к selectedMonth в store
+// двустороннее связывание с MonthSelector
 const selectedMonth = computed({
   get: () => store.selectedMonth,
-  set: (value) => {
-    if (!value) return
-    store.setSelectedMonth(value)       // 1) обновляем месяц в store
-    store.fetchMonthlySummary()         // 2) грузим данные по новому месяцу
+  set: async (value) => {
+    store.setSelectedMonth(value)
+    await store.fetchMonthlySummary()
   }
 })
 
-// При первом заходе на страницу загружаем данные
-onMounted(() => {
+// загрузка данных при первом заходе
+onMounted(async () => {
   if (!store.monthlySummary) {
-    store.fetchMonthlySummary()
+    await store.fetchMonthlySummary()
   }
 })
 </script>
 
 <template>
   <section class="dashboard">
-    <!-- Заголовок дашборда -->
+
+    <!-- Заголовок -->
     <header class="dashboard__toolbar">
       <div class="dashboard__title-block">
         <h1 class="dashboard__title">СКПДИ · МАД · Подольск</h1>
         <p class="dashboard__subtitle">Работы в статусе «Рассмотрено»</p>
       </div>
 
-      <!-- Выбор месяца -->
+      <!-- Month Selector -->
       <div class="dashboard__controls">
-        <label class="month-selector">
-          <span class="month-selector__label">Месяц</span>
-          <input
-            v-model="selectedMonth"
-            type="month"
-            class="month-selector__input"
-          />
-        </label>
+        <MonthSelector v-model="selectedMonth" />
       </div>
     </header>
 
-    <!-- Контент по месяцу -->
+    <!-- Контент -->
     <main class="dashboard__content">
+
+      <!-- LOADING -->
       <div v-if="store.monthlyLoading" class="dashboard__state">
         Загружаем данные…
       </div>
 
+      <!-- ERROR -->
       <div
         v-else-if="store.monthlyError"
         class="dashboard__state dashboard__state--error"
@@ -57,25 +55,42 @@ onMounted(() => {
         Ошибка загрузки: {{ store.monthlyError }}
       </div>
 
+      <!-- ДАННЫЕ ПОЛУЧЕНЫ -->
       <div v-else-if="store.monthlySummary" class="dashboard__grid">
-        <!-- Пока минимальный вывод, дальше превратим в красивые карточки -->
+
+        <!-- Карточка: Контракт -->
         <section class="dashboard-card">
           <h2 class="dashboard-card__title">Контракт</h2>
-          <p class="dashboard-card__value">
-            План: {{ store.monthlySummary.plan_total }}
-          </p>
-          <p class="dashboard-card__value">
-            Факт: {{ store.monthlySummary.fact_total }}
-          </p>
-          <p class="dashboard-card__value">
-            Исполнение: {{ store.monthlySummary.contract_planfact_pct }} %
-          </p>
+
+          <div class="dashboard-card__row">
+            <span class="dashboard-card__label">План:</span>
+            <span class="dashboard-card__value">
+              {{ store.monthlySummary.plan_total?.toLocaleString() }}
+            </span>
+          </div>
+
+          <div class="dashboard-card__row">
+            <span class="dashboard-card__label">Факт:</span>
+            <span class="dashboard-card__value">
+              {{ store.monthlySummary.fact_total?.toLocaleString() }}
+            </span>
+          </div>
+
+          <div class="dashboard-card__row">
+            <span class="dashboard-card__label">Исполнение:</span>
+            <span class="dashboard-card__value">
+              {{ store.monthlySummary.contract_planfact_pct }} %
+            </span>
+          </div>
         </section>
+
       </div>
 
+      <!-- НЕТ ДАННЫХ -->
       <div v-else class="dashboard__state">
         Данные ещё не загружены.
       </div>
+
     </main>
   </section>
 </template>
@@ -87,6 +102,7 @@ onMounted(() => {
   gap: 24px;
 }
 
+/* Header */
 .dashboard__toolbar {
   display: flex;
   justify-content: space-between;
@@ -116,27 +132,14 @@ onMounted(() => {
   align-items: center;
 }
 
-.month-selector__label {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #777;
-}
-
-.month-selector__input {
-  display: block;
-  margin-top: 4px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #d0d0d0;
-}
-
+/* Content area */
 .dashboard__content {
   min-height: 200px;
 }
 
 .dashboard__state {
   font-size: 14px;
+  padding: 12px;
   color: #555;
 }
 
@@ -144,21 +147,39 @@ onMounted(() => {
   color: #c00;
 }
 
+/* Data grid */
+.dashboard__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+/* Card */
 .dashboard-card {
-  padding: 16px;
+  padding: 20px;
   border-radius: 12px;
   border: 1px solid #e0e0e0;
   background: #fff;
-  max-width: 320px;
+  width: 320px;
 }
 
 .dashboard-card__title {
-  margin: 0 0 8px;
-  font-size: 16px;
+  margin: 0 0 12px;
+  font-size: 18px;
   font-weight: 600;
 }
 
+.dashboard-card__row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.dashboard-card__label {
+  color: #777;
+}
+
 .dashboard-card__value {
-  margin: 2px 0;
+  font-weight: 500;
 }
 </style>
