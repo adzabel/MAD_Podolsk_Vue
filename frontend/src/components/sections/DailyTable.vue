@@ -30,10 +30,12 @@
 import { computed } from 'vue'
 
 const props = defineProps({
-  rows: { type: Array, default: () => [] }
+  rows: { type: Array, default: () => [] },
+  totalAmount: { type: Number, default: null }
 })
 
 const total = computed(()=>{
+  if (props.totalAmount !== null && props.totalAmount !== undefined) return Number(props.totalAmount) || 0
   return props.rows.reduce((s,r)=> s + (Number(r.amount)||0), 0)
 })
 

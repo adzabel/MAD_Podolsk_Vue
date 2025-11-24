@@ -6,7 +6,8 @@
         <div class="dashboard__small">Дата: <strong>{{ store.selectedDate }}</strong></div>
       </div>
 
-      <DailyTable :rows="store.dailyRows" />
+      <div v-if="store.dailyLoading">Загрузка...</div>
+      <DailyTable v-else :rows="store.dailyRows" :total-amount="store.dailyTotal" />
     </section>
   </main>
 </template>

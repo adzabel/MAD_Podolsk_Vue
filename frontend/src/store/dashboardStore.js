@@ -28,6 +28,7 @@ export const useDashboardStore = defineStore('dashboard', {
 
     // daily data
     dailyRows: [],
+    dailyTotal: 0,
     dailyLoading: false
   }),
 
@@ -131,9 +132,25 @@ export const useDashboardStore = defineStore('dashboard', {
       this.dailyLoading = true
       try {
         const res = await api.getDaily(date)
-        this.dailyRows = (res && res.rows) || []
+        const rawRows = (res && res.rows) || []
+        const dateValue = res?.date || date
+        this.dailyRows = rawRows.map(r => {
+          const unit = r.unit || ''
+          const volumeNumber = Number(r.volume || 0)
+          const amount = Number(r.amount || 0)
+          return {
+            date: dateValue,
+            name: r.description || r.name || r.work_name || '',
+            unit,
+            volume: `${volumeNumber}${unit ? ` (${unit})` : ''}`,
+            amount
+          }
+        })
+        const totalFromApi = res?.total?.amount
+        this.dailyTotal = Number(totalFromApi !== undefined ? totalFromApi : this.dailyRows.reduce((s, r) => s + (Number(r.amount) || 0), 0))
       } catch (err) {
         this.dailyRows = []
+        this.dailyTotal = 0
       } finally {
         this.dailyLoading = false
       }
