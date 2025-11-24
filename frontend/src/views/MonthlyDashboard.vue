@@ -1,7 +1,6 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useDashboardStore } from '../store/dashboardStore.js'
-import MonthSelector from '../components/filters/MonthSelector.vue'
 import SmetaCardsSection from '../components/sections/SmetaCardsSection.vue'
 
 const store = useDashboardStore()
@@ -10,14 +9,15 @@ onMounted(async () => {
   // загрузим основные данные для текущего месяца
   await Promise.all([store.fetchMonthlySummary(), store.fetchSmetaCards()])
 })
+
+function refreshMonthData() {
+  store.fetchMonthlySummary()
+  store.fetchSmetaCards()
+}
 </script>
 
 <template>
   <section class="dashboard">
-    <header class="dashboard__controls">
-      <MonthSelector />
-    </header>
-
     <main class="dashboard__content">
       <div v-if="store.monthlyLoading" class="dashboard__state">Загружаем данные…</div>
       <div v-else-if="store.monthlyError" class="dashboard__state dashboard__state--error">Ошибка загрузки: {{ store.monthlyError }}</div>
