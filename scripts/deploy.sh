@@ -84,3 +84,4 @@ else
 fi
 
 echo "=== DONE. Проверь сайт: https://$REMOTE_HOST ==="
+
