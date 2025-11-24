@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import SmetaDetailsTable from './SmetaDetailsTable.vue'
 import { useDashboardStore } from '../../store/dashboardStore.js'
 
 const store = useDashboardStore()
@@ -26,7 +27,7 @@ function formatNumber(v){ if (v === null || v === undefined) return '-'; return 
       <div v-if="store.smetaCardsLoading">Загрузка карточек…</div>
 
       <div v-else class="smeta-cards__list">
-      <article v-for="c in cards" :key="c.smeta_key" class="smeta-card smeta-card--large card--interactive" @click="onCardClick(c.smeta_key)">
+      <article v-for="c in cards" :key="c.smeta_key" :class="['smeta-card','smeta-card--large','card--interactive', { 'is-selected': store.selectedSmeta === c.smeta_key }]" @click="onCardClick(c.smeta_key)">
         <div class="smeta-card__body">
           <header class="smeta-card__head">
             <h3 class="smeta-card__title">{{ c.label }}</h3>
@@ -59,6 +60,12 @@ function formatNumber(v){ if (v === null || v === undefined) return '-'; return 
           </div>
         </div>
       </article>
+        </div>
+
+        <!-- Details table shown inside the same smeta panel -->
+        <div v-if="store.smetaDetails && store.smetaDetails.length" class="smeta-details">
+          <SmetaDetailsTable :items="store.smetaDetails" @select="(item)=>{ store.setSelectedDescription(item.title); $emit('open-details', item) }" />
+        </div>
       </div>
     </div>
   </section>

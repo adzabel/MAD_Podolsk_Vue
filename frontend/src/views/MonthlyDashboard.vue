@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useDashboardStore } from '../store/dashboardStore.js'
 import SmetaCardsSection from '../components/sections/SmetaCardsSection.vue'
 import SmetaDetailsTable from '../components/sections/SmetaDetailsTable.vue'
@@ -10,6 +10,14 @@ import SmetaDescriptionDailyModal from '../components/modals/SmetaDescriptionDai
 import { ref } from 'vue'
 
 const store = useDashboardStore()
+
+const selectedSmetaLabel = computed(() => {
+  const key = store.selectedSmeta
+  if (!key) return 'Расшифровка работ по смете'
+  const found = (store.smetaCards || []).find(s => s.smeta_key === key)
+  const name = found ? found.label : key
+  return `Расшифровка работ по смете «${name}»`
+})
 
 onMounted(async () => {
   // загрузим основные данные для текущего месяца
@@ -52,10 +60,7 @@ function refreshMonthData() {
         <SmetaCardsSection />
 
         <!-- Детали сметы (появляются при выборе сметы) -->
-        <section v-if="store.smetaDetails && store.smetaDetails.length" class="dashboard-section">
-          <h3 class="dashboard-section__title">Детали сметы</h3>
-          <SmetaDetailsTable :items="store.smetaDetails" @select="(item)=>{ store.setSelectedDescription(item.title); smetaDescVisible = true }" />
-        </section>
+        <!-- Details table moved into SmetaCardsSection for same-panel display -->
 
         <!-- Дневная таблица теперь показывается в отдельном режиме "По дням" -->
 

@@ -2,34 +2,6 @@
 import { defineStore } from 'pinia'
 import * as api from '../api/dashboard.js'
 
-// Простые mock-данные для демо в фронтенде (используются как fallback)
-const MOCK_MONTHLY_SUMMARY = {
-  kpi: { plan_total: 1200000, fact_total: 980000 },
-  contract: { contract_planfact_pct: 0.82 }
-}
-
-const MOCK_SMETA_CARDS = {
-  cards: [
-    { smeta_key: 'leto', label: 'Лето', type: 'Лето', plan: 400000, fact: 380000, delta: -20000, progressPercent: 95 },
-    { smeta_key: 'zima', label: 'Зима', type: 'Зима', plan: 300000, fact: 250000, delta: -50000, progressPercent: 83 },
-    { smeta_key: 'vnereg', label: 'Внерегламент', type: 'Внерегламент', plan: 500000, fact: 350000, delta: -150000, progressPercent: 70 }
-  ]
-}
-
-const MOCK_SMETA_DETAILS = {
-  rows: [
-    { id: 1, title: 'Работа A', plan: 100000, fact: 95000, delta: -5000, progressPercent: 95, type: 'Лето' },
-    { id: 2, title: 'Работа B', plan: 200000, fact: 180000, delta: -20000, progressPercent: 90, type: 'Лето' }
-  ]
-}
-
-const MOCK_DAILY_ROWS = {
-  rows: [
-    { id: 'd1', date: '2025-11-01', name: 'Работа A', unit: 'шт', volume: 10, amount: 25000 },
-    { id: 'd2', date: '2025-11-02', name: 'Работа B', unit: 'м2', volume: 5, amount: 12500 }
-  ]
-}
-
 export const useDashboardStore = defineStore('dashboard', {
   state: () => ({
     // фильтры / режимы
@@ -85,7 +57,7 @@ export const useDashboardStore = defineStore('dashboard', {
       this.monthlyError = null
       try {
         const res = await api.getMonthlySummary(this.selectedMonth)
-        this.monthlySummary = res || MOCK_MONTHLY_SUMMARY
+        this.monthlySummary = res
         // try to fetch last loaded timestamp separately (backend may expose it)
         try{
           const l = await api.getLastLoaded()
@@ -102,14 +74,26 @@ export const useDashboardStore = defineStore('dashboard', {
       this.smetaCardsLoading = true
       try {
         const res = await api.getBySmeta(this.selectedMonth)
-        const raw = (res && res.cards) || MOCK_SMETA_CARDS.cards || []
+        const raw = (res && res.cards) || []
         // ensure progressPercent exists and is computed as fact/plan*100 (rounded)
-        this.smetaCards = raw.map(c => {
+        const mapped = raw.map(c => {
           const plan = Number(c.plan) || 0
           const fact = Number(c.fact) || 0
           const pct = plan ? Math.round((fact / plan) * 100) : 0
           return { ...c, progressPercent: c.progressPercent ?? pct }
         })
+
+        // sort by fact descending so the largest fact appears first
+        mapped.sort((a, b) => (Number(b.fact) || 0) - (Number(a.fact) || 0))
+        this.smetaCards = mapped
+
+        // if no smeta selected yet, pick the first (largest fact) and load its details
+        if (!this.selectedSmeta && this.smetaCards.length) {
+          const firstKey = this.smetaCards[0].smeta_key
+          this.setSelectedSmeta(firstKey)
+          // fire and forget details load (await to ensure UI has details if needed)
+          await this.fetchSmetaDetails(firstKey)
+        }
       } catch (err) {
         this.smetaCards = []
       } finally {
@@ -126,7 +110,7 @@ export const useDashboardStore = defineStore('dashboard', {
       this.smetaDetails = []
       try {
         const res = await api.getSmetaDetails(this.selectedMonth, smetaKey)
-        this.smetaDetails = (res && res.rows) || MOCK_SMETA_DETAILS.rows || []
+        this.smetaDetails = (res && res.rows) || []
       } catch (err) {
         this.smetaDetails = []
       } finally {
@@ -138,7 +122,7 @@ export const useDashboardStore = defineStore('dashboard', {
       this.dailyLoading = true
       try {
         const res = await api.getDaily(date)
-        this.dailyRows = (res && res.rows) || MOCK_DAILY_ROWS.rows || []
+        this.dailyRows = (res && res.rows) || []
       } catch (err) {
         this.dailyRows = []
       } finally {

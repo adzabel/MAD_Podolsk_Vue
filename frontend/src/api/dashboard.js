@@ -1,26 +1,32 @@
 import { request } from './client.js'
 
-// Здесь указаны контракты как в документации docs/frontend-spec.md
+// Функции API: пробуем старые конкретные пути, а при 404 фолбэчим на единый эндпойнт
+function ensureMonthFull(month) {
+  // ожидаем формат YYYY-MM или YYYY-MM-01; приводим к YYYY-MM-01
+  if (!month) return month
+  if (/^\d{4}-\d{2}$/.test(month)) return `${month}-01`
+  return month
+}
+
+function smetaKeyFromLabel(label) {
+  if (!label) return label
+  const map = { 'лето': 'leto', 'зима': 'zima', 'внерегламент': 'vnereglement', 'вне регламент': 'vnereglement' }
+  if (map[label]) return map[label]
+  // fallback: ascii-safe slug
+  return label.toString().toLowerCase().replace(/[^a-z0-9]+/gi, '-')
+}
 
 export async function getMonthlySummary(month) {
+  const m = ensureMonthFull(month)
   try {
-    return await request(`/api/dashboard/monthly/summary?month=${encodeURIComponent(month)}`)
+    return await request(`/api/dashboard/monthly/summary?month=${encodeURIComponent(m)}`)
   } catch (err) {
-    // fallback mock для разработки, если бэкенд недоступен
-    return {
-      month,
-      contract: {
-        summa_contract: 10000000,
-        fact_total: 6500000,
-        contract_planfact_pct: 0.65
-      },
-      kpi: {
-        plan_total: 7000000,
-        fact_total: 6500000,
-        delta: -500000,
-        avg_daily_revenue: 250000
-      }
+    // fallback to combined endpoint
+    if (err && (err.status === 404 || (err.message && err.message.includes('Not Found')))) {
+      const res = await request(`/api/dashboard?month=${encodeURIComponent(m)}`)
+      return res && res.summary ? res.summary : res
     }
+    throw err
   }
 }
 
@@ -28,74 +34,88 @@ export async function getLastLoaded() {
   try {
     return await request(`/api/dashboard/last-loaded`)
   } catch (err) {
-    return { loaded_at: new Date().toISOString() }
+    // if not present, combined endpoint contains last_updated
+    if (err && (err.status === 404 || (err.message && err.message.includes('Not Found')))) {
+      return await request(`/api/dashboard`)
+    }
+    throw err
   }
 }
 
 export async function getBySmeta(month) {
+  const m = ensureMonthFull(month)
   try {
-    return await request(`/api/dashboard/monthly/by-smeta?month=${encodeURIComponent(month)}`)
+    return await request(`/api/dashboard/monthly/by-smeta?month=${encodeURIComponent(m)}`)
   } catch (err) {
-    return {
-      month,
-      cards: [
-        { smeta_key: 'leto', label: 'Лето', plan: 3000000, fact: 2800000, delta: -200000 },
-        { smeta_key: 'zima', label: 'Зима', plan: 2500000, fact: 2400000, delta: -100000 },
-        { smeta_key: 'vnereglement', label: 'Внерегламент', plan: 1500000, fact: 1300000, delta: -200000 }
-      ]
+    if (err && (err.status === 404 || (err.message && err.message.includes('Not Found')))) {
+      const res = await request(`/api/dashboard?month=${encodeURIComponent(m)}`)
+      // aggregate items by smeta label
+      const items = (res && res.items) || []
+      const grouped = {}
+      for (const it of items) {
+        const key = smetaKeyFromLabel(it.smeta)
+        if (!grouped[key]) grouped[key] = { smeta_key: key, label: it.smeta, plan: 0, fact: 0 }
+        grouped[key].plan += Number(it.planned_amount || it.planned || 0)
+        grouped[key].fact += Number(it.fact_amount || it.fact || 0)
+      }
+      return { cards: Object.values(grouped) }
     }
+    throw err
   }
 }
 
 export async function getSmetaDetails(month, smeta_key) {
+  const m = ensureMonthFull(month)
   try {
-    return await request(`/api/dashboard/monthly/smeta-details?month=${encodeURIComponent(month)}&smeta_key=${encodeURIComponent(smeta_key)}`)
+    return await request(`/api/dashboard/monthly/smeta-details?month=${encodeURIComponent(m)}&smeta_key=${encodeURIComponent(smeta_key)}`)
   } catch (err) {
-    return {
-      month,
-      smeta_key,
-      rows: [
-        { description: 'Вывоз ТКО', plan: 500000, fact: 480000, delta: -20000 },
-        { description: 'Уборка прилегающей территории', plan: 200000, fact: 190000, delta: -10000 }
-      ]
+    if (err && (err.status === 404 || (err.message && err.message.includes('Not Found')))) {
+      const res = await request(`/api/dashboard?month=${encodeURIComponent(m)}`)
+      const items = (res && res.items) || []
+      const rows = items
+        .filter(it => smetaKeyFromLabel(it.smeta) === smeta_key)
+        .map(it => ({ work_name: it.work_name || it.description || '', plan: it.planned_amount || it.planned || 0, fact: it.fact_amount || it.fact || 0 }))
+      return { rows }
     }
+    throw err
   }
 }
 
 export async function getMonthlyDailyRevenue(month) {
+  const m = ensureMonthFull(month)
   try {
-    return await request(`/api/dashboard/monthly/daily-revenue?month=${encodeURIComponent(month)}`)
+    return await request(`/api/dashboard/monthly/daily-revenue?month=${encodeURIComponent(m)}`)
   } catch (err) {
-    return {
-      month,
-      rows: [
-        { date: `${month}-01`, amount: 200000 },
-        { date: `${month}-02`, amount: 180000 }
-      ]
+    if (err && (err.status === 404 || (err.message && err.message.includes('Not Found')))) {
+      // not available in combined endpoint
+      return { rows: [] }
     }
+    throw err
   }
 }
 
 export async function getDaily(date) {
+  // backend accepts `day` query param on production host
   try {
-    // Backend expects query parameter `date` (YYYY-MM-DD)
-    return await request(`/api/dashboard/daily?date=${encodeURIComponent(date)}`)
+    return await request(`/api/dashboard/daily?day=${encodeURIComponent(date)}`)
   } catch (err) {
-    return {
-      date,
-      rows: [
-        { description: 'Вывоз ТКО', unit: 'м³', volume: 120, amount: 60000 },
-        { description: 'Уборка', unit: 'шт', volume: 5, amount: 40000 }
-      ],
-      total: { amount: 100000 }
+    // try legacy param name
+    if (err && (err.status === 404 || (err.message && err.message.includes('Not Found')))) {
+      return await request(`/api/dashboard/daily?date=${encodeURIComponent(date)}`)
     }
+    throw err
   }
 }
 
 export async function getSmetaDescriptionDaily(month, smeta_key, description) {
+  const m = ensureMonthFull(month)
   try {
-    return await request(`/api/dashboard/monthly/smeta-description-daily?month=${encodeURIComponent(month)}&smeta_key=${encodeURIComponent(smeta_key)}&description=${encodeURIComponent(description)}`)
+    return await request(`/api/dashboard/monthly/smeta-description-daily?month=${encodeURIComponent(m)}&smeta_key=${encodeURIComponent(smeta_key)}&description=${encodeURIComponent(description)}`)
   } catch (err) {
-    return { month, smeta_key, description, rows: [] }
+    if (err && (err.status === 404 || (err.message && err.message.includes('Not Found')))) {
+      // try to emulate using combined endpoint (not available) — return empty
+      return { rows: [] }
+    }
+    throw err
   }
 }

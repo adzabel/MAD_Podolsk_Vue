@@ -232,6 +232,30 @@
   }
 }
 
+/* Mobile: make mode switch buttons symmetric (each 50% width) */
+@media (max-width: 640px) {
+  .app-header__mode-switch {
+    display: flex;
+    gap: 6px;
+  }
+
+  .app-header__mode-switch .mode-btn {
+    flex: 1 1 50%;
+    width: 50%;
+    padding: 8px 10px;
+    justify-content: center;
+  }
+
+  .app-header__mode-switch .mode-btn .mode-btn-line1,
+  .app-header__mode-switch .mode-btn .mode-btn-line2 {
+    display: block;
+    text-align: center;
+  }
+
+  /* Reduce extra rounded padding so buttons align edge-to-edge visually */
+  .app-header__mode-switch { padding: 4px; border-radius: 10px; }
+}
+
 .contract-execution { box-sizing: border-box; }
 
 /* --- Component styles moved from scoped Vue files --- */
@@ -510,6 +534,11 @@ month-selector__label {
   overflow: hidden;
   box-sizing: border-box;
 }
+/* selected smeta card visual */
+.smeta-card.is-selected {
+  border-color: var(--accent);
+  box-shadow: 0 8px 20px rgba(47,111,237,0.08);
+}
 /* accent removed: left vertical strip was removed per design */
 .smeta-card__body{ flex:1; display:flex; flex-direction:column; gap:var(--gap-sm); min-width:0 }
 .smeta-card__head{ display:flex; justify-content:space-between; align-items:center }
@@ -535,8 +564,39 @@ month-selector__label {
 .dashboard__state { font-size: var(--font-size-body-sm); padding: var(--gap-sm); color: #555 }
 .dashboard__state--error { color: #c00 }
 .dashboard__grid { display: flex; flex-wrap: wrap; gap: var(--grid-gap) }
+
+/* Reduce vertical distance between rows inside dashboard grid (row-gap),
+   keeping horizontal spacing (column-gap) intact. This makes KPI and
+   the smeta section sit closer vertically. */
+.dashboard .dashboard__grid {
+  gap: var(--gap-md) var(--grid-gap);
+}
+
+/* Inside dashboard grid we manage vertical spacing via grid row-gap only.
+   Panels by default add `margin-top: var(--section-gap)` which duplicates
+   spacing when combined with the grid gap — reset those margins here. */
+.dashboard .dashboard__grid .panel,
+.dashboard .dashboard__grid .panel + .panel {
+  margin-top: 0;
+}
+
+/* Stronger, scoped override to ensure dashboard layout rules win over
+   any other panel margins. Targets the grid inside the main dashboard
+   content area and forces panels to rely on grid row-gap. */
+.dashboard > .dashboard__content .dashboard__grid {
+  gap: var(--gap-md) var(--grid-gap) !important;
+}
+.dashboard > .dashboard__content .dashboard__grid .panel,
+.dashboard > .dashboard__content .dashboard__grid .panel + .panel {
+  margin-top: 0 !important;
+}
 .dashboard-card { padding: var(--card-padding); border-radius: var(--radius-sm); border: 1px solid #e0e0e0; background: #fff; width: 320px }
 .dashboard-card__title { margin: 0 0 var(--gap-md) 0; font-size: var(--font-size-h2); font-weight: 600 }
 .dashboard-card__row { display: flex; justify-content: space-between; padding: var(--gap-xs) 0 }
 .dashboard-card__label { color: #777 }
 .dashboard-card__value { font-weight: 500 }
+
+/* reduce space specifically between KPI grid and smeta section */
+.dashboard .dashboard__grid + .smeta-panel {
+  margin-top: calc(var(--gap-md) - var(--section-gap));
+}
