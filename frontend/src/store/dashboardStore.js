@@ -102,7 +102,14 @@ export const useDashboardStore = defineStore('dashboard', {
       this.smetaCardsLoading = true
       try {
         const res = await api.getBySmeta(this.selectedMonth)
-        this.smetaCards = (res && res.cards) || MOCK_SMETA_CARDS.cards || []
+        const raw = (res && res.cards) || MOCK_SMETA_CARDS.cards || []
+        // ensure progressPercent exists and is computed as fact/plan*100 (rounded)
+        this.smetaCards = raw.map(c => {
+          const plan = Number(c.plan) || 0
+          const fact = Number(c.fact) || 0
+          const pct = plan ? Math.round((fact / plan) * 100) : 0
+          return { ...c, progressPercent: c.progressPercent ?? pct }
+        })
       } catch (err) {
         this.smetaCards = []
       } finally {
