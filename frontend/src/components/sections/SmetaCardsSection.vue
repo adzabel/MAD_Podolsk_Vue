@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import SmetaDetailsTable from './SmetaDetailsTable.vue'
+// Details table moved out to keep panels separate
 import { useDashboardStore } from '../../store/dashboardStore.js'
 
 const store = useDashboardStore()
@@ -62,10 +62,7 @@ function formatNumber(v){ if (v === null || v === undefined) return '-'; return 
       </article>
         </div>
 
-        <!-- Details table shown inside the same smeta panel -->
-        <div v-if="store.smetaDetails && store.smetaDetails.length" class="smeta-details">
-          <SmetaDetailsTable :items="store.smetaDetails" @select="(item)=>{ store.setSelectedDescription(item.title); $emit('open-details', item) }" />
-        </div>
+        <!-- Details are rendered as a separate block in the parent view -->
       </div>
   </section>
 

@@ -107,7 +107,6 @@ export const useDashboardStore = defineStore('dashboard', {
 
     async fetchSmetaDetails(smetaKey) {
       this.smetaDetailsLoading = true
-      this.smetaDetails = []
       try {
         const res = await api.getSmetaDetails(this.selectedMonth, smetaKey)
         this.smetaDetails = (res && res.rows) || []

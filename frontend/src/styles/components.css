@@ -517,6 +517,61 @@ month-selector__label {
 .smeta-panel .panel-title { font-size: var(--font-size-h2); }
 .smeta-panel .panel-body { padding: 0 var(--gap-xs) 0 var(--gap-xs) }
 
+/* Table layout for smeta breakdown/details to align headers and values */
+.smeta-breakdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.smeta-breakdown-table thead th {
+  text-align: left;
+  font-size: var(--font-size-label);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  padding: 10px 8px;
+  vertical-align: bottom;
+}
+
+/* Contrast header: accent tint with readable text */
+.smeta-breakdown-table thead th {
+  background: color-mix(in srgb, var(--accent) 12%, #ffffff 88%);
+  color: #0f172a; /* dark text over light tint */
+  font-weight: 700;
+  border-bottom: 2px solid color-mix(in srgb, var(--accent) 18%, #000000 82%);
+}
+
+/* clickable sortable headers */
+.smeta-breakdown-table thead th.sortable{ cursor: pointer; user-select: none }
+.smeta-breakdown-table .sort-indicator{ margin-left:6px; font-size:0.9em; opacity:0.9 }
+.smeta-breakdown-table th.numeric,
+.smeta-breakdown-table td.numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.smeta-breakdown-table td, .smeta-breakdown-table th {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.smeta-breakdown-table tbody tr:hover { background: rgba(0,0,0,0.02); }
+.smeta-breakdown-table td:first-child {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+/* set reasonable widths for numeric columns while letting name column take remaining space */
+.smeta-breakdown-table colgroup col:nth-child(2),
+.smeta-breakdown-table colgroup col:nth-child(3),
+.smeta-breakdown-table colgroup col:nth-child(4) {
+  width: 140px;
+}
+
+.smeta-breakdown-table .negative { color: var(--danger); }
+
+/* Light zebra striping for rows to improve readability */
+.smeta-breakdown-table tbody tr:nth-child(odd) {
+  background: rgba(0,0,0,0.02);
+}
+.smeta-breakdown-table tbody tr:hover { background: rgba(0,0,0,0.04); }
+
 /* make cards share same row and wrap as needed */
 .smeta-cards__list { align-items: stretch }
 
@@ -600,3 +655,9 @@ month-selector__label {
 .dashboard .dashboard__grid + .smeta-panel {
   margin-top: calc(var(--gap-md) - var(--section-gap));
 }
+
+/* Smeta details loading state: dim existing table and show overlay skeleton */
+.smeta-details-wrapper{position:relative}
+.smeta-details-wrapper.is-loading > *{opacity:0.45;transition:opacity 180ms linear}
+.overlay-skeleton{position:absolute;inset:12px 12px 12px 12px;z-index:8;pointer-events:none}
+.overlay-skeleton .table-skeleton{background:transparent}

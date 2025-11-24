@@ -56,6 +56,8 @@ const percentExecuted = computed(() => {
 
 function formatMoney(v){
   if (v === null || v === undefined) return '-'
-  return Number(v).toLocaleString('ru-RU')
+  const n = Number(v)
+  if (Number.isNaN(n)) return '-'
+  return n.toLocaleString('ru-RU', { maximumFractionDigits: 0, minimumFractionDigits: 0 })
 }
 </script>

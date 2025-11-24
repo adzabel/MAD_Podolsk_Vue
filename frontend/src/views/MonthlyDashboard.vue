@@ -3,6 +3,7 @@ import { onMounted, computed } from 'vue'
 import { useDashboardStore } from '../store/dashboardStore.js'
 import SmetaCardsSection from '../components/sections/SmetaCardsSection.vue'
 import SmetaDetailsTable from '../components/sections/SmetaDetailsTable.vue'
+import TableSkeleton from '../components/ui/TableSkeleton.vue'
 import ContractExecutionSection from '../components/sections/ContractExecutionSection.vue'
 import SummaryKpiSection from '../components/sections/SummaryKpiSection.vue'
 import DailyRevenueModal from '../components/modals/DailyRevenueModal.vue'
@@ -60,7 +61,19 @@ function refreshMonthData() {
         <SmetaCardsSection />
 
         <!-- Детали сметы (появляются при выборе сметы) -->
-        <!-- Details table moved into SmetaCardsSection for same-panel display -->
+        <section v-if="store.smetaDetailsLoading || (store.smetaDetails && store.smetaDetails.length)" class="panel smeta-panel" style="flex: 1 1 100%; width: 100%;">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h3 class="panel-title">Расшифровка работ по смете — {{ selectedSmetaLabel.replace('Расшифровка работ по смете', '') }}</h3>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="smeta-details-wrapper" :class="{ 'is-loading': store.smetaDetailsLoading }" style="position:relative;">
+              <SmetaDetailsTable :items="store.smetaDetails" @select="(item)=>{ store.setSelectedDescription(item.title || item.description); smetaDescVisible = true }" />
+              <TableSkeleton v-if="store.smetaDetailsLoading" class="overlay-skeleton" />
+            </div>
+          </div>
+        </section>
 
         <!-- Дневная таблица теперь показывается в отдельном режиме "По дням" -->
 

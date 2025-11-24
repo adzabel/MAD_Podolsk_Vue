@@ -90,13 +90,30 @@ export async function getSmetaDetails(month, smeta_key) {
     if (err && (err.status === 404 || (err.message && err.message.includes('Not Found')))) {
       const res = await request(`/api/dashboard?month=${encodeURIComponent(m)}`)
       const items = (res && res.items) || []
-      const rows = items
-        .filter(it => smetaKeyFromLabel(it.smeta) === smeta_key)
-        .map(it => {
-          const plan = Number(it.planned_amount || it.planned || 0)
-          const fact = Number(it.fact_amount || it.fact || 0)
-          return { description: it.work_name || it.description || '', plan, fact, delta: fact - plan }
+      // group by description/work_name and sum plan/fact
+      const grouped = {}
+      for (const it of items) {
+        const key = smetaKeyFromLabel(it.smeta)
+        if (key !== smeta_key) continue
+        const desc = (it.work_name || it.description || '').toString()
+        if (!grouped[desc]) grouped[desc] = { title: desc, plan: 0, fact: 0 }
+        grouped[desc].plan += Number(it.planned_amount || it.planned || 0)
+        grouped[desc].fact += Number(it.fact_amount || it.fact || 0)
+      }
+
+      const isVnereg = (smeta_key || '').toString().toLowerCase().includes('vne') || smeta_key === 'vnereg' || smeta_key === 'vner1' || smeta_key === 'vner2'
+
+      const rows = Object.values(grouped)
+        .map(r => {
+          const plan = isVnereg ? 0 : r.plan
+          const fact = r.fact
+          const delta = fact - plan
+          const pct = plan ? Math.round((fact / plan) * 100) : 0
+          return { title: r.title, plan, fact, delta, progressPercent: pct }
         })
+        // show only rows where plan>1 or fact>1
+        .filter(r => (Number(r.plan || 0) > 1) || (Number(r.fact || 0) > 1))
+
       return { rows }
     }
     throw err
