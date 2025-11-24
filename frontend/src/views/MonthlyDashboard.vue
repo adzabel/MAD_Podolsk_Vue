@@ -28,11 +28,7 @@ onMounted(async () => {
 
     <!-- Заголовок -->
     <header class="dashboard__toolbar">
-      <div class="dashboard__title-block">
-        <h1 class="dashboard__title">СКПДИ · МАД · Подольск</h1>
-        <p class="dashboard__subtitle">Работы в статусе «Рассмотрено»</p>
-      </div>
-
+    
       <!-- Month Selector -->
       <div class="dashboard__controls">
         <MonthSelector v-model="selectedMonth" />
