@@ -1,8 +1,7 @@
-// frontend/src/main.js
 import { createApp } from 'vue'
 import App from './App.vue'
 
-// Глобальные стили дашборда
+// Глобальные стили твоего дашборда
 import './styles/base.css'
 import './styles/layout.css'
 import './styles/components.css'
