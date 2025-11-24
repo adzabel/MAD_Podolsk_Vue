@@ -111,11 +111,11 @@
   min-width: 0;
 }
 
-.category-values span + span {
-  border-left: 1px solid var(--border-soft);
-  padding-left: 8px;
-  margin-left: 2px;
-}
+  .category-values span + span {
+    border-left: 1px solid var(--border-soft);
+    padding-left: var(--card-inner-gap);
+    margin-left: 2px;
+  }
 
 @media (max-width: 640px) {
   .category-values span + span {

@@ -40,6 +40,13 @@
         --card-frame-gap: var(--card-frame-gap-mobile);
         --section-gap: var(--card-frame-gap);
 
+		/* Unified inner gap between card border and internal labels/pills */
+		--card-inner-gap-mobile: 12px;
+		--card-inner-gap-desktop: 18px;
+		--card-inner-gap: var(--card-inner-gap-mobile);
+		/* value indent inside card (usually a bit larger) */
+		--card-inner-indent: calc(var(--card-inner-gap) * 2);
+
         /* Gap scale */
         --gap-xs: 4px;
         --gap-sm: 8px;
@@ -73,6 +80,7 @@
 @media (min-width: 1024px) {
         :root {
                 --card-frame-gap: var(--card-frame-gap-desktop);
+		--card-inner-gap: var(--card-inner-gap-desktop);
         }
 }
 

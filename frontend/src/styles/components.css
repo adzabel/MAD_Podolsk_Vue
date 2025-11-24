@@ -267,7 +267,7 @@
   background: var(--bg-card, #fff);
   border: 1px solid var(--border-soft);
   border-radius: 12px;
-  padding: 10px 14px;
+  padding: 10px var(--card-inner-gap);
   min-width: 220px;
   box-shadow: var(--shadow-soft);
   font-family: var(--font-sans);
@@ -326,7 +326,7 @@
   gap: 10px;
   background: var(--bg-card);
   border: 1px solid var(--border-soft);
-  padding: 8px 12px;
+  padding: var(--gap-sm) var(--card-inner-gap);
   border-radius: 12px;
   box-shadow: var(--shadow-soft);
   min-width: 220px;

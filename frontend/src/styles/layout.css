@@ -381,7 +381,7 @@ input[type="date"] {
 
 .pill {
 	font-size: var(--font-size-caption);
-	padding: var(--gap-sm) 14px;
+	padding: var(--gap-sm) var(--card-inner-gap);
 	border-radius: var(--radius-md);
 	border: 1px solid var(--border-soft);
 	background: var(--bg-muted);
@@ -597,7 +597,7 @@ input[type="date"] {
 .page-header.compact .pdf-action-desktop .btn-airy { min-height: 54px; }
 .page-header.compact .month-select,
 .page-header.compact .day-select { padding: 6px 12px; }
-.page-header.compact .pill { padding: 6px 12px; }
+	.page-header.compact .pill { padding: 6px var(--card-inner-gap); }
 .page-header.compact .pdf-action-desktop .btn-airy.btn-pdf-compact { padding: 0 12px; }
 .btn-airy.btn-pdf-compact span { font-size: 0.85rem; letter-spacing: 0.04em; font-weight: 700; }
 .btn-airy.btn-pdf-compact { gap: 6px; }
