@@ -24,7 +24,23 @@ export async function getMonthlySummary(month) {
     // fallback to combined endpoint
     if (err && (err.status === 404 || (err.message && err.message.includes('Not Found')))) {
       const res = await request(`/api/dashboard?month=${encodeURIComponent(m)}`)
-      return res && res.summary ? res.summary : res
+      // map combined summary to expected shape { contract, kpi }
+      if (res && res.summary) {
+        const s = res.summary
+        const contract = {
+          summa_contract: s.contract_amount ?? null,
+          fact_total: s.fact_amount ?? null,
+          contract_planfact_pct: s.contract_completion_pct ?? null
+        }
+        const kpi = {
+          plan_total: s.planned_amount ?? null,
+          fact_total: s.fact_amount ?? null,
+          delta: s.delta_amount ?? null,
+          avg_daily_revenue: s.average_daily_revenue ?? null
+        }
+        return { month: res.month || m, contract, kpi }
+      }
+      return res
     }
     throw err
   }
@@ -36,7 +52,9 @@ export async function getLastLoaded() {
   } catch (err) {
     // if not present, combined endpoint contains last_updated
     if (err && (err.status === 404 || (err.message && err.message.includes('Not Found')))) {
-      return await request(`/api/dashboard`)
+      const res = await request(`/api/dashboard`)
+      if (res && res.last_updated) return { loaded_at: res.last_updated }
+      return { loaded_at: null }
     }
     throw err
   }
@@ -74,7 +92,11 @@ export async function getSmetaDetails(month, smeta_key) {
       const items = (res && res.items) || []
       const rows = items
         .filter(it => smetaKeyFromLabel(it.smeta) === smeta_key)
-        .map(it => ({ work_name: it.work_name || it.description || '', plan: it.planned_amount || it.planned || 0, fact: it.fact_amount || it.fact || 0 }))
+        .map(it => {
+          const plan = Number(it.planned_amount || it.planned || 0)
+          const fact = Number(it.fact_amount || it.fact || 0)
+          return { description: it.work_name || it.description || '', plan, fact, delta: fact - plan }
+        })
       return { rows }
     }
     throw err

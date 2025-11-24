@@ -9,6 +9,11 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+      DEPLOY_DOMAIN: ${{ secrets.DEPLOY_DOMAIN }}
 
     steps:
       - name: Checkout repository
@@ -28,10 +33,21 @@ jobs:
         run: |
           npm run build
 
+      - name: Write CNAME for custom domain (optional)
+        if: env.DEPLOY_DOMAIN != ''
+        run: |
+          mkdir -p dist
+          if [ -n "${DEPLOY_DOMAIN}" ]; then
+            echo "$DEPLOY_DOMAIN" > dist/CNAME
+            echo "Wrote CNAME: $DEPLOY_DOMAIN"
+          else
+            echo "No DEPLOY_DOMAIN set, skipping CNAME"
+          fi
+
       - name: Start ssh-agent and add key
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_MAD }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Disable host key check
         run: |
@@ -40,9 +56,13 @@ jobs:
 
       - name: Deploy dist folder to server via rsync
         run: |
+          if [ -z "${DEPLOY_USER}" ] || [ -z "${DEPLOY_HOST}" ] || [ -z "${DEPLOY_PATH}" ]; then
+            echo "Missing DEPLOY_USER, DEPLOY_HOST, or DEPLOY_PATH secrets. Aborting." >&2
+            exit 1
+          fi
           rsync -avzr --delete \
             --exclude=".git" \
             --exclude=".github" \
             -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
             ./dist/ \
-            u3330235@37.140.192.181:/var/www/u3330235/data/www/podolsk.mad.moclean.ru/
+            ${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}
