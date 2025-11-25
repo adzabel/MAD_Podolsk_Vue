@@ -188,7 +188,7 @@ const currentLabel = computed(()=>{
 .month-picker__label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; margin-right: 6px; }
 .month-picker__current { font-weight: 700; color: var(--text-main); flex: 1; text-align: left; }
 .month-picker__arrow { color: var(--text-muted); }
-.month-picker__panel { position: absolute; top: calc(100% + 8px); left: 0; background: var(--bg-card); border: 1px solid var(--border-soft); box-shadow: var(--shadow-soft); border-radius: 8px; z-index: 40; max-height: 320px; overflow: auto; padding: 8px; width: 260px; }
+  .month-picker__panel { position: absolute; top: calc(100% + 8px); left: 0; background: var(--bg-card); border: 1px solid var(--border-soft); box-shadow: var(--shadow-soft); border-radius: 8px; z-index: 40; max-height: 320px; overflow: auto; padding: 8px; width: 100%; box-sizing: border-box; }
 .month-picker__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .month-picker__item button { width: 100%; text-align: left; padding: 10px 12px; border-radius: 6px; background: transparent; border: none; cursor: pointer; font-size: var(--font-size-body); }
 .month-picker__item button:hover, .month-picker__item button.is-focused { background: var(--bg-muted); }

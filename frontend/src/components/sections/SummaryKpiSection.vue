@@ -1,5 +1,5 @@
 <template>
-  <section class="summary-grid">
+  <section class="summary-grid" ref="root">
     <div class="summary-cards">
       <article class="summary-card">
         <div class="summary-label type-label">План, ₽</div>
@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, onBeforeUnmount, watch, nextTick, ref } from 'vue'
 
 const props = defineProps({ kpi: { type: Object, default: () => ({}) } })
 const emit = defineEmits(['open-daily'])
@@ -60,4 +60,77 @@ function formatMoney(v){
   if (Number.isNaN(n)) return '-'
   return n.toLocaleString('ru-RU', { maximumFractionDigits: 0, minimumFractionDigits: 0 })
 }
+
+// Автоматическое уменьшение размера заголовков, чтобы все четыре метки помещались в одну строку
+const root = ref(null)
+let resizeObserver = null
+let resizeHandler = null
+
+function adjustSummaryLabelSize() {
+  // Найдём все лейблы внутри секции
+  const el = root.value || document.querySelector('.summary-grid')
+  if (!el) return
+  const labels = Array.from(el.querySelectorAll('.summary-label'))
+  if (!labels.length) return
+
+  // Сначала сбросим кастомную переменную, чтобы считать от базового размера
+  el.style.removeProperty('--summary-label-fs')
+
+  // Получаем текущ базовый размер из computed style первого лейбла
+  const cs = getComputedStyle(labels[0])
+  let fontSize = parseFloat(cs.fontSize) || 20
+  const minSize = 12 // минимальный размер шрифта
+
+  // Функция проверяет, есть ли переполнение у любого лейбла
+  function anyOverflow() {
+    return labels.some(l => l.scrollWidth > l.clientWidth + 1)
+  }
+
+  // Понижаем размер на 1px пока есть переполнение и больше minSize
+  // и применяем один и тот же размер ко всем лейблам через CSS-переменную
+  while (fontSize > minSize) {
+    // применяем пробный размер
+    el.style.setProperty('--summary-label-fs', fontSize + 'px')
+    // force reflow
+    // eslint-disable-next-line no-unused-expressions
+    labels[0].offsetWidth
+    if (!anyOverflow()) break
+    fontSize = Math.round(fontSize - 1)
+  }
+}
+
+function scheduleAdjust() {
+  // небольшая дебаунс-обертка
+  if (resizeHandler) clearTimeout(resizeHandler)
+  resizeHandler = setTimeout(() => {
+    nextTick().then(adjustSummaryLabelSize)
+  }, 80)
+}
+
+onMounted(() => {
+  // привяжем слушатель ресайза и MutationObserver/ResizeObserver
+  scheduleAdjust()
+  window.addEventListener('resize', scheduleAdjust)
+
+  // Также наблюдаем за изменениями DOM внутри summary-cards (например, данные KPI)
+  try {
+    resizeObserver = new ResizeObserver(scheduleAdjust)
+    const container = document.querySelector('.summary-cards')
+    if (container) resizeObserver.observe(container)
+  } catch (e) {
+    // игнорируем, если ResizeObserver не поддерживается
+  }
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', scheduleAdjust)
+  if (resizeObserver) resizeObserver.disconnect()
+  if (resizeHandler) clearTimeout(resizeHandler)
+})
+
+// При изменении данных KPI пересчитаем
+watch(() => props.kpi, () => {
+  scheduleAdjust()
+}, { deep: true })
+
 </script>

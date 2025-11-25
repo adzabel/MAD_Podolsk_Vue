@@ -4,9 +4,10 @@
   gap: var(--card-frame-gap);
   width: 100%;
   
+  /* ensure labels inside cards inherit the larger heading size on desktop */
   .summary-label,
   .summary-sub {
-    font-size: var(--font-size-tiny);
+    font-size: var(--summary-label-fs, var(--font-size-h2));
   }
   margin-bottom: var(--section-gap);
   align-items: stretch;
@@ -25,9 +26,10 @@
 .summary-grid {
   display: block;
   
+  /* keep label sizing consistent with summary-cards (desktop) */
   .summary-label,
   .summary-sub {
-    font-size: var(--font-size-tiny);
+    font-size: var(--summary-label-fs, var(--font-size-h2));
   }
   margin-bottom: var(--section-gap);
 }
@@ -49,6 +51,9 @@
   .summary-label,
   .summary-sub {
     font-size: var(--font-size-tiny);
+    white-space: normal; /* allow wrapping on very small screens */
+    overflow: visible;
+    text-overflow: clip;
   }
 
   .summary-label {
@@ -144,10 +149,16 @@
 }
 
 .summary-label {
-  font-size: var(--font-size-label);
-  color: var(--text-muted);
+  /* Сделать метки более похожими на заголовки: крупнее и заметнее */
+  font-size: var(--summary-label-fs, var(--font-size-h2));
+  font-weight: 700;
+  color: var(--text-main);
+  /* Обязательное требование: заголовки — в верхнем регистре и на одной строке */
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0;
   word-break: break-word;
   width: 100%;
   text-align: left;
@@ -156,8 +167,12 @@
 
 @media (min-width: 768px) {
   .summary-label {
-    font-size: var(--font-size-caption);
+    font-size: var(--summary-label-fs, var(--font-size-h2));
   }
+}
+
+@media (min-width: 1200px) {
+  .summary-label { font-size: var(--font-size-h1); }
 }
 
 /* --- Централизованные стили для карточек План/Факт/Отклонение/Среднедневная выручка --- */
@@ -167,7 +182,8 @@
   padding-left: var(--card-inner-gap); /* unified inner gap */
 }
 
-/* Переименование заголовка для Среднедневной выручки — в компоненте, но на всякий случай для селектора */
+/* Переименование заголовка для Среднедневной выручки — в компоненте,
+   но на всякий случай для селектора */
 .summary-label.daily-average {
   text-align: left;
   padding-left: var(--card-inner-gap);

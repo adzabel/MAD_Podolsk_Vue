@@ -198,6 +198,45 @@ export const useDashboardStore = defineStore('dashboard', {
         this.dailyLoading = false
       }
     }
+
+    // Find nearest date (<= today) that has daily data, but only within the current calendar month.
+    // This ensures the "По дням" секция показывает только даты текущего месяца.
+    async findNearestDateWithData() {
+      const today = new Date()
+      // start of current calendar month
+      const start = new Date(today.getFullYear(), today.getMonth(), 1)
+
+      // iterate from today down to the first day of the month
+      for (let d = new Date(today); d >= start; d.setDate(d.getDate() - 1)) {
+        const iso = d.toISOString().slice(0, 10)
+        try {
+          const res = await (await import('../api/dashboard.js')).getDaily(iso)
+          const rows = (res && res.rows) || []
+          if (rows.length) {
+            this.setSelectedDate(iso)
+            // preload rows so UI doesn't flash empty
+            this.dailyRows = rows.map(r => ({
+              date: res.date || iso,
+              name: r.description || r.name || r.work_name || '',
+              unit: r.unit || '',
+              volume: `${Number(r.volume || 0)}${r.unit ? ` (${r.unit})` : ''}`,
+              amount: Number(r.amount || 0)
+            }))
+            const totalFromApi = res?.total?.amount
+            this.dailyTotal = Number(totalFromApi !== undefined ? totalFromApi : this.dailyRows.reduce((s, r) => s + (Number(r.amount) || 0), 0))
+            return iso
+          }
+        } catch (err) {
+          // ignore and continue searching within month
+        }
+      }
+
+      // fallback: set today and load (still UI will be limited to current month)
+      const td = new Date().toISOString().slice(0,10)
+      this.setSelectedDate(td)
+      await this.fetchDaily(td)
+      return td
+    }
   }
 })
 

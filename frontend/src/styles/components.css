@@ -170,6 +170,16 @@
   flex: 1 1 100%;
   width: 100%;
 }
+/* Make the smeta (Работы в разрезе смет) panel span full available width on desktop */
+.dashboard__grid > .smeta-panel,
+.smeta-panel {
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin-left: 0;
+  margin-right: 0;
+}
 @media (max-width: 640px) {
   /* On small screens, make the Smeta panel span the full available width */
   .dashboard__grid > .smeta-panel,
@@ -214,21 +224,68 @@
 
   /* Month selector and last-updated share the second row */
   .app-header__month {
-    flex: 1 1 auto;
-    min-width: 140px;
+    /* share available space with the last-updated badge so both sit on one line */
+    flex: 1 1 60%;
+    min-width: 0; /* allow shrinking to fit */
     margin-right: var(--gap-md);
   }
 
   .last-updated {
-    flex: 1 1 auto;
+    /* keep the badge compact on the right */
+    flex: 1 1 40%;
+    min-width: 0;
     justify-content: flex-end;
-    min-width: 120px;
   }
 
   /* Ensure the title/left area doesn't force the header to overflow on small screens */
   .app-header__left {
     flex: 1 1 100%;
     margin-bottom: var(--gap-sm);
+  }
+
+  /* Keep the main title on a single line on mobile */
+  .app-header__title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* slightly reduce size on mobile so it fits better */
+    font-size: var(--font-size-h2);
+  }
+
+  /* Mobile: make contract execution meta show labels and values on one line
+     Values adapt to available space by allowing items to shrink. */
+  .contract-execution .panel-meta {
+    gap: var(--gap-md);
+    align-items: center;
+  }
+
+  .contract-execution .panel-meta-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0 6px;
+  }
+
+  .contract-execution .panel-meta-label {
+    font-size: var(--font-size-caption);
+    color: var(--text-muted);
+    margin-right: 8px;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  .contract-execution .panel-meta-value {
+    font-size: clamp(0.8rem, 2.4vw, var(--font-size-body));
+    font-weight: 700;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1 1 auto;
+    text-align: right;
   }
 }
 
@@ -262,14 +319,15 @@
 
 /* AppHeader */
 .app-header {
-  position: sticky;
-  top: 0;
+  position: static; /* disabled sticky header per request */
   z-index: 10;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: calc(var(--card-padding) * 0.7) calc(var(--card-padding) * 1.6);
-  gap: var(--gap-lg);
+  /* unify horizontal spacing between header blocks */
+  --header-gap: var(--gap-lg);
+  gap: var(--header-gap);
   background: transparent;
 }
 .app-header__left {
@@ -290,27 +348,35 @@
 .app-header__right {
   display: flex;
   align-items: center;
-  gap: var(--gap-lg);
+  gap: var(--header-gap);
 }
 
-/* Ensure all controls in the header have the same vertical height */
 .app-header__right > * {
   display: inline-flex;
   align-items: center;
-  min-height: 56px;
+  /* ensure every direct control matches the control height token */
+  min-height: var(--control-height);
+  height: var(--control-height);
+  margin: 0; /* prevent extra external spacing — gap handles horizontal spacing */
 }
+.app-header__left > * { margin: 0; }
 .app-header__mode-switch {
   display: inline-flex;
-  padding: var(--gap-xs);
+  /* make wrapper match control height and avoid adding extra vertical padding */
+  height: var(--control-height);
+  padding: 0;
   border-radius: 14px;
   background: var(--bg-card, #fff);
   border: 1px solid var(--border-soft);
   box-shadow: var(--shadow-soft);
+  align-items: center;
 }
 .mode-btn {
   border: none;
   background: transparent;
-  padding: var(--gap-sm) var(--card-inner-gap);
+  /* make each button fill the wrapper height and avoid extra vertical padding */
+  height: 100%;
+  padding: 0 var(--card-inner-gap);
   border-radius: 10px;
   cursor: pointer;
   color: var(--text-main);
@@ -323,8 +389,6 @@
   justify-content: center;
   gap: var(--gap-xs);
   font-family: var(--font-sans);
-  min-height: 56px;
-  padding: var(--gap-sm) var(--gap-lg);
 }
 .mode-btn-line1{
   font-size: var(--font-size-caption);
@@ -361,16 +425,18 @@
   letter-spacing: 0.06em;
   color: #777;
   position: relative;
-  background: var(--bg-card, #fff);
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
-  padding: calc(var(--card-inner-gap) * 0.8) var(--card-inner-gap);
-  min-width: 220px;
-  box-shadow: var(--shadow-soft);
+  /* make this a neutral wrapper when MonthPicker provides its own control
+     avoid double frames by not drawing border/background here on desktop */
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  min-width: 0;
   font-family: var(--font-sans);
-  height: 56px;
+  /* ensure month wrapper aligns controls vertically with header */
+  height: var(--control-height);
   display: inline-flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
 }
 .app-header__month-input {
@@ -395,18 +461,7 @@
 }
 
 /* dropdown chevron on the right */
-.app-header__month::after{
-  content: '';
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%) rotate(45deg);
-  width: 8px;
-  height: 8px;
-  border-right: 2px solid var(--text-muted);
-  border-bottom: 2px solid var(--text-muted);
-  pointer-events: none;
-}
+/* dropdown chevron removed from wrapper; MonthPicker provides its own arrow */
 
 /* keep input text left aligned and remove native spinner */
 .app-header__month-input::-webkit-calendar-picker-indicator{ opacity: 0; }
@@ -426,12 +481,15 @@
   padding: var(--gap-sm) var(--card-inner-gap);
   border-radius: 12px;
   box-shadow: var(--shadow-soft);
-  min-width: 220px;
+  /* allow the badge to size to its content on desktop */
+  min-width: 0;
+  width: auto;
+  max-width: 100%;
 }
 
 /* match header control height so badge aligns with other header controls */
 .last-updated {
-  min-height: 56px;
+  min-height: var(--control-height);
 }
 .last-updated__dot{
   width: 12px;
@@ -439,7 +497,8 @@
   border-radius: 999px;
   background: var(--success);
   flex: 0 0 12px;
-}
+  /* no vertical padding so total height equals control token */
+  padding: 0 var(--card-inner-gap);
 .last-updated__text{
   display: flex;
   flex-direction: column;
@@ -634,11 +693,10 @@ month-selector__label {
 .dashboard__state--error { color: #c00 }
 .dashboard__grid { display: flex; flex-wrap: wrap; gap: var(--grid-gap) }
 
-/* Reduce vertical distance between rows inside dashboard grid (row-gap),
-   keeping horizontal spacing (column-gap) intact. This makes KPI and
-   the smeta section sit closer vertically. */
+/* Use the unified `--grid-gap` for both vertical and horizontal spacing
+   so spacing between KPI and the smeta section matches other areas. */
 .dashboard .dashboard__grid {
-  gap: var(--gap-md) var(--grid-gap);
+  gap: var(--grid-gap) var(--grid-gap);
 }
 
 /* Inside dashboard grid we manage vertical spacing via grid row-gap only.
@@ -665,16 +723,8 @@ month-selector__label {
 .dashboard-card__label { color: #777 }
 .dashboard-card__value { font-weight: 500 }
 
-/* reduce space specifically between KPI grid and smeta section */
-.dashboard .dashboard__grid {
-  /* симметричный отступ снизу для KPI-карточек (половина общего gap) */
-  margin-bottom: calc(var(--smeta-kpi-gap) / 2);
-}
-
-.dashboard .dashboard__grid + .smeta-panel {
-  /* симметричный отступ сверху для секции смет (половина общего gap) */
-  margin-top: calc(var(--smeta-kpi-gap) / 2);
-}
+/* No extra margins between the dashboard grid and smeta panel — the
+   grid `row-gap` controls vertical spacing consistently. */
 
 /* Smeta details loading state: dim existing table and show overlay skeleton */
 .smeta-details-wrapper{position:relative}

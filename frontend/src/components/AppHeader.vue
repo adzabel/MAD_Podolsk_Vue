@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useDashboardStore } from '../store/dashboardStore.js'
 import LastUpdatedBadge from './LastUpdatedBadge.vue'
 import MonthPicker from './MonthPicker.vue'
+import DayPicker from './DayPicker.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -17,12 +18,20 @@ const isDaily = computed(() => route.path === '/daily' || route.name === 'daily'
 function goToMonthly() {
   if (!isMonthly.value) {
     router.push({ path: '/' })
+    store.setMode('monthly')
+    store.fetchMonthlySummary()
   }
 }
 
 function goToDaily() {
   if (!isDaily.value) {
     router.push({ path: '/daily' })
+    // set mode and select nearest available date, then load daily data
+    store.setMode('daily')
+    ;(async () => {
+      await store.findNearestDateWithData()
+      await store.fetchDaily(store.selectedDate)
+    })()
   }
 }
 
@@ -83,9 +92,10 @@ const selectedMonth = computed({
         </button>
       </div>
 
-      <!-- Выбор месяца (костомный) -->
-      <div style="margin-left:8px;">
-        <MonthPicker v-model="selectedMonth" />
+      <!-- Выбор месяца / даты (костомный) -->
+      <div class="app-header__month">
+        <MonthPicker v-if="isMonthly" v-model="selectedMonth" />
+        <DayPicker v-else />
       </div>
 
       <LastUpdatedBadge :loadedAt="store.monthlySummary?.loaded_at" />
