@@ -219,6 +219,11 @@ def build_combined_dashboard(month: Optional[str]):
         )
 
         items = dashboard_repo.get_monthly_items(month_key)
+        # build cards for the three smeta categories (leto, zima, vnereglement)
+        try:
+            cards = build_monthly_by_smeta(month_key)["cards"]
+        except Exception:
+            cards = []
 
     last_updated_row = dashboard_repo.get_last_loaded_row()
     last_updated = None
@@ -234,6 +239,7 @@ def build_combined_dashboard(month: Optional[str]):
         "last_updated": last_updated,
         "summary": summary,
         "items": items,
+        "cards": cards if month_key else [],
         "has_data": bool(items),
         "available_months": available_months,
     }

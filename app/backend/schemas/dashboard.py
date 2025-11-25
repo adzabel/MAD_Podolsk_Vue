@@ -90,6 +90,7 @@ class CombinedDashboardResponse(BaseModel):
     last_updated: Optional[str]
     summary: CombinedSummary
     items: list
+    cards: Optional[List[SmetaCard]]
     has_data: bool
     available_months: List[str]
 
