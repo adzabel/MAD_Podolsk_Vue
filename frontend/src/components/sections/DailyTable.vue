@@ -22,35 +22,18 @@
               <th class="numeric">Сумма</th>
             </tr>
           </thead>
-
-          <!-- Virtualized body -->
-          <RecycleScroller
-            :items="sortedRows"
-            item-tag="tr"
-            wrapper-tag="tbody"
-            :item-size="48"
-            key-field="id"
-            class="virtual-scroller"
-          >
-            <template #default="{ item, index }">
-              <tr :key="item.id || index">
-                <td>{{ item.name }}</td>
-                <td class="numeric">{{ item.unit }}</td>
-                <td class="numeric">{{ formatVolume(item.volume) }}</td>
-                <td class="numeric">{{ formatMoney(item.amount) }}</td>
-              </tr>
-            </template>
-            <template #empty>
-              <tr>
-                <td colspan="4" class="muted">Нет данных</td>
-              </tr>
-            </template>
-          </RecycleScroller>
-
-          <tr v-if="sortedRows && sortedRows.length" class="daily-total-row">
-            <td colspan="3" class="smeta-breakdown-table__total-label">Итого</td>
-            <td class="numeric smeta-breakdown-table__total-value">{{ formatMoney(total) }}</td>
-          </tr>
+          <tbody>
+            <tr v-for="(row, idx) in sortedRows" :key="row.id || idx">
+              <td>{{ row.name }}</td>
+              <td class="numeric">{{ row.unit }}</td>
+              <td class="numeric">{{ formatVolume(row.volume) }}</td>
+              <td class="numeric">{{ formatMoney(row.amount) }}</td>
+            </tr>
+            <tr v-if="sortedRows && sortedRows.length" class="daily-total-row">
+              <td colspan="3" class="smeta-breakdown-table__total-label">Итого</td>
+              <td class="numeric smeta-breakdown-table__total-value">{{ formatMoney(total) }}</td>
+            </tr>
+          </tbody>
         </table>
       </div>
     </div>
@@ -59,8 +42,6 @@
 
 <script setup>
 import { computed } from 'vue'
-import { RecycleScroller } from 'vue-virtual-scroller'
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 const props = defineProps({
   rows: { type: Array, default: () => [] },
@@ -68,15 +49,14 @@ const props = defineProps({
   date: { type: String, default: '' }
 })
 
-const total = computed(()=>{
+const total = computed(() => {
   if (props.totalAmount !== null && props.totalAmount !== undefined) return Number(props.totalAmount) || 0
-  return props.rows.reduce((s,r)=> s + (Number(r.amount)||0), 0)
+  return (props.rows || []).reduce((s, r) => s + (Number(r.amount) || 0), 0)
 })
 
-// sort rows by amount desc by default
-const sortedRows = computed(()=>{
+const sortedRows = computed(() => {
   const arr = (props.rows || []).slice()
-  arr.sort((a,b)=> {
+  arr.sort((a, b) => {
     const va = Number(a.amount || 0)
     const vb = Number(b.amount || 0)
     return vb - va
@@ -84,26 +64,26 @@ const sortedRows = computed(()=>{
   return arr
 })
 
-function formatMoney(v){
+function formatMoney(v) {
   if (v === null || v === undefined) return '-'
   const n = Number(v)
   if (Number.isNaN(n)) return '-'
   return n.toLocaleString('ru-RU', { maximumFractionDigits: 0, minimumFractionDigits: 0 })
 }
 
-function formatVolume(v){
+function formatVolume(v) {
   if (v === null || v === undefined) return ''
   const s = String(v)
-  // remove any trailing parentheses with unit, e.g. "86 (10000 кв.м)" -> "86"
   return s.replace(/\s*\([^)]*\)\s*$/, '')
 }
 
-const displayDate = computed(()=>{
-  try{
+const displayDate = computed(() => {
+  try {
     if (!props.date) return props.date || ''
     const d = new Date(props.date)
     return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
-  }catch(e){ return props.date || '' }
+  } catch (e) {
+    return props.date || ''
+  }
 })
 </script>
-
