@@ -134,7 +134,9 @@
   grid-template-columns: minmax(0, 4fr) repeat(3, minmax(0, 0.7fr));
   gap: var(--gap-sm);
   padding: var(--gap-md) var(--gap-lg);
-  border-bottom: 1px solid var(--border-soft);
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: var(--border-soft);
   align-items: center;
   font-size: var(--font-size-body-sm);
   background: var(--bg-card);
@@ -151,7 +153,9 @@
 }
 
 .work-row-last {
-  border-bottom: 1px solid var(--border-soft);
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: var(--border-soft);
 }
 
 .work-row-header {
@@ -447,7 +451,9 @@
 }
 
 .daily-table .work-row:last-child {
-  border-bottom: 1px solid var(--border-soft);
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: var(--border-soft);
 }
 
 @media (max-width: 767px) {

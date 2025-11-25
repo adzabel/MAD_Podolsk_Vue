@@ -12,9 +12,27 @@
         <thead>
           <tr>
             <th>Работы</th>
-            <th class="numeric sortable" @click="toggleSort('plan')">План <span class="sort-indicator">{{ sortKey === 'plan' ? (sortDir < 0 ? '▼' : '▲') : '' }}</span></th>
-            <th class="numeric sortable" @click="toggleSort('fact')">Факт <span class="sort-indicator">{{ sortKey === 'fact' ? (sortDir < 0 ? '▼' : '▲') : '' }}</span></th>
-            <th class="numeric sortable" @click="toggleSort('delta')">Отклонение <span class="sort-indicator">{{ sortKey === 'delta' ? (sortDir < 0 ? '▼' : '▲') : '' }}</span></th>
+            <th :class="['numeric','sortable', { sorted: sortKey === 'plan' }]" @click="toggleSort('plan')">
+              План
+              <span class="sort-indicator">
+                <span v-if="sortKey === 'plan'" class="active">{{ sortDir < 0 ? '▼' : '▲' }}</span>
+                <span v-else class="inactive">▲▼</span>
+              </span>
+            </th>
+            <th :class="['numeric','sortable', { sorted: sortKey === 'fact' }]" @click="toggleSort('fact')">
+              Факт
+              <span class="sort-indicator">
+                <span v-if="sortKey === 'fact'" class="active">{{ sortDir < 0 ? '▼' : '▲' }}</span>
+                <span v-else class="inactive">▲▼</span>
+              </span>
+            </th>
+            <th :class="['numeric','sortable', { sorted: sortKey === 'delta' }]" @click="toggleSort('delta')">
+              Отклонение
+              <span class="sort-indicator">
+                <span v-if="sortKey === 'delta'" class="active">{{ sortDir < 0 ? '▼' : '▲' }}</span>
+                <span v-else class="inactive">▲▼</span>
+              </span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -65,10 +83,22 @@ const sortedItems = computed(() => {
   arr.sort((a, b) => {
     const va = k === 'delta' ? (Number(a.fact || 0) - Number(a.plan || 0)) : Number(a[k] || 0)
     const vb = k === 'delta' ? (Number(b.fact || 0) - Number(b.plan || 0)) : Number(b[k] || 0)
-    if (va === vb) return 0
-    // descending when dir === -1
-    return (va > vb ? -1 : 1) * dir
+    const diff = va - vb
+    if (diff === 0) return 0
+    return dir * Math.sign(diff)
   })
   return arr
 })
+
 </script>
+
+<style scoped>
+.sortable { cursor: pointer; user-select: none; }
+.sort-indicator { margin-left: 8px; font-size: 0.9em; vertical-align: middle; }
+.sort-indicator .inactive { color: #c0c0c0; }
+.sort-indicator .active { color: #0b74de; font-weight: 700; }
+th.sorted { background: rgba(11,116,222,0.06); }
+.numeric { text-align: right; }
+.smeta-breakdown-table th { padding: 8px 10px; }
+</style>
+ 

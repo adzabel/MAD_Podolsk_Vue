@@ -3,8 +3,11 @@ import { request } from './client.js'
 // Функции API: пробуем старые конкретные пути, а при 404 фолбэчим на единый эндпойнт
 function normalizeMonth(month) {
   if (!month) return month
-  if (/^\d{4}-\d{2}$/.test(month)) return month
-  if (/^\d{4}-\d{2}-\d{2}$/.test(month)) return month.slice(0, 7)
+  // Backend expects a full date/datetime. If caller provides only year-month
+  // (e.g. "2025-11"), convert to first day of month "2025-11-01" so the
+  // server can parse it as a valid date. If a full date is provided, keep it.
+  if (/^\d{4}-\d{2}$/.test(month)) return `${month}-01`
+  if (/^\d{4}-\d{2}-\d{2}$/.test(month)) return month
   return month
 }
 
@@ -76,6 +79,29 @@ export async function getBySmeta(month) {
         grouped[key].plan += Number(it.planned_amount || it.planned || 0)
         grouped[key].fact += Number(it.fact_amount || it.fact || 0)
       }
+      // Ensure vner (внерегламент) card exists per documentation.
+      // plan_vnereglament = round((plan_leto + plan_zima) * 0.43)
+      const plano = (v) => Math.round(Number(v || 0))
+      const plan_leto = plano(grouped['leto'] && grouped['leto'].plan)
+      const plan_zima = plano(grouped['zima'] && grouped['zima'].plan)
+      const fact_vn = plano(grouped['vnereglement'] && grouped['vnereglement'].fact)
+      if (!grouped['vnereglement']) {
+        const plan_vnere = Math.round((plan_leto + plan_zima) * 0.43)
+        grouped['vnereglement'] = { smeta_key: 'vnereglement', label: 'Внерегламент', plan: plan_vnere, fact: fact_vn, delta: (fact_vn - plan_vnere) }
+      } else {
+        // ensure delta exists for existing vner card
+        const g = grouped['vnereglement']
+        g.delta = (Number(g.fact || 0) - Number(g.plan || 0))
+      }
+
+      // compute progressPercent for consistency with main API
+      for (const k of Object.keys(grouped)) {
+        const c = grouped[k]
+        const plan = Number(c.plan || 0)
+        const fact = Number(c.fact || 0)
+        c.progressPercent = c.progressPercent ?? (plan ? Math.round((fact / plan) * 100) : 0)
+      }
+
       return { cards: Object.values(grouped) }
     }
     throw err

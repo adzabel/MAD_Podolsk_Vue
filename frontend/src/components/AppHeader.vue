@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDashboardStore } from '../store/dashboardStore.js'
 import LastUpdatedBadge from './LastUpdatedBadge.vue'
@@ -26,6 +26,8 @@ function goToDaily() {
 }
 
 // выбор месяца — тот же, что был в MonthlyDashboard
+const monthInput = ref(null)
+
 const selectedMonth = computed({
   get: () => store.selectedMonth,
   set: (value) => {
@@ -67,9 +69,10 @@ const selectedMonth = computed({
       </div>
 
       <!-- Выбор месяца -->
-      <label class="app-header__month">
+      <label class="app-header__month" @click.prevent="(monthInput && monthInput.focus) ? monthInput.focus() : null">
         <span class="app-header__month-label">Месяц</span>
         <input
+          ref="monthInput"
           v-model="selectedMonth"
           type="month"
           class="app-header__month-input"

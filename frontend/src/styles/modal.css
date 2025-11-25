@@ -133,7 +133,9 @@
   align-items: center;
   column-gap: var(--modal-columns-gap);
   padding: var(--gap-sm) var(--gap-xs);
-  border-bottom: 1px solid var(--border-soft);
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: var(--border-soft);
   box-sizing: border-box;
   font-size: var(--font-size-body);
   line-height: 1.15;
@@ -273,7 +275,9 @@
   .modal-row.modal-row-header {
     column-gap: var(--gap-sm);
     padding: var(--gap-xs) var(--gap-sm);
-    border-bottom: 1px solid var(--border-soft);
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: var(--border-soft);
   }
 
   .modal-row.modal-row-header > div {
