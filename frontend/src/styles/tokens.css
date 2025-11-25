@@ -79,6 +79,9 @@
 	--transition-border: border-color 0.2s ease, background-color 0.2s ease;
         --grid-gap: var(--card-frame-gap);
         --card-padding: clamp(12px, 1.8vw, 18px);
+
+		/* Специальный токен для симметричного расстояния между KPI и секцией "Работы в разрезе смет" */
+		--smeta-kpi-gap: 24px;
 }
 
 @media (min-width: 1024px) {
