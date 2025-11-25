@@ -5,7 +5,7 @@
 // размещённый на podolsk.mad.moclean.ru, ходил сразу на рабочий API
 // mad-podolsk-karinausadba.amvera.io и не пытался слать запросы на свой
 // собственный origin.
-const DEFAULT_BASE = 'https://mad-podolsk-karinausadba.amvera.io'
+const DEFAULT_BASE = 'https://mad-podolsk-vue-karinausadba.amvera.io'
 
 const BASE = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE)
   ? import.meta.env.VITE_API_BASE
