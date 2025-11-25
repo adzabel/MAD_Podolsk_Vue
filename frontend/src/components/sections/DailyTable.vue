@@ -22,18 +22,35 @@
               <th class="numeric">Сумма</th>
             </tr>
           </thead>
-          <tbody>
-            <tr v-for="(row, idx) in sortedRows" :key="row.id || idx">
-              <td>{{ row.name }}</td>
-              <td class="numeric">{{ row.unit }}</td>
-              <td class="numeric">{{ formatVolume(row.volume) }}</td>
-              <td class="numeric">{{ formatMoney(row.amount) }}</td>
-            </tr>
-            <tr v-if="sortedRows && sortedRows.length" class="daily-total-row">
-              <td colspan="3" class="smeta-breakdown-table__total-label">Итого</td>
-              <td class="numeric smeta-breakdown-table__total-value">{{ formatMoney(total) }}</td>
-            </tr>
-          </tbody>
+          <RecycleScroller
+            :items="sortedRows"
+            item-tag="tr"
+            wrapper-tag="tbody"
+            :item-size="48"
+            key-field="id"
+            class="virtual-scroller"
+          >
+            <template #default="{ item, index }">
+              <tr :key="item.id || index">
+                <td>{{ item.name }}</td>
+                <td class="numeric">{{ item.unit }}</td>
+                <td class="numeric">{{ formatVolume(item.volume) }}</td>
+                <td class="numeric">{{ formatMoney(item.amount) }}</td>
+              </tr>
+            </template>
+            <template #empty>
+              <tr>
+                <td colspan="4" class="muted">Нет данных</td>
+              </tr>
+            </template>
+
+            <template #footer>
+              <tr v-if="sortedRows && sortedRows.length" class="daily-total-row">
+                <td colspan="3" class="smeta-breakdown-table__total-label">Итого</td>
+                <td class="numeric smeta-breakdown-table__total-value">{{ formatMoney(total) }}</td>
+              </tr>
+            </template>
+          </RecycleScroller>
         </table>
       </div>
     </div>
@@ -42,6 +59,8 @@
 
 <script setup>
 import { computed } from 'vue'
+import { RecycleScroller } from 'vue-virtual-scroller'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 const props = defineProps({
   rows: { type: Array, default: () => [] },
