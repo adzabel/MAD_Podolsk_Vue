@@ -188,10 +188,21 @@
 .contract-execution__body {
   padding-top: var(--gap-sm);
 }
+.contract-progress-labels {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--font-size-label);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--gap-xs);
+}
+.contract-progress-labels strong { font-size: var(--font-size-caption); color: var(--text-main); }
 .contract-progress__bar{
   width: 100%;
-  /* увеличиваем высоту в 2 раза (было 14px) */
-  height: 28px;
+  /* increase height specifically for contract execution (2x base progress height) */
+  height: calc(var(--progress-height) * 2);
   background: var(--bg-muted);
   border-radius: 999px;
   border: 1px solid var(--border-soft);
@@ -721,13 +732,24 @@
 .smeta-card__value{ /* ещё компактнее — значения ближе к общему телу */ font-size: var(--font-size-body); font-weight:700; color:var(--text-main); margin-top:4px }
 .smeta-card__value.delta-negative{ color:var(--danger) }
 
-.smeta-card__progress{ display:flex; flex-direction:column; gap:var(--gap-sm); width:100% }
+.smeta-card__progress{ display:flex; flex-direction:column; gap:var(--gap-xs); width:100%; padding-inline: var(--card-inner-gap); box-sizing: border-box; }
 .smeta-card__progress-label{ font-size:11px; color:var(--text-muted); text-transform:uppercase }
 .smeta-progress__wrap{ display:flex; align-items:center; gap:var(--gap-md) }
+
+.smeta-progress-labels {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--font-size-label);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.smeta-progress-labels strong { font-size: var(--font-size-caption); color: var(--text-main); }
 /* Use the same visual style as summary progress bar for consistency */
 .smeta-progress__bar{
   width: 100%;
-  height: var(--gap-xs);
+  height: var(--progress-height);
   border-radius: var(--radius-xxl);
   background: rgba(47, 111, 237, 0.12);
   overflow: hidden;

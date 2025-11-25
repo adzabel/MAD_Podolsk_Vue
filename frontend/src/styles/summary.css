@@ -334,8 +334,9 @@
   margin-top: auto;
   display: flex;
   flex-direction: column;
-  gap: var(--gap-sm);
-  padding-top: var(--gap-sm);
+  gap: var(--gap-xs); /* уменьшенный вертикальный интервал между заголовком и баром */
+  padding-top: var(--gap-xs);
+  padding-inline: var(--card-inner-gap); /* отступы от краёв карточки для прогресс-бара */
 }
 
 .summary-progress-labels {
@@ -355,7 +356,7 @@
 
 .summary-progress-bar {
   width: 100%;
-  height: var(--gap-xs);
+  height: var(--progress-height);
   border-radius: var(--radius-xxl);
   background: rgba(47, 111, 237, 0.12);
   overflow: hidden;

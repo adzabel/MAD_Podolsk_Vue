@@ -50,12 +50,12 @@ function formatNumber(v){ if (v === null || v === undefined) return '-'; return 
           </div>
 
           <div class="smeta-card__progress">
-            <div class="smeta-card__progress-label">ИСПОЛНЕНИЕ</div>
-            <div class="smeta-progress__wrap">
-              <div class="smeta-progress__bar">
-                <div class="smeta-progress__fill" :style="{ width: (c.progressPercent || 0) + '%' }"></div>
-              </div>
-              <div class="smeta-card__progress-percent">{{ c.progressPercent || 0 }}%</div>
+            <div class="smeta-progress-labels">
+              <span>ИСПОЛНЕНИЕ</span>
+              <strong>{{ c.progressPercent || 0 }}%</strong>
+            </div>
+            <div class="smeta-progress__bar">
+              <div class="smeta-progress__fill" :style="{ width: (c.progressPercent || 0) + '%' }"></div>
             </div>
           </div>
         </div>

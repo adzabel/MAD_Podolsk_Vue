@@ -50,6 +50,8 @@
         /* Gap scale */
         --gap-xs: 4px;
         --gap-sm: 8px;
+		/* Standard height for progress bars used across the app */
+		--progress-height: 8px;
         --gap-md: 12px;
         --gap-lg: 18px;
         --gap-xl: 24px;

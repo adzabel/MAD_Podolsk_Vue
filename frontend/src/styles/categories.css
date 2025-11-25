@@ -185,6 +185,8 @@
   flex-direction: column;
   gap: var(--gap-xs);
   padding-top: var(--gap-xs);
+  padding-inline: var(--card-inner-gap); /* отступы от краёв карточки */
+  box-sizing: border-box;
 }
 
 .category-progress-labels {
@@ -205,7 +207,7 @@
 
 .category-progress-bar {
   width: 100%;
-  height: var(--gap-xs);
+  height: var(--progress-height);
   border-radius: var(--radius-xxl);
   background: rgba(47, 111, 237, 0.12);
   overflow: hidden;

@@ -33,8 +33,11 @@
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft);
-  padding: var(--gap-lg);
-  width: min(620px, 100%);
+  /* much smaller top padding so header sits very close to modal top */
+  padding: var(--gap-xs) var(--gap-md) var(--gap-md);
+  /* Allow modal to size to its content (table) but cap to viewport */
+  width: auto;
+  max-width: min(95vw, 880px);
   border: 1px solid var(--border-soft);
   max-height: calc(100vh - 32px);
   display: flex;
@@ -47,8 +50,9 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--gap-md);
-  /* reduced bottom margin (halved) to bring table closer to header */
+  /* strongly reduce bottom margin to bring table very close to header */
   margin-bottom: 2px;
+  padding-top: 0; /* ensure header sits at top */
 }
 
 .modal-title {
@@ -75,7 +79,7 @@
   cursor: pointer;
   transition: background 0.2s ease, transform 0.15s ease;
   position: absolute;
-  top: var(--gap-md);
+  top: var(--gap-sm);
   right: var(--gap-md);
   line-height: 1;
 }
@@ -91,13 +95,14 @@
 .modal-body {
   max-height: min(72vh, 700px);
   overflow-y: auto;
+  overflow-x: auto; /* allow horizontal scrolling for wide tables */
   -webkit-overflow-scrolling: touch;
   position: relative;
   scrollbar-width: thin;
   scrollbar-color: var(--accent) var(--accent-soft);
   flex: 1;
   min-height: 0;
-  padding-right: var(--gap-md);
+  padding: calc(var(--gap-xs) + 2px) var(--gap-md) var(--gap-md); /* smaller top padding, keep side/bottom padding */
 }
 
 .modal-body::-webkit-scrollbar {
@@ -124,7 +129,7 @@
 .modal-list {
   display: grid;
   grid-template-columns: 1fr;
-  row-gap: var(--gap-sm);
+  row-gap: var(--gap-md); /* немного больше воздуха между строк */
   padding: var(--gap-xs) 0;
   --modal-columns-gap: var(--gap-md);
 }
@@ -133,19 +138,29 @@
   display: grid;
   align-items: center;
   column-gap: var(--modal-columns-gap);
-  padding: var(--gap-sm) var(--gap-xs);
+  padding: var(--gap-md) var(--gap-xs); /* чуть больше вертикальных отступов */
   border-bottom-width: 1px;
   border-bottom-style: solid;
   border-bottom-color: var(--border-soft);
   box-sizing: border-box;
   font-size: var(--font-size-body);
-  line-height: 1.15;
+  line-height: 1.35; /* увеличим межстрочный интервал для лучшей читабельности */
 }
 
 .modal-row > div {
-  padding: var(--gap-xs) var(--gap-sm);
+  padding: var(--gap-sm) var(--gap-md);
   box-sizing: border-box;
   border-right: 1px solid var(--border-soft);
+  white-space: nowrap; /* keep all column values on a single line */
+}
+
+/* Ensure numeric/value columns in modals never wrap — keep values on one line */
+.modal-row-value,
+.modal-row-sum,
+.modal-row-date {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .modal-row > div:last-child {
@@ -154,6 +169,51 @@
 
 .modal-list[data-columns="3"] .modal-row {
   grid-template-columns: 1fr minmax(140px, 220px) minmax(100px, 160px);
+}
+
+/* Make tables inside modal more responsive: allow horizontal scroll, wrapping and readable cells */
+.modal .smeta-breakdown-table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.modal .smeta-breakdown-table {
+  /* keep native table layout but let table size to content inside modal */
+  width: auto; /* don't force full width inside modal */
+  max-width: 100%;
+  margin: 0; /* ensure gap controlled by .modal-body padding */
+}
+.modal .smeta-breakdown-table table { width: auto; }
+
+/* Increase column widths in modal table (approx. 2x) */
+.modal .smeta-breakdown-table th:first-child,
+.modal .smeta-breakdown-table td:first-child {
+  min-width: 220px; /* date column wider */
+}
+.modal .smeta-breakdown-table th:nth-child(2),
+.modal .smeta-breakdown-table td:nth-child(2) {
+  min-width: 240px; /* value column wider */
+}
+.modal .smeta-breakdown-table th,
+.modal .smeta-breakdown-table td {
+  padding: var(--gap-sm) var(--gap-md);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  line-height: 1.35;
+}
+.modal .smeta-breakdown-table td:first-child {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* On small screens keep modal full-width and more compact spacing */
+@media (max-width: 640px) {
+  .modal { width: 100%; padding: var(--gap-md); }
+  .modal .smeta-breakdown-table th,
+  .modal .smeta-breakdown-table td { padding: var(--gap-xs) var(--gap-sm); line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 }
 
 .modal-list[data-columns="2"] .modal-row {
