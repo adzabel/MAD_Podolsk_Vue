@@ -1,11 +1,14 @@
 <script setup>
 import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
 // Details table moved out to keep panels separate
 import { useDashboardStore } from '../../store/dashboardStore.js'
 
 const store = useDashboardStore()
+// use storeToRefs to subscribe only to specific refs, reducing re-renders
+const { smetaCards, smetaCardsLoading, selectedSmeta } = storeToRefs(store)
 
-const cards = computed(() => store.smetaCards)
+const cards = smetaCards
 
 function onCardClick(key) {
   store.setSelectedSmeta(key)
@@ -24,10 +27,10 @@ function formatNumber(v){ if (v === null || v === undefined) return '-'; return 
     </div>
 
     <div class="panel-body">
-      <div v-if="store.smetaCardsLoading">Загрузка карточек…</div>
+      <div v-if="smetaCardsLoading">Загрузка карточек…</div>
 
       <div v-else class="smeta-cards__list">
-      <article v-for="c in cards" :key="c.smeta_key" :class="['smeta-card','smeta-card--large','card--interactive', { 'is-selected': store.selectedSmeta === c.smeta_key }]" @click="onCardClick(c.smeta_key)">
+      <article v-for="c in cards" :key="c.smeta_key" :class="['smeta-card','smeta-card--large','card--interactive', { 'is-selected': selectedSmeta === c.smeta_key }]" @click="onCardClick(c.smeta_key)">
         <div class="smeta-card__body">
           <header class="smeta-card__head">
             <h3 class="smeta-card__title">{{ c.label }}</h3>

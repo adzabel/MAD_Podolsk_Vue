@@ -8,22 +8,30 @@
     <div class="panel-body">
       <div class="smeta-details-wrapper">
         <table class="smeta-breakdown-table smeta-breakdown-table--daily">
-        <colgroup>
-          <col />
-          <col />
-          <col />
-          <col />
-        </colgroup>
-        <thead>
-          <tr>
-            <th>Работы</th>
-            <th class="numeric">Ед.</th>
-            <th class="numeric">Объем</th>
-            <th class="numeric">Сумма</th>
-          </tr>
-        </thead>
-        <tbody>
-          <RecycleScroller :items="sortedRows" :item-size="52" key-field="id" item-tag="template">
+          <colgroup>
+            <col />
+            <col />
+            <col />
+            <col />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Работы</th>
+              <th class="numeric">Ед.</th>
+              <th class="numeric">Объем</th>
+              <th class="numeric">Сумма</th>
+            </tr>
+          </thead>
+
+          <!-- Virtualized body -->
+          <RecycleScroller
+            :items="sortedRows"
+            item-tag="tr"
+            wrapper-tag="tbody"
+            :item-size="48"
+            key-field="id"
+            class="virtual-scroller"
+          >
             <template #default="{ item, index }">
               <tr :key="item.id || index">
                 <td>{{ item.name }}</td>
@@ -32,13 +40,17 @@
                 <td class="numeric">{{ formatMoney(item.amount) }}</td>
               </tr>
             </template>
+            <template #empty>
+              <tr>
+                <td colspan="4" class="muted">Нет данных</td>
+              </tr>
+            </template>
           </RecycleScroller>
 
           <tr v-if="sortedRows && sortedRows.length" class="daily-total-row">
             <td colspan="3" class="smeta-breakdown-table__total-label">Итого</td>
             <td class="numeric smeta-breakdown-table__total-value">{{ formatMoney(total) }}</td>
           </tr>
-        </tbody>
         </table>
       </div>
     </div>
@@ -94,3 +106,4 @@ const displayDate = computed(()=>{
   }catch(e){ return props.date || '' }
 })
 </script>
+

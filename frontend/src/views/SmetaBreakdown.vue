@@ -39,12 +39,14 @@
 import { onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDashboardStore } from '../store/dashboardStore.js'
+import { storeToRefs } from 'pinia'
 
 const route = useRoute()
 const router = useRouter()
 const store = useDashboardStore()
+const { smetaDetailsLoading, smetaDetails, selectedMonth: selectedMonthRef, smetaCards, selectedSmeta } = storeToRefs(store)
 
-const smetaKey = computed(() => route.params.smetaKey || store.selectedSmeta || 'leto')
+const smetaKey = computed(() => route.params.smetaKey || selectedSmeta.value || 'leto')
 
 onMounted(async () => {
   // set selected smeta in store for other components and fetch details
@@ -52,9 +54,9 @@ onMounted(async () => {
   await store.fetchSmetaDetails(smetaKey.value)
 })
 
-const loading = computed(() => store.smetaDetailsLoading)
-const rows = computed(() => store.smetaDetails)
-const selectedMonth = computed(() => store.selectedMonth)
+const loading = computed(() => smetaDetailsLoading.value)
+const rows = computed(() => smetaDetails.value)
+const selectedMonth = computed(() => selectedMonthRef.value)
 
 // show only rows where plan>1 or fact>1
 // Special rule: if selected smeta is vnerereg (внерегламент) then Plan should be shown as 0
@@ -80,7 +82,7 @@ const smetaLabel = computed(() => {
   // derive a human-friendly label from smetaKey or fall back
   const key = smetaKey.value
   const map = { leto: 'Лето', zima: 'Зима', vnereg: 'Внерегламент', vner1: 'Внерегламент' }
-  return map[key] || (store.smetaCards.find(c => c.smeta_key === key)?.label) || key
+  return map[key] || (smetaCards.value.find(c => c.smeta_key === key)?.label) || key
 })
 
 function formatMoney(v){

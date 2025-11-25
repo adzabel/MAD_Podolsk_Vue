@@ -40,11 +40,13 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useDashboardStore } from '../store/dashboardStore.js'
+import { storeToRefs } from 'pinia'
 
 const props = defineProps({ modelValue: { type: String, default: '' } })
 const emit = defineEmits(['update:modelValue'])
 
 const store = useDashboardStore()
+const { availableMonths, selectedMonth } = storeToRefs(store)
 const open = ref(false)
 const loading = ref(false)
 const activeIndex = ref(-1)
@@ -53,7 +55,7 @@ const root = ref(null)
 
 const months = computed(() => {
   // map store.availableMonths (array of YYYY-MM) to {value,label}
-  const arr = (store.availableMonths || []).map(v => {
+  const arr = (availableMonths.value || []).map(v => {
     const d = new Date(v + '-01')
     const label = d.toLocaleString('ru-RU', { year: 'numeric', month: 'long' })
     return { value: v, label }
@@ -74,7 +76,7 @@ function setActiveByValue(val){
 function openPanel(){
   open.value = true
   // set active index to current selection
-  setActiveByValue(props.modelValue || store.selectedMonth)
+  setActiveByValue(props.modelValue || selectedMonth.value)
   nextTick(()=>{
     // focus active item if exists
     const btns = root.value?.querySelectorAll('.month-picker__item button') || []
@@ -162,7 +164,7 @@ function focusActive(){
 
 onMounted(async ()=>{
   document.addEventListener('click', onClickOutside)
-  if (!store.availableMonths || store.availableMonths.length === 0){
+  if (!availableMonths.value || availableMonths.value.length === 0){
     loading.value = true
     await store.fetchAvailableMonths()
     loading.value = false
@@ -175,7 +177,7 @@ onBeforeUnmount(()=>{
 
 const label = 'Месяц'
 const currentLabel = computed(()=>{
-  const v = props.modelValue || store.selectedMonth
+  const v = props.modelValue || selectedMonth.value
   if (!v) return ''
   const d = new Date(v + '-01')
   return d.toLocaleString('ru-RU', { year: 'numeric', month: 'long' })

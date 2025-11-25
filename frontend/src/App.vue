@@ -2,9 +2,11 @@
 import AppHeader from './components/AppHeader.vue'
 import { useDashboardStore } from './store/dashboardStore.js'
 import { ref, nextTick } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 
 const store = useDashboardStore()
+const { mode } = storeToRefs(store)
 const router = useRouter()
 const routerShell = ref(null)
 
@@ -46,7 +48,7 @@ function afterEnter() { clearHeight() }
 </script>
 
 <template>
-  <div class="page" :data-view-mode="store.mode">
+  <div class="page" :data-view-mode="mode">
     <AppHeader />
 
     <main class="app-content page__content">

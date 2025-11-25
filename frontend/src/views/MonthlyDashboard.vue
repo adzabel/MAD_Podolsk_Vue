@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, computed } from 'vue'
 import { useDashboardStore } from '../store/dashboardStore.js'
+import { storeToRefs } from 'pinia'
 import SmetaCardsSection from '../components/sections/SmetaCardsSection.vue'
 import SmetaDetailsTable from '../components/sections/SmetaDetailsTable.vue'
 import TableSkeleton from '../components/ui/TableSkeleton.vue'
@@ -14,11 +15,12 @@ const smetaSortKey = ref('plan')
 const smetaSortDir = ref(-1)
 
 const store = useDashboardStore()
+const { monthlyLoading, monthlyError, monthlySummary, smetaDetails, smetaDetailsLoading, selectedMonth, selectedSmeta, selectedDescription, smetaCards } = storeToRefs(store)
 
 const selectedSmetaLabel = computed(() => {
-  const key = store.selectedSmeta
+  const key = selectedSmeta.value
   if (!key) return 'Расшифровка работ по смете'
-  const found = (store.smetaCards || []).find(s => s.smeta_key === key)
+  const found = (smetaCards.value || []).find(s => s.smeta_key === key)
   const name = found ? found.label : key
   return `Расшифровка работ по смете «${name}»`
 })
@@ -44,27 +46,32 @@ function refreshMonthData() {
   store.fetchMonthlySummary()
   store.fetchSmetaCards()
 }
+
+function onSelectDescription(item){
+  store.setSelectedDescription(item.title || item.description)
+  smetaDescVisible.value = true
+}
 </script>
 
 <template>
   <section class="dashboard">
     <main class="dashboard__content">
-      <div v-if="store.monthlyLoading" class="dashboard__state">Загружаем данные…</div>
-      <div v-else-if="store.monthlyError" class="dashboard__state dashboard__state--error">Ошибка загрузки: {{ store.monthlyError }}</div>
+      <div v-if="monthlyLoading" class="dashboard__state">Загружаем данные…</div>
+      <div v-else-if="monthlyError" class="dashboard__state dashboard__state--error">Ошибка загрузки: {{ monthlyError }}</div>
 
 
-      <div v-else-if="store.monthlySummary" class="dashboard__grid">
+      <div v-else-if="monthlySummary" class="dashboard__grid">
         <!-- Исполнение контракта -->
-        <ContractExecutionSection :contract="store.monthlySummary.contract" />
+        <ContractExecutionSection :contract="monthlySummary.contract" />
 
         <!-- Summary KPI -->
-        <SummaryKpiSection :kpi="store.monthlySummary.kpi" @open-daily="openDailyRevenue" />
+        <SummaryKpiSection :kpi="monthlySummary.kpi" @open-daily="openDailyRevenue" />
 
         <!-- Сметные карточки -->
         <SmetaCardsSection />
 
         <!-- Детали сметы (появляются при выборе сметы) -->
-        <section v-if="store.smetaDetailsLoading || (store.smetaDetails && store.smetaDetails.length)" class="panel smeta-panel smeta-details">
+        <section v-if="smetaDetailsLoading || (smetaDetails && smetaDetails.length)" class="panel smeta-panel smeta-details">
           <div class="panel-header">
             <div class="panel-title-group">
               <div class="panel-title-mobile">
@@ -82,9 +89,9 @@ function refreshMonthData() {
             </div>
           </div>
           <div class="panel-body">
-            <div class="smeta-details-wrapper" :class="{ 'is-loading': store.smetaDetailsLoading }">
-              <SmetaDetailsTable :items="store.smetaDetails" :sort-key="smetaSortKey" :sort-dir="smetaSortDir" @sort-changed="(p)=>{ smetaSortKey = p.key; smetaSortDir = p.dir }" @select="(item)=>{ store.setSelectedDescription(item.title || item.description); smetaDescVisible = true }" />
-              <TableSkeleton v-if="store.smetaDetailsLoading" class="overlay-skeleton" />
+            <div class="smeta-details-wrapper" :class="{ 'is-loading': smetaDetailsLoading }">
+              <SmetaDetailsTable :items="smetaDetails" :sort-key="smetaSortKey" :sort-dir="smetaSortDir" @sort-changed="(p)=>{ smetaSortKey = p.key; smetaSortDir = p.dir }" @select="(item)=> onSelectDescription(item)" />
+              <TableSkeleton v-if="smetaDetailsLoading" class="overlay-skeleton" />
             </div>
           </div>
         </section>
@@ -92,8 +99,8 @@ function refreshMonthData() {
         <!-- Дневная таблица теперь показывается в отдельном режиме "По дням" -->
 
         <!-- Модальные окна -->
-        <DailyRevenueModal :visible="dailyRevenueVisible" :month="store.selectedMonth" @close="dailyRevenueVisible = false" />
-        <SmetaDescriptionDailyModal :visible="smetaDescVisible" :month="store.selectedMonth" :smeta_key="store.selectedSmeta" :description="store.selectedDescription" @close="smetaDescVisible = false" />
+        <DailyRevenueModal :visible="dailyRevenueVisible" :month="selectedMonth" @close="dailyRevenueVisible = false" />
+        <SmetaDescriptionDailyModal :visible="smetaDescVisible" :month="selectedMonth" :smeta_key="selectedSmeta" :description="selectedDescription" @close="smetaDescVisible = false" />
       </div>
 
       <div v-else class="dashboard__state">Данные ещё не загружены.</div>

@@ -19,13 +19,15 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useDashboardStore } from '../store/dashboardStore.js'
+import { storeToRefs } from 'pinia'
 
 const store = useDashboardStore()
+const { selectedDate } = storeToRefs(store)
 const inputDate = ref(null)
 
-const value = computed(() => store.selectedDate)
+const value = computed(() => selectedDate.value)
 const currentLabel = computed(() => {
-  const v = store.selectedDate
+  const v = selectedDate.value
   if (!v) return ''
   const d = new Date(v)
   return d.toLocaleString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' })

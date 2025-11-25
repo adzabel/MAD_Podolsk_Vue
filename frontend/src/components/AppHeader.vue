@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDashboardStore } from '../store/dashboardStore.js'
+import { storeToRefs } from 'pinia'
 import LastUpdatedBadge from './LastUpdatedBadge.vue'
 import MonthPicker from './MonthPicker.vue'
 import DayPicker from './DayPicker.vue'
@@ -9,6 +10,7 @@ import DayPicker from './DayPicker.vue'
 const router = useRouter()
 const route = useRoute()
 const store = useDashboardStore()
+const { selectedMonth: selectedMonthRef, monthlySummary, selectedDate } = storeToRefs(store)
 
 // выбор режима (для подсветки активной кнопки)
 const isMonthly = computed(() => route.path === '/' || route.name === 'monthly')
@@ -30,7 +32,7 @@ function goToDaily() {
     store.setMode('daily')
     ;(async () => {
       await store.findNearestDateWithData()
-      await store.fetchDaily(store.selectedDate)
+      await store.fetchDaily(selectedDate.value)
     })()
   }
 }
@@ -53,7 +55,7 @@ function openMonthPicker(){
 }
 
 const selectedMonth = computed({
-  get: () => store.selectedMonth,
+  get: () => selectedMonthRef.value,
   set: (value) => {
     if (!value) return
     store.setSelectedMonth(value)
@@ -96,7 +98,7 @@ const selectedMonth = computed({
         <DayPicker v-else />
       </div>
 
-      <LastUpdatedBadge :loadedAt="store.monthlySummary?.loaded_at" />
+      <LastUpdatedBadge :loadedAt="monthlySummary?.value?.loaded_at" />
     </div>
   </header>
 </template>

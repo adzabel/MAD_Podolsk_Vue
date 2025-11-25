@@ -22,6 +22,16 @@
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .text-center { text-align: center; }
 
+/* Additional text utilities */
+.uppercase { text-transform: uppercase; }
+.nowrap { white-space: nowrap; }
+.ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Alignment helpers */
+.align-right { text-align: right; }
+.align-left { text-align: left; }
+
+
 /* Numeric formatting helper: right align + tabular numbers */
 .numeric { text-align: right; font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
 

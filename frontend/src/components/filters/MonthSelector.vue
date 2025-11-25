@@ -1,8 +1,10 @@
 <script setup>
 import { computed } from 'vue'
 import { useDashboardStore } from '../../store/dashboardStore.js'
+import { storeToRefs } from 'pinia'
 
 const store = useDashboardStore()
+const { selectedMonth } = storeToRefs(store)
 
 const months = computed(() => {
   // генерация списка месяцев (6 месяцев назад + текущий)
@@ -27,7 +29,7 @@ function onChange(e) {
 <template>
   <div class="month-selector inline">
     <label class="month-selector__label">Месяц</label>
-    <select class="month-selector__select" :value="store.selectedMonth" @change="onChange">
+    <select class="month-selector__select" :value="selectedMonth.value" @change="onChange">
       <option v-for="m in months" :key="m.value" :value="m.value">{{ m.label }}</option>
     </select>
   </div>

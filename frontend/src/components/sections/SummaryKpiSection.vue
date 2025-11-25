@@ -38,14 +38,16 @@
 <script setup>
 import { computed, onMounted, onBeforeUnmount, watch, nextTick, ref } from 'vue'
 import { useDashboardStore } from '../../store/dashboardStore.js'
+import { storeToRefs } from 'pinia'
 
 const props = defineProps({ kpi: { type: Object, default: () => ({}) } })
 const emit = defineEmits(['open-daily'])
 
 // Покажем иконку-подсказку только если выбран текущий календарный месяц
 const store = useDashboardStore()
+const { selectedMonth } = storeToRefs(store)
 const isCurrentMonth = computed(() => {
-  const sel = String(store.selectedMonth || '').slice(0, 7)
+  const sel = String(selectedMonth.value || '').slice(0, 7)
   const now = new Date().toISOString().slice(0, 7)
   return sel === now
 })
