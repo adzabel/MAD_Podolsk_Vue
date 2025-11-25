@@ -21,29 +21,39 @@ function smetaKeyFromLabel(label) {
 
 export async function getMonthlySummary(month) {
   const m = normalizeMonth(month)
+
+  function normalizeSummary(res) {
+    if (!res) return res
+    // If response already has expected shape, return as-is
+    if (res.contract && res.kpi) return res
+
+    const s = res.summary || res
+    if (!s) return res
+
+    const contract = {
+      summa_contract: s.contract_amount ?? s.summa_contract ?? null,
+      fact_total: s.contract_executed ?? s.fact_amount ?? null,
+      contract_planfact_pct: s.contract_completion_pct ?? s.contract_planfact_pct ?? null
+    }
+    const kpi = {
+      plan_total: s.planned_amount ?? s.plan_total ?? null,
+      fact_total: s.fact_amount ?? s.fact_total ?? null,
+      delta: s.delta_amount ?? s.delta ?? null,
+      avg_daily_revenue: s.average_daily_revenue ?? s.avg_daily_revenue ?? null
+    }
+
+    return { month: res.month || m, contract, kpi }
+  }
+
   try {
-    return await request(`/api/dashboard/monthly/summary?month=${encodeURIComponent(m)}`)
+    const direct = await request(`/api/dashboard/monthly/summary?month=${encodeURIComponent(m)}`)
+    return normalizeSummary(direct)
   } catch (err) {
     // fallback to combined endpoint
     if (err && (err.status === 404 || (err.message && err.message.includes('Not Found')))) {
       const res = await request(`/api/dashboard?month=${encodeURIComponent(m)}`)
-      // map combined summary to expected shape { contract, kpi }
-      if (res && res.summary) {
-        const s = res.summary
-        const contract = {
-          summa_contract: s.contract_amount ?? null,
-          fact_total: s.fact_amount ?? null,
-          contract_planfact_pct: s.contract_completion_pct ?? null
-        }
-        const kpi = {
-          plan_total: s.planned_amount ?? null,
-          fact_total: s.fact_amount ?? null,
-          delta: s.delta_amount ?? null,
-          avg_daily_revenue: s.average_daily_revenue ?? null
-        }
-        return { month: res.month || m, contract, kpi }
-      }
-      return res
+      const normalized = normalizeSummary(res)
+      return normalized || res
     }
     throw err
   }
