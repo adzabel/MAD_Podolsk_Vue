@@ -184,7 +184,7 @@ const currentLabel = computed(()=>{
 
 <style scoped>
 .month-picker { position: relative; display: inline-block; }
-  .month-picker__toggle { display: inline-flex; align-items: center; gap: 12px; background: var(--bg-card); border: 1px solid var(--border-soft); padding: 0 12px; border-radius: var(--radius-md); cursor: pointer; min-width: 200px; min-height: var(--control-height); height: var(--control-height); }
+  .month-picker__toggle { display: inline-flex; align-items: center; gap: 12px; background: var(--bg-card); border: 1px solid var(--border-soft); padding: 0 12px; border-radius: var(--radius-md); cursor: pointer; min-width: 0; min-height: var(--control-height); height: var(--control-height); }
 .month-picker__label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; margin-right: 6px; }
 .month-picker__current { font-weight: 700; color: var(--text-main); flex: 1; text-align: left; }
 .month-picker__arrow { color: var(--text-muted); }
@@ -194,4 +194,18 @@ const currentLabel = computed(()=>{
 .month-picker__item button:hover, .month-picker__item button.is-focused { background: var(--bg-muted); }
 .month-picker__item button.is-active { background: var(--accent-soft); color: var(--accent-strong); font-weight: 700; }
 .month-picker__empty { padding: 12px; color: var(--text-muted); }
+
+/* Mobile tweaks: let the toggle shrink and fill its flex parent and reduce height */
+@media (max-width: 640px) {
+  .month-picker__toggle {
+    width: 100%;
+    min-width: 0;
+    padding: 0 8px;
+    min-height: 32px;
+    height: 32px;
+    gap: 8px;
+  }
+  .month-picker__label { font-size: 0.64rem; margin-right: 6px }
+  .month-picker__current { font-size: 0.95rem }
+}
 </style>

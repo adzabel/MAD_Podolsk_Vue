@@ -37,7 +37,26 @@
         </thead>
         <tbody>
           <tr v-for="(item, idx) in sortedItems" :key="item.title || item.description || item.work_name || idx" @click="$emit('select', item)" style="cursor:pointer">
-            <td>{{ item.title || item.description || item.work_name }}</td>
+            <td>
+              <div class="smeta-title-wrapper" :data-id="idFor(item, idx)">
+                <div
+                  :ref="el => registerTitleRef(el, idFor(item, idx))"
+                  class="smeta-title-text"
+                  :class="{ 'is-expanded': isExpanded(idFor(item, idx)) }"
+                >
+                  {{ item.title || item.description || item.work_name }}
+                </div>
+                <button
+                  v-if="isClamped(idFor(item, idx))"
+                  class="smeta-title-toggle"
+                  @click.stop="toggleExpand(idFor(item, idx))"
+                  :aria-expanded="isExpanded(idFor(item, idx))"
+                  :aria-label="isExpanded(idFor(item, idx)) ? 'Свернуть' : 'Развернуть'"
+                >
+                  <span class="chev" :class="{ rotated: isExpanded(idFor(item, idx)) }">▾</span>
+                </button>
+              </div>
+            </td>
             <td class="numeric">{{ formatMoney(item.plan) }}</td>
             <td class="numeric">{{ formatMoney(item.fact) }}</td>
             <td :class="{'negative': (Number(item.fact || 0) - Number(item.plan || 0)) < 0}" class="numeric">{{ formatMoney(Number(item.fact || 0) - Number(item.plan || 0)) }}</td>
@@ -48,7 +67,26 @@
     <!-- Mobile stacked view: three rows per item -->
     <div v-if="isMobile" class="smeta-details-mobile">
       <div v-for="(item, idx) in sortedItems" :key="item.title || item.description || item.work_name || idx" class="smeta-mobile-item" @click="$emit('select', item)">
-        <div class="smeta-mobile-row smeta-mobile-row-title">{{ item.title || item.description || item.work_name }}</div>
+        <div class="smeta-mobile-row smeta-mobile-row-title">
+          <div class="smeta-title-wrapper" :data-id="idFor(item, idx)">
+            <div
+              :ref="el => registerTitleRef(el, idFor(item, idx))"
+              class="smeta-title-text"
+              :class="{ 'is-expanded': isExpanded(idFor(item, idx)) }"
+            >
+              {{ item.title || item.description || item.work_name }}
+            </div>
+            <button
+              v-if="isClamped(idFor(item, idx))"
+              class="smeta-title-toggle"
+              @click.stop="toggleExpand(idFor(item, idx))"
+              :aria-expanded="isExpanded(idFor(item, idx))"
+              :aria-label="isExpanded(idFor(item, idx)) ? 'Свернуть' : 'Развернуть'"
+            >
+              <span class="chev" :class="{ rotated: isExpanded(idFor(item, idx)) }">▾</span>
+            </button>
+          </div>
+        </div>
         <div class="smeta-mobile-row smeta-mobile-row-labels">
           <div class="lbl">План</div>
           <div class="lbl">Факт</div>
@@ -123,6 +161,64 @@ const sortedItems = computed(() => {
   return arr
 })
 
+// --- Expansion / clamp measurement logic ---
+import { onMounted, onBeforeUnmount, nextTick } from 'vue'
+
+const expanded = ref(new Set())
+const clamped = ref({})
+const titleEls = new Map()
+
+function idFor(item, idx){
+  // include index to guarantee uniqueness even when titles repeat
+  return `${idx}-${String(item.title || item.description || item.work_name || '')}`
+}
+
+function registerTitleRef(el, id){
+  if (el) titleEls.set(id, el)
+  else titleEls.delete(id)
+}
+
+function isExpanded(id){ return expanded.value.has(id) }
+function isClamped(id){ return !!(clamped.value && clamped.value[id]) }
+
+function toggleExpand(id){
+  const s = new Set(expanded.value)
+  if (s.has(id)) s.delete(id)
+  else s.add(id)
+  expanded.value = s
+}
+
+function checkClamped(){
+  nextTick(() => {
+    const result = {}
+    try {
+      for (const [id, el] of titleEls.entries()){
+        if (!el) continue
+        const style = window.getComputedStyle(el)
+        // try to infer line-height; fallback to font-size * 1.2
+        const lh = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.2
+        const maxH = lh * 2 + 1 // two lines + tolerance
+        result[id] = el.scrollHeight > maxH
+      }
+    } catch (e) {
+      // silently ignore measurement errors
+    }
+    clamped.value = result
+  })
+}
+
+onMounted(() => {
+  checkClamped()
+  window.addEventListener('resize', checkClamped)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', checkClamped)
+})
+
+// Re-check clamped state when items change (e.g. new data arrives)
+watch(sortedItems, () => { checkClamped() })
+
 
 </script>
 
@@ -141,13 +237,57 @@ th.sorted { background: rgba(11,116,222,0.06); }
   .smeta-details-mobile { display: block; }
   .smeta-mobile-item { padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
   .smeta-mobile-row { display: flex; gap: 8px; align-items: center; }
-  .smeta-mobile-row-title { font-weight: 700; padding-bottom: 6px }
+  .smeta-mobile-row-title { font-weight: 400; padding-bottom: 4px; font-size: var(--font-size-body-sm); line-height: 1.2 }
   .smeta-mobile-row-labels { font-size: 0.8em; color: var(--text-muted); justify-content: space-between }
-  .smeta-mobile-row-values { font-weight: 700; justify-content: space-between }
-  .smeta-mobile-row-labels .lbl, .smeta-mobile-row-values .val { flex: 1 1 33%; text-align: right }
+  /* Align labels and values to the left and use a lighter font for better visual parity with desktop */
+  .smeta-mobile-row-labels { font-size: 0.86em; color: var(--text-muted); justify-content: flex-start; gap: 8px }
+  .smeta-mobile-row-values { font-weight: 500; justify-content: flex-start; gap: 8px }
+  .smeta-mobile-row-labels .lbl, .smeta-mobile-row-values .val { flex: 1 1 33%; text-align: left; font-family: var(--font-sans); }
   .smeta-mobile-row-title { text-align: left }
   /* We'll enable the mobile block via inline reactive flag in template */
 }
+
+/* Light zebra striping to separate items on mobile for readability */
+.smeta-details-mobile .smeta-mobile-item:nth-child(odd) { background: rgba(15,23,42,0.02); }
+.smeta-details-mobile .smeta-mobile-item { padding: 12px 0; }
+.smeta-details-mobile .smeta-mobile-item:hover { background: rgba(15,23,42,0.04); }
+
+/* Ensure negative deltas use dashboard danger color on both desktop and mobile */
+.negative { color: var(--danger); }
+
+
+/* Title clamp / toggle styles */
+.smeta-title-wrapper { display:flex; align-items:flex-start; gap:8px; position:relative }
+.smeta-title-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+.smeta-title-text.is-expanded {
+  -webkit-line-clamp: unset;
+  display: block;
+}
+.smeta-title-toggle {
+  background: transparent;
+  border: none;
+  color: #9aa0a6; /* light gray */
+  padding: 4px;
+  margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.smeta-title-toggle:focus { outline: 2px solid rgba(11,116,222,0.18); border-radius: 6px }
+.smeta-title-toggle .chev { transition: transform .18s ease, color .12s ease; font-size: 14px }
+.smeta-title-toggle .chev.rotated { transform: rotate(180deg); color: #6b7280 }
+
+/* ensure chevron sits to the right in table cell and doesn't push layout */
+td .smeta-title-wrapper { align-items: center }
 
 </style>
  

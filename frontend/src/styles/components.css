@@ -162,10 +162,73 @@
   .smeta-sort-select { display: inline-block; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--border-soft); background: var(--bg-card); font-size: var(--font-size-body-sm); }
 }
 
-/* For smeta details panel show two-line mobile title and hide desktop title */
+/* Fallback: apply compact header controls on slightly larger narrow screens
+   where the 640px breakpoint might be too tight (tablets in portrait, zoomed view). */
+@media (max-width: 900px) {
+  .app-header__right .app-header__mode-switch {
+    padding: 2px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    border-radius: 8px !important;
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  .app-header__right .app-header__mode-switch .mode-btn {
+    height: 28px !important;
+    min-height: 28px !important;
+    padding: 4px 8px !important;
+    font-size: 0.96em !important;
+  }
+
+  .app-header__right > * { height: 32px !important; min-height: 32px !important }
+}
+
+/* Force month selector and last-updated on the same row and equal width
+   for narrow screens (mobile + small tablets). */
+@media (max-width: 900px) {
+  .app-header__right {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--gap-md);
+  }
+
+  .app-header__mode-switch {
+    order: 1;
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .app-header__month {
+    order: 2;
+    flex: 1 1 50%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .app-header__month .month-picker__toggle,
+  .app-header__month .day-picker__toggle {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .last-updated {
+    order: 3;
+    flex: 1 1 50%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+}
+
+/* For smeta DETAILS panel show two-line mobile title and hide desktop title */
 @media (max-width: 640px) {
-  .smeta-panel .panel-title { display: none; }
-  .smeta-panel .panel-title-mobile { display: flex; }
+  .smeta-panel.smeta-details .panel-title { display: none; }
+  .smeta-panel.smeta-details .panel-title-mobile { display: flex; }
 }
 
 .panel-subtitle {
@@ -185,6 +248,14 @@
   align-items: flex-end;
   min-width: 120px;
 }
+.contract-execution .panel-meta-values .panel-meta-item {
+  /* for the row that contains numeric values: left-align and allow shrinking */
+  align-items: flex-start;
+  min-width: 0;
+  flex: 1 1 0;
+  text-align: left;
+}
+
 .contract-execution .panel-meta-label {
   font-size: var(--font-size-label);
   color: var(--text-muted);
@@ -192,10 +263,55 @@
   letter-spacing: 0.06em;
 }
 .contract-execution .panel-meta-value {
+  /* Match KPI summary card numeric style on desktop for visual consistency */
   font-size: var(--font-size-h3);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-main);
   margin-top: var(--gap-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+@media (min-width: 768px) {
+  .contract-execution .panel-meta-value {
+    font-size: var(--font-size-h2);
+  }
+}
+
+/* Make the contract execution panel title match other major section titles */
+.contract-execution .panel-title {
+  font-size: var(--font-size-h2);
+  font-weight: 600;
+}
+
+/* Desktop: use grid for consistent column alignment between labels and values */
+@media (min-width: 769px) {
+  .contract-execution .panel-meta {
+    display: block; /* keep container behaviour but rows will be grid */
+  }
+
+  .contract-execution .panel-meta-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 48px; /* increase horizontal spacing between the three numeric columns */
+    align-items: center;
+  }
+
+  .contract-execution .panel-meta-row.panel-meta-labels .panel-meta-item,
+  .contract-execution .panel-meta-row.panel-meta-values .panel-meta-item {
+    display: block;
+    min-width: 0;
+    justify-self: start;
+  }
+
+  .contract-execution .panel-meta-label,
+  .contract-execution .panel-meta-value {
+    text-align: left !important;
+    justify-self: start !important;
+  }
 }
 
 .contract-execution__body {
@@ -294,7 +410,10 @@
     flex: 1 1 100%;
     width: 100%;
     justify-content: flex-start;
-    padding: 6px;
+    padding: 2px;
+    min-height: 32px;
+    height: 32px;
+    border-radius: 8px;
   }
 
   /* Month selector and last-updated share the second row */
@@ -310,6 +429,12 @@
     flex: 1 1 40%;
     min-width: 0;
     justify-content: flex-end;
+  }
+
+  /* ensure direct header controls use compact heights on mobile */
+  .app-header__right > * {
+    min-height: 32px;
+    height: 32px;
   }
 
   /* Ensure the title/left area doesn't force the header to overflow on small screens */
@@ -364,6 +489,45 @@
   }
 }
 
+/* Keep smeta details header controls on the same row as title on small screens */
+@media (max-width: 640px) {
+  .smeta-panel.smeta-details .panel-header {
+    display: flex;
+    flex-wrap: nowrap; /* prevent wrapping so controls stay on the same line */
+    align-items: center;
+    gap: 12px;
+    /* match panel inner horizontal padding so header elements align with body */
+    padding: calc(var(--gap-sm)) var(--card-padding) calc(var(--gap-sm)) var(--card-padding);
+    box-sizing: border-box;
+  }
+
+  .smeta-panel.smeta-details .panel-title-group {
+    flex: 1 1 auto;
+    min-width: 0; /* allow title to truncate with ellipsis if needed */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .smeta-panel.smeta-details .panel-title {
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: var(--font-size-h3);
+    font-weight: 600;
+  }
+
+  .smeta-panel.smeta-details .panel-header-controls {
+    display: flex !important; /* ensure visible */
+    margin-left: 12px;
+    flex: 0 0 auto;
+    align-items: center;
+  }
+
+  .smeta-sort-select { min-width: 140px; height: 36px; padding: 6px 12px; border-radius: 10px; }
+}
+
 /* Mobile: make mode switch buttons symmetric (each 50% width) */
 @media (max-width: 640px) {
   .app-header__mode-switch {
@@ -374,9 +538,11 @@
   .app-header__mode-switch .mode-btn {
     flex: 1 1 50%;
     width: 50%;
-    padding: 6px 8px;
+    padding: 4px 6px;
     justify-content: center;
-    min-height: 36px;
+    min-height: 32px;
+    height: 32px;
+    font-size: 0.95em;
   }
 
   .app-header__mode-switch .mode-btn .mode-btn-text {
@@ -387,7 +553,7 @@
   }
 
   /* Reduce extra rounded padding so buttons align edge-to-edge visually */
-  .app-header__mode-switch { padding: 4px; border-radius: 10px; }
+  .app-header__mode-switch { padding: 2px; border-radius: 8px; height: 32px; min-height: 32px }
 
   /* Month selector and last-updated share the second row and get equal width */
   .app-header__month {
@@ -406,9 +572,9 @@
 
 /* Extra small screens: reduce control heights and tweak contract execution layout */
 @media (max-width: 480px) {
-  .app-header__right > * { min-height: 36px; height: 36px }
-  .month-picker__toggle, .day-picker__toggle { min-height: 36px; height: 36px; padding: 0 8px }
-  .last-updated { min-height: 36px }
+  .app-header__right > * { min-height: 32px; height: 32px }
+  .month-picker__toggle, .day-picker__toggle { min-height: 32px; height: 32px; padding: 0 6px }
+  .last-updated { min-height: 32px; padding: 4px 8px }
 
   /* contract execution: labels row + values row style */
   .contract-execution .panel-meta { display: flex; flex-direction: column; gap: calc(var(--gap-xs) * 0.6); }
@@ -906,3 +1072,28 @@
 .smeta-details-wrapper.is-loading > *{opacity:0.45;transition:opacity 180ms linear}
 .overlay-skeleton{position:absolute;inset:12px 12px 12px 12px;z-index:8;pointer-events:none}
 .overlay-skeleton .table-skeleton{background:transparent}
+
+/* Final overrides: ensure compact header controls take effect (highest priority) */
+@media (max-width: 900px) {
+  .app-header__right > * {
+    height: 32px !important;
+    min-height: 32px !important;
+  }
+
+  .app-header__mode-switch {
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 2px !important;
+    border-radius: 8px !important;
+    box-sizing: border-box !important;
+  }
+
+  .app-header__mode-switch .mode-btn {
+    height: 100% !important;
+    min-height: 28px !important;
+    padding: 4px 8px !important;
+  }
+
+  .app-header__month { flex: 1 1 50% !important; min-width: 0 !important }
+  .last-updated { flex: 1 1 50% !important; min-width: 0 !important }
+}

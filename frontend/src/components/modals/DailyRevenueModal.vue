@@ -9,6 +9,10 @@
       <div class="modal-body">
         <div v-if="loading">Загрузка…</div>
         <table v-else class="smeta-breakdown-table modal-table">
+          <colgroup>
+            <col class="col-date" />
+            <col class="col-amount" />
+          </colgroup>
           <thead>
             <tr>
               <th>Дата</th>
@@ -29,6 +33,22 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Keep modal content readable on narrow screens: allow horizontal scroll but keep two columns side-by-side */
+.modal {
+  max-width: min(92vw, 820px);
+  width: auto;
+}
+.modal-body { overflow-x: auto; }
+.modal-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.modal-table col.col-date { width: 45%; }
+.modal-table col.col-amount { width: 55%; }
+.modal-table th, .modal-table td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.modal-row-date { text-align: left; padding-right: 12px; }
+.modal-row-value { text-align: right; font-variant-numeric: tabular-nums; }
+.modal-table .muted { text-align: center; }
+</style>
 
 <script setup>
 import { ref, watch, onMounted } from 'vue'
