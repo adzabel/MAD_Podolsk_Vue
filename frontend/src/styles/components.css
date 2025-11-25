@@ -1185,18 +1185,7 @@
   .month-picker__current, .day-picker__current { font-size: 0.95rem }
 }
 
-/* --- Table skeleton moved from component to central styles --- */
-.table-skeleton{display:flex;flex-direction:column;gap:12px}
-.table-skeleton__header{display:grid;grid-template-columns:1fr 120px 120px 120px;gap:12px;margin-bottom:6px}
-.table-skeleton__body{display:flex;flex-direction:column;gap:10px}
-.tr{display:grid;grid-template-columns:1fr 120px 120px 120px;gap:12px;align-items:center}
-.th,.td{height:18px;border-radius:6px;background:linear-gradient(90deg, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.04) 50%, rgba(0,0,0,0.06) 100%);}
-.th.name,.td.name{height:20px;width:100%}
-.th.numeric,.td.numeric{height:18px;width:100%;justify-self:end}
-.table-skeleton__body .tr .td{opacity:0.9}
-
-/* small helpers moved from component styles */
-.day-picker__input { position:absolute; left:0; top:0; width:1px; height:1px; opacity:0; pointer-events:none }
+/* small helpers moved to utilities.css */
 
 /* Title clamp / toggle (moved from SmetaDetailsTable.vue) */
 .smeta-title-wrapper { display:flex; align-items:flex-start; gap:8px; position:relative }
