@@ -5,6 +5,7 @@ import router from './router'
 
 // глобальные стили
 import './styles/base.css'
+import './styles/utilities.css'
 import './styles/layout.css'
 import './styles/components.css'
 import './styles/mockup.css'
@@ -12,7 +13,6 @@ import './styles/modal.css'
 import './styles/print.css'
 import './styles/summary.css'
 import './styles/tokens.css'
-import './styles/utilities.css'
 import './styles/work.css'
 import './styles/categories.css'
 

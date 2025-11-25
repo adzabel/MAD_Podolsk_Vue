@@ -23,12 +23,16 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(row, idx) in sortedRows" :key="row.id || idx">
-            <td>{{ row.name }}</td>
-            <td class="numeric">{{ row.unit }}</td>
-            <td class="numeric">{{ formatVolume(row.volume) }}</td>
-            <td class="numeric">{{ formatMoney(row.amount) }}</td>
-          </tr>
+          <RecycleScroller :items="sortedRows" :item-size="52" key-field="id" item-tag="template">
+            <template #default="{ item, index }">
+              <tr :key="item.id || index">
+                <td>{{ item.name }}</td>
+                <td class="numeric">{{ item.unit }}</td>
+                <td class="numeric">{{ formatVolume(item.volume) }}</td>
+                <td class="numeric">{{ formatMoney(item.amount) }}</td>
+              </tr>
+            </template>
+          </RecycleScroller>
 
           <tr v-if="sortedRows && sortedRows.length" class="daily-total-row">
             <td colspan="3" class="smeta-breakdown-table__total-label">Итого</td>
@@ -43,6 +47,8 @@
 
 <script setup>
 import { computed } from 'vue'
+import { RecycleScroller } from 'vue-virtual-scroller'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 const props = defineProps({
   rows: { type: Array, default: () => [] },
@@ -80,11 +86,11 @@ function formatVolume(v){
   return s.replace(/\s*\([^)]*\)\s*$/, '')
 }
 
-const displayDate = (()=>{
+const displayDate = computed(()=>{
   try{
     if (!props.date) return props.date || ''
     const d = new Date(props.date)
     return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
   }catch(e){ return props.date || '' }
-})()
+})
 </script>

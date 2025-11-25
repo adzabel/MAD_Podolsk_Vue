@@ -1,6 +1,5 @@
 // frontend/src/store/dashboardStore.js
 import { defineStore } from 'pinia'
-import * as api from '../api/dashboard.js'
 
 export const useDashboardStore = defineStore('dashboard', {
   state: () => ({
@@ -61,6 +60,7 @@ export const useDashboardStore = defineStore('dashboard', {
       this.monthlyLoading = true
       this.monthlyError = null
       try {
+        const api = await import('../api/dashboard.js')
         const res = await api.getMonthlySummary(this.selectedMonth)
         this.monthlySummary = res
         // try to fetch last loaded timestamp separately (backend may expose it)
@@ -80,6 +80,7 @@ export const useDashboardStore = defineStore('dashboard', {
 
     async fetchAvailableMonths(){
       try{
+        const api = await import('../api/dashboard.js')
         const res = await api.getAvailableMonths()
         // res may be null, array of strings, or array of objects
         if (!res) {
@@ -117,6 +118,7 @@ export const useDashboardStore = defineStore('dashboard', {
     async fetchSmetaCards() {
       this.smetaCardsLoading = true
       try {
+        const api = await import('../api/dashboard.js')
         const res = await api.getBySmeta(this.selectedMonth)
         const raw = (res && res.cards) || []
         // ensure progressPercent exists and is computed as fact/plan*100 (rounded)
@@ -152,6 +154,7 @@ export const useDashboardStore = defineStore('dashboard', {
     async fetchSmetaDetails(smetaKey) {
       this.smetaDetailsLoading = true
       try {
+        const api = await import('../api/dashboard.js')
         const res = await api.getSmetaDetails(this.selectedMonth, smetaKey)
         const raw = (res && res.rows) || []
         // Normalize row shape so UI always has title/plan/fact/delta
@@ -174,6 +177,7 @@ export const useDashboardStore = defineStore('dashboard', {
     async fetchDaily(date) {
       this.dailyLoading = true
       try {
+        const api = await import('../api/dashboard.js')
         const res = await api.getDaily(date)
         const rawRows = (res && res.rows) || []
         const dateValue = res?.date || date

@@ -34,7 +34,6 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import * as api from '../../api/dashboard.js'
 
 const props = defineProps({ visible: Boolean, month: String, smeta_key: String, description: String })
 const emit = defineEmits(['close'])
@@ -54,11 +53,13 @@ async function load(){
   if (!props.month || !props.smeta_key || !props.description) return
   loading.value = true
   try{
+    const api = await import('../../api/dashboard.js')
     const res = await api.getSmetaDescriptionDaily(props.month, props.smeta_key, props.description)
     rows.value = res.rows || []
   }catch(err){
     // fallback via api helper (use getSmetaDetails then transform) — but keep simple
-    const r = await api.getSmetaDetails(props.month, props.smeta_key)
+    const api2 = await import('../../api/dashboard.js')
+    const r = await api2.getSmetaDetails(props.month, props.smeta_key)
     rows.value = (r && r.rows) || []
   }finally{ loading.value = false }
 }

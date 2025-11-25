@@ -893,11 +893,7 @@
   background: color-mix(in srgb, var(--accent) 8%, var(--surface-base) 92%);
   font-weight: 700;
 }
-.smeta-breakdown-table th.numeric,
-.smeta-breakdown-table td.numeric {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
+/* numeric cells use utility class `.numeric` (moved to utilities.css) */
   .smeta-breakdown-table td, .smeta-breakdown-table th {
     padding: 14px 12px;
     border-bottom: 1px solid rgba(15,23,42,0.04);
@@ -926,7 +922,6 @@
     width: var(--smeta-col-amount);
   }
 
-  .smeta-breakdown-table .negative { color: var(--danger); }
 
 /* Light zebra striping for rows to improve readability */
 .smeta-breakdown-table tbody tr:nth-child(odd) {
@@ -1119,3 +1114,120 @@
   .app-header__month { flex: 1 1 50% !important; min-width: 0 !important }
   .last-updated { flex: 1 1 50% !important; min-width: 0 !important }
 }
+
+/* --- Shared picker styles (month/day) - centralized to avoid duplicates --- */
+.month-picker, .day-picker, .picker {
+  position: relative;
+  display: inline-block;
+}
+
+.month-picker__toggle, .day-picker__toggle, .picker__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  min-width: 160px;
+  height: var(--control-height);
+}
+
+.month-picker__label, .day-picker__label, .picker__label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-right: 6px;
+}
+
+.month-picker__current, .day-picker__current, .picker__current {
+  font-weight: 700;
+  color: var(--text-main);
+  flex: 1;
+  text-align: left;
+}
+
+.month-picker__arrow, .day-picker__arrow, .picker__arrow { color: var(--text-muted); }
+
+.month-picker__panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-soft);
+  border-radius: var(--radius-md);
+  z-index: 40;
+  max-height: 320px;
+  overflow: auto;
+  padding: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.month-picker__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.month-picker__item button { width: 100%; text-align: left; padding: 10px 12px; border-radius: 6px; background: transparent; border: none; cursor: pointer; font-size: var(--font-size-body); }
+.month-picker__item button:hover, .month-picker__item button.is-focused { background: var(--bg-muted); }
+.month-picker__item button.is-active { background: var(--accent-soft); color: var(--accent-strong); font-weight: 700; }
+.month-picker__empty { padding: 12px; color: var(--text-muted); }
+
+@media (max-width: 640px) {
+  .month-picker__toggle, .day-picker__toggle, .picker__toggle {
+    width: 100%;
+    min-width: 0;
+    padding: 0 8px;
+    min-height: 32px;
+    height: 32px;
+    gap: 8px;
+  }
+  .month-picker__label, .day-picker__label { font-size: 0.64rem; margin-right: 6px }
+  .month-picker__current, .day-picker__current { font-size: 0.95rem }
+}
+
+/* --- Table skeleton moved from component to central styles --- */
+.table-skeleton{display:flex;flex-direction:column;gap:12px}
+.table-skeleton__header{display:grid;grid-template-columns:1fr 120px 120px 120px;gap:12px;margin-bottom:6px}
+.table-skeleton__body{display:flex;flex-direction:column;gap:10px}
+.tr{display:grid;grid-template-columns:1fr 120px 120px 120px;gap:12px;align-items:center}
+.th,.td{height:18px;border-radius:6px;background:linear-gradient(90deg, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.04) 50%, rgba(0,0,0,0.06) 100%);}
+.th.name,.td.name{height:20px;width:100%}
+.th.numeric,.td.numeric{height:18px;width:100%;justify-self:end}
+.table-skeleton__body .tr .td{opacity:0.9}
+
+/* small helpers moved from component styles */
+.day-picker__input { position:absolute; left:0; top:0; width:1px; height:1px; opacity:0; pointer-events:none }
+
+/* Title clamp / toggle (moved from SmetaDetailsTable.vue) */
+.smeta-title-wrapper { display:flex; align-items:flex-start; gap:8px; position:relative }
+.smeta-title-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+.smeta-title-text.is-expanded {
+  -webkit-line-clamp: unset;
+  display: block;
+}
+.smeta-title-toggle {
+  background: transparent;
+  border: none;
+  color: #9aa0a6; /* light gray */
+  padding: 4px;
+  margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.smeta-title-toggle:focus { outline: 2px solid rgba(11,116,222,0.18); border-radius: 6px }
+.smeta-title-toggle .chev { transition: transform .18s ease, color .12s ease; font-size: 14px }
+.smeta-title-toggle .chev.rotated { transform: rotate(180deg); color: #6b7280 }
+
+/* ensure chevron sits to the right in table cell and doesn't push layout */
+td .smeta-title-wrapper { align-items: center }
+

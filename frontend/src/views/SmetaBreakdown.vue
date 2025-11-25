@@ -98,12 +98,3 @@ function openByDescription(row){
 }
 </script>
 
-<style>
-.smeta-breakdown-table { width: 100%; border-collapse: collapse; margin-top: var(--gap-md); }
-.smeta-breakdown-table th, .smeta-breakdown-table td { padding: 10px 8px; border-bottom: 1px solid var(--border-soft); }
-.smeta-breakdown-table th { text-align: left; font-size: var(--font-size-label); color: var(--text-muted); text-transform: uppercase; }
-.smeta-breakdown-table td.numeric { text-align: right; font-variant-numeric: tabular-nums; }
-.smeta-breakdown-table tr:hover { background: rgba(0,0,0,0.02); cursor: pointer; }
-.smeta-breakdown-table .muted { color: var(--text-muted); text-align: center; padding: 24px 0; }
-.smeta-breakdown .negative { color: var(--danger); }
-</style>

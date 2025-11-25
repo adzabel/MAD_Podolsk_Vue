@@ -182,30 +182,3 @@ const currentLabel = computed(()=>{
 })
 </script>
 
-<style scoped>
-.month-picker { position: relative; display: inline-block; }
-  .month-picker__toggle { display: inline-flex; align-items: center; gap: 12px; background: var(--bg-card); border: 1px solid var(--border-soft); padding: 0 12px; border-radius: var(--radius-md); cursor: pointer; min-width: 0; min-height: var(--control-height); height: var(--control-height); }
-.month-picker__label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; margin-right: 6px; }
-.month-picker__current { font-weight: 700; color: var(--text-main); flex: 1; text-align: left; }
-.month-picker__arrow { color: var(--text-muted); }
-  .month-picker__panel { position: absolute; top: calc(100% + 8px); left: 0; background: var(--bg-card); border: 1px solid var(--border-soft); box-shadow: var(--shadow-soft); border-radius: var(--radius-md); z-index: 40; max-height: 320px; overflow: auto; padding: 8px; width: 100%; box-sizing: border-box; }
-.month-picker__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-.month-picker__item button { width: 100%; text-align: left; padding: 10px 12px; border-radius: 6px; background: transparent; border: none; cursor: pointer; font-size: var(--font-size-body); }
-.month-picker__item button:hover, .month-picker__item button.is-focused { background: var(--bg-muted); }
-.month-picker__item button.is-active { background: var(--accent-soft); color: var(--accent-strong); font-weight: 700; }
-.month-picker__empty { padding: 12px; color: var(--text-muted); }
-
-/* Mobile tweaks: let the toggle shrink and fill its flex parent and reduce height */
-@media (max-width: 640px) {
-  .month-picker__toggle {
-    width: 100%;
-    min-width: 0;
-    padding: 0 8px;
-    min-height: 32px;
-    height: 32px;
-    gap: 8px;
-  }
-  .month-picker__label { font-size: 0.64rem; margin-right: 6px }
-  .month-picker__current { font-size: 0.95rem }
-}
-</style>
