@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDashboardStore } from '../store/dashboardStore.js'
 import LastUpdatedBadge from './LastUpdatedBadge.vue'
+import MonthPicker from './MonthPicker.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -27,6 +28,20 @@ function goToDaily() {
 
 // выбор месяца — тот же, что был в MonthlyDashboard
 const monthInput = ref(null)
+
+function openMonthPicker(){
+  const el = monthInput && monthInput.value ? monthInput.value : monthInput
+  if (!el) return
+  // Prefer programmatic showPicker when available (Chrome, Edge)
+  try{
+    if (typeof el.showPicker === 'function') {
+      el.showPicker()
+      return
+    }
+  }catch(e){ /* ignore */ }
+  // Fallback to focus which triggers native picker on some browsers
+  try{ el.focus() }catch(e){}
+}
 
 const selectedMonth = computed({
   get: () => store.selectedMonth,
@@ -68,16 +83,10 @@ const selectedMonth = computed({
         </button>
       </div>
 
-      <!-- Выбор месяца -->
-      <label class="app-header__month" @click.prevent="(monthInput && monthInput.focus) ? monthInput.focus() : null">
-        <span class="app-header__month-label">Месяц</span>
-        <input
-          ref="monthInput"
-          v-model="selectedMonth"
-          type="month"
-          class="app-header__month-input"
-        />
-      </label>
+      <!-- Выбор месяца (костомный) -->
+      <div style="margin-left:8px;">
+        <MonthPicker v-model="selectedMonth" />
+      </div>
 
       <LastUpdatedBadge :loadedAt="store.monthlySummary?.loaded_at" />
     </div>

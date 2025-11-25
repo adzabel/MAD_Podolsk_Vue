@@ -15,6 +15,8 @@ export const useDashboardStore = defineStore('dashboard', {
     monthlySummary: null,
     monthlyLoading: false,
     monthlyError: null,
+    // months available for picker (array of YYYY-MM strings)
+    availableMonths: [],
     // last loaded timestamp from DB
     loadedAt: null,
 
@@ -68,6 +70,42 @@ export const useDashboardStore = defineStore('dashboard', {
         this.monthlyError = err?.message || 'Не удалось загрузить summary'
       } finally {
         this.monthlyLoading = false
+      }
+    },
+
+    async fetchAvailableMonths(){
+      try{
+        const res = await api.getAvailableMonths()
+        // res may be null, array of strings, or array of objects
+        if (!res) {
+          // fallback: generate recent 6 months
+          const list = []
+          const now = new Date()
+          for (let i = 5; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+            list.push(d.toISOString().slice(0,7))
+          }
+          this.availableMonths = list
+          return
+        }
+        if (Array.isArray(res)){
+          // If objects, try to extract `month` or `value` fields
+          const mapped = res.map(r => {
+            if (!r) return null
+            if (typeof r === 'string') return r.slice(0,7)
+            if (r.month) return String(r.month).slice(0,7)
+            if (r.value) return String(r.value).slice(0,7)
+            // try to stringify and extract YYYY-MM
+            const s = JSON.stringify(r)
+            const m = s.match(/\d{4}-\d{2}/)
+            return m ? m[0] : null
+          }).filter(Boolean)
+          this.availableMonths = mapped
+        } else {
+          this.availableMonths = []
+        }
+      } catch (err){
+        this.availableMonths = []
       }
     },
 

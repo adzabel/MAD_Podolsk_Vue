@@ -52,24 +52,57 @@ def compute_plan_fact(month: str):
             "month_key": month_key,
             "plan_leto": 0,
             "plan_zima": 0,
-            "plan_vnereglament": 0,
-            "plan_total": 0,
+            # plan_vnereglament и plan_total будем вычислять ниже по формуле,
+            # чтобы не зависеть от ETL/агрегирующей таблицы.
+            "plan_vnereglament": None,
+            "plan_total": None,
             "fact_leto": 0,
             "fact_zima": 0,
-            "fact_vnereglament": 0,
+            "fact_vnereglament": None,
             "fact_total": 0,
         }
+    # Normalize base values
+    plan_leto = int(row.get("plan_leto") or 0)
+    plan_zima = int(row.get("plan_zima") or 0)
+
+    # Compute plan_vnereglament according to business logic:
+    # plan_vnereglament = round((plan_leto + plan_zima) * 0.43)
+    try:
+        plan_vnereglament = int(round((plan_leto + plan_zima) * 0.43))
+    except Exception:
+        plan_vnereglament = 0
+
+    # plan_total = sum of components
+    plan_total = int(plan_leto + plan_zima + plan_vnereglament)
+
+    # For fact_vnereglament try to read from aggregated row; if missing, compute
+    # by summing fact_amount_done from the monthly view for vner codes.
+    fact_leto = int(row.get("fact_leto") or 0)
+    fact_zima = int(row.get("fact_zima") or 0)
+    fact_vnereglament = row.get("fact_vnereglament")
+    if fact_vnereglament is None:
+        # fallback: sum from skpdi_plan_vs_fact_monthly view
+        q = "SELECT COALESCE(SUM(fact_amount_done),0) AS s FROM skpdi_plan_vs_fact_monthly WHERE to_char(month_start,'YYYY-MM')=%s AND smeta_code IN ('внерегл_ч_1','внерегл_ч_2')"
+        r = db.query_one(q, (month_key,))
+        try:
+            fact_vnereglament = int(r.get('s') or 0) if r else 0
+        except Exception:
+            fact_vnereglament = 0
+    else:
+        fact_vnereglament = int(fact_vnereglament or 0)
+
+    fact_total = int(row.get("fact_total") or (fact_leto + fact_zima + fact_vnereglament))
 
     return {
         "month_key": row.get("month_key", month_key),
-        "plan_leto": int(row.get("plan_leto") or 0),
-        "plan_zima": int(row.get("plan_zima") or 0),
-        "plan_vnereglament": int(row.get("plan_vnereglament") or 0),
-        "plan_total": int(row.get("plan_total") or 0),
-        "fact_leto": int(row.get("fact_leto") or 0),
-        "fact_zima": int(row.get("fact_zima") or 0),
-        "fact_vnereglament": int(row.get("fact_vnereglament") or 0),
-        "fact_total": int(row.get("fact_total") or 0),
+        "plan_leto": plan_leto,
+        "plan_zima": plan_zima,
+        "plan_vnereglament": plan_vnereglament,
+        "plan_total": plan_total,
+        "fact_leto": fact_leto,
+        "fact_zima": fact_zima,
+        "fact_vnereglament": fact_vnereglament,
+        "fact_total": fact_total,
     }
 
 

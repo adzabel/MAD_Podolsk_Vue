@@ -159,6 +159,23 @@ export async function getMonthlyDailyRevenue(month) {
   }
 }
 
+// Try to fetch list of months available on server (returns array of YYYY-MM or objects)
+export async function getAvailableMonths() {
+  try {
+    return await request(`/api/dashboard/months`)
+  } catch (err) {
+    // fallback: try combined endpoint for a possible `months` field
+    if (err && (err.status === 404 || (err.message && err.message.includes('Not Found')))) {
+      try {
+        const res = await request(`/api/dashboard`)
+        if (res && (res.months || res.available_months)) return res.months || res.available_months
+      } catch (_){ /* ignore */ }
+      return null
+    }
+    throw err
+  }
+}
+
 export async function getDaily(date) {
   return await request(`/api/dashboard/daily?date=${encodeURIComponent(date)}`)
 }
