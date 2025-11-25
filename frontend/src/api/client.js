@@ -8,12 +8,11 @@ const BASE = (typeof import.meta !== 'undefined' && import.meta.env && import.me
 async function request(path, options = {}) {
   const url = path.startsWith('http') ? path : `${BASE}${path}`
 
-  const cfg = {
-    headers: { 'Content-Type': 'application/json' },
-    ...options
-  }
+  // Only set Content-Type when there's a JSON body to send.
+  const cfg = { headers: {}, ...options }
 
   if (cfg.body && typeof cfg.body === 'object') {
+    cfg.headers['Content-Type'] = 'application/json'
     cfg.body = JSON.stringify(cfg.body)
   }
 
