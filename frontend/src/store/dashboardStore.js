@@ -56,6 +56,8 @@ export const useDashboardStore = defineStore('dashboard', {
     },
 
     async fetchMonthlySummary() {
+      // Debug: log start to verify the action is called at runtime
+      try { console.debug && console.debug('[store] fetchMonthlySummary:start', this.selectedMonth) } catch(e){}
       this.monthlyLoading = true
       this.monthlyError = null
       try {
@@ -66,10 +68,13 @@ export const useDashboardStore = defineStore('dashboard', {
           const l = await api.getLastLoaded()
           this.loadedAt = l && l.loaded_at ? l.loaded_at : this.loadedAt
         }catch(_){ /* ignore */ }
+        try { console.debug && console.debug('[store] fetchMonthlySummary:success', this.selectedMonth, res) } catch(e){}
       } catch (err) {
+        try { console.error && console.error('[store] fetchMonthlySummary:error', err) } catch(e){}
         this.monthlyError = err?.message || 'Не удалось загрузить summary'
       } finally {
         this.monthlyLoading = false
+        try { console.debug && console.debug('[store] fetchMonthlySummary:finished') } catch(e){}
       }
     },
 

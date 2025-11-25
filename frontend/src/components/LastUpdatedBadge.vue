@@ -17,8 +17,15 @@ const props = defineProps({ loadedAt: { type: [String, Date], default: null } })
 const store = useDashboardStore()
 
 const source = computed(() => {
+  // Prefer explicit prop when provided
   if (props.loadedAt) return props.loadedAt
-  return store.loadedAt || store.monthlySummary?.loaded_at || null
+
+  // Check store-level timestamp set by explicit endpoint
+  if (store.loadedAt) return store.loadedAt
+
+  // Accept several possible shapes from backend responses
+  const s = store.monthlySummary || {}
+  return s.loaded_at || s.last_updated || s.updated_at || s.lastUpdated || s.timestamp || (s.meta && (s.meta.loaded_at || s.meta.last_updated)) || null
 })
 
 const display = computed(()=> !!source.value)
