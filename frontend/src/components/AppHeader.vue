@@ -108,6 +108,41 @@ const selectedMonth = computed({
 /* Debug outlines removed for final version */
 .app-header__title { padding: 6px 0; }
 
+/* Desktop layout: single row — title (stacked) on the left, controls on the right */
+@media (min-width: 641px) {
+  .app-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--gap-md);
+  }
+
+  .new-header-row--title { flex: 0 0 auto; }
+  .new-header-row--title > div { display: flex; flex-direction: column; }
+
+  .new-header-row--switch { display: flex; align-items: center; gap: 1rem; }
+
+  .app-header__mode-switch { display: flex; gap: 0.5rem; }
+  .app-header__mode-switch .mode-btn { padding: 8px 12px; }
+
+  .new-header-row--controls { display: flex; align-items: center; gap: 0.75rem; }
+  .new-header-row--controls > * { display: flex; align-items: center; min-width: 0; }
+
+  /* Ensure pickers and badge match control height on desktop */
+  .new-header-row--controls .app-header__picker.control :deep(.picker-toggle),
+  .new-header-row--controls .app-header__picker.control :deep(.month-picker),
+  .new-header-row--controls .app-header__picker.control :deep(.day-picker) {
+    height: var(--control-height);
+    min-width: var(--picker-min-width);
+    width: auto;
+  }
+
+  .new-header-row--controls .app-header__updated.control :deep(.last-updated) {
+    height: var(--control-height);
+    justify-content: center;
+  }
+}
+
 /* Mobile: make title occupy full available width so boundaries are obvious */
 @media (max-width: 640px) {
   .app-header__inner {
