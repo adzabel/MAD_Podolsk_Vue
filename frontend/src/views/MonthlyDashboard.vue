@@ -43,18 +43,10 @@ onMounted(async () => {
   }
 })
 
-const dailyRevenueModal = useModal(false)
-const smetaDescModal = useModal(false)
-
-function openDailyRevenue(){
-  dailyRevenueModal.open()
-}
+const { isOpen: isDailyModalOpen, open: openDailyRevenue, close: closeDailyRevenue } = useModal(false)
+const { isOpen: isSmetaDescOpen, open: openSmetaDescription, close: closeSmetaDescription } = useModal(false)
 
 // открыть попап расшифровки при выборе description
-function openSmetaDescription(){
-  smetaDescModal.open()
-}
-
 function refreshMonthData() {
   store.fetchMonthlySummary()
   store.fetchSmetaCards()
@@ -62,7 +54,7 @@ function refreshMonthData() {
 
 function onSelectDescription(item){
   store.setSelectedDescription(item.title || item.description)
-  smetaDescModal.open()
+  openSmetaDescription()
 }
 
 // Handler for smeta card selection emitted by SmetaCardsSection
@@ -119,8 +111,8 @@ function onSmetaSelect(key){
         <!-- Дневная таблица теперь показывается в отдельном режиме "По дням" -->
 
         <!-- Модальные окна -->
-        <DailyRevenueModal :visible="dailyRevenueModal.isOpen" :month="selectedMonth" @close="dailyRevenueModal.close()" />
-        <SmetaDescriptionDailyModal :visible="smetaDescModal.isOpen" :month="selectedMonth" :smeta_key="selectedSmeta" :description="selectedDescription" @close="smetaDescModal.close()" />
+        <DailyRevenueModal :visible="isDailyModalOpen" :month="selectedMonth" @close="closeDailyRevenue()" />
+        <SmetaDescriptionDailyModal :visible="isSmetaDescOpen" :month="selectedMonth" :smeta_key="selectedSmeta" :description="selectedDescription" @close="closeSmetaDescription()" />
       </div>
 
       <div v-else class="dashboard__state">Данные ещё не загружены.</div>
