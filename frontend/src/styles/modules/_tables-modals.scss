@@ -165,7 +165,7 @@
 .smeta-breakdown-table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; background: transparent; font-size: var(--font-size-body); }
 .smeta-breakdown-table--daily { --smeta-col-unit: 110px; --smeta-col-volume: 120px; --smeta-col-amount: 140px; }
 .smeta-breakdown-table thead th { text-align: left; font-size: var(--font-size-label); color: var(--text-muted); text-transform: uppercase; padding: 12px; vertical-align: middle; background: color-mix(in srgb, var(--accent) 8%, var(--surface-base) 92%); font-weight: 700; }
-.smeta-breakdown-table td, .smeta-breakdown-table th { padding: 14px 12px; border-bottom: 1px solid rgb(15 23 42 / 4%); vertical-align: middle; }
+.smeta-breakdown-table td, .smeta-breakdown-table th { padding: var(--gap-sm) var(--gap-md); border-bottom: 1px solid rgb(15 23 42 / 4%); vertical-align: middle; }
 .smeta-breakdown-table td:first-child { word-break: break-word; overflow-wrap: anywhere; }
 .smeta-breakdown-table tbody tr:hover { background: rgb(0 0 0 / 2%); }
 .smeta-breakdown-table colgroup col:nth-child(2), .smeta-breakdown-table colgroup col:nth-child(3), .smeta-breakdown-table colgroup col:nth-child(4) { width: var(--smeta-col-unit); }

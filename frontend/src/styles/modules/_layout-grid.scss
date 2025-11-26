@@ -47,7 +47,7 @@
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-soft);
   box-shadow: var(--shadow-card);
-  padding: clamp(14px, 2vw, var(--gap-lg));
+  padding: var(--card-padding);
   display: grid;
   gap: var(--gap-md);
   margin-bottom: var(--section-gap);
