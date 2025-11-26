@@ -189,3 +189,16 @@
 .smeta-breakdown-table__row--interactive { cursor: pointer; }
 .smeta-breakdown-table__total-label { font-weight: 700; text-align: right; padding-right: var(--card-inner-gap); }
 .smeta-breakdown-table__total-value { font-weight: 700; }
+
+/* Sorting highlight: visually indicate which column header is currently sorted (desktop only) */
+.smeta-breakdown-table.sorted-by-plan thead th:nth-child(2),
+.smeta-breakdown-table.sorted-by-fact thead th:nth-child(3),
+.smeta-breakdown-table.sorted-by-delta thead th:nth-child(4) {
+  /* subtle background + stronger text color to indicate active sort */
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface-base) 94%);
+  color: var(--accent-strong, var(--accent));
+}
+
+.smeta-breakdown-table thead th.sortable { cursor: pointer; user-select: none; }
+.smeta-breakdown-table thead th.sortable.sorted { color: var(--accent); }
+.smeta-breakdown-table .sort-indicator .active { color: var(--accent); font-weight:700; }

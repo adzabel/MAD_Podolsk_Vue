@@ -2,7 +2,7 @@
   <div>
     <div v-if="!items || items.length === 0" class="empty-state">Нет данных по смете</div>
     <!-- Desktop/table view -->
-    <table v-if="!isMobile" class="smeta-breakdown-table">
+    <table v-if="!isMobile" :class="['smeta-breakdown-table', `sorted-by-${sortKey}`]">
         <colgroup>
           <col />
           <col />
