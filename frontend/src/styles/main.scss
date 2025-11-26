@@ -21,7 +21,5 @@
 /* Переопределения и «минимальная логика» на SCSS/CSS-переменных */
 @import './modules/_pickers.scss';
 
-@import './_overrides.scss';
-
 /* Emergency visual fixes (temporary) — файл переведён в чек-лист, импорт удалён */
 /* (remove this comment when you're confident all migrations are complete) */
