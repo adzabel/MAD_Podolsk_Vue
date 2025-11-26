@@ -90,10 +90,20 @@ function openPanel(){
   })
 }
 
-function closePanel(){
+function closePanel({ restoreFocus = true } = {}){
+  // Close only if the panel is actually open to avoid stealing focus on every page click.
+  if (!open.value) return
   open.value = false
   activeIndex.value = -1
-  nextTick(()=>{ try{ toggleBtn.value?.focus() }catch(e){} })
+  if (restoreFocus) {
+    nextTick(()=>{
+      try {
+        toggleBtn.value?.focus({ preventScroll: true })
+      } catch (e) {
+        try { toggleBtn.value?.focus() } catch (_) { /* ignore */ }
+      }
+    })
+  }
 }
 
 function toggle(){
@@ -107,7 +117,7 @@ function select(value){
 }
 
 function onClickOutside(e){
-  if (!root.value) return
+  if (!root.value || !open.value) return
   if (!root.value.contains(e.target)) closePanel()
 }
 
