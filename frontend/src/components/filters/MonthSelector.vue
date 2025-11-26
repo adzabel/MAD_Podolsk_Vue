@@ -27,9 +27,9 @@ function onChange(e) {
 </script>
 
 <template>
-  <div class="month-selector inline">
+  <div class="month-selector inline p-sm">
     <label class="month-selector__label">Месяц</label>
-    <select class="month-selector__select" :value="selectedMonth.value" @change="onChange">
+    <select class="month-selector__select control" :value="selectedMonth.value" @change="onChange">
       <option v-for="m in months" :key="m.value" :value="m.value">{{ m.label }}</option>
     </select>
   </div>

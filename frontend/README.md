@@ -15,6 +15,39 @@ export VITE_API_BASE="http://localhost:8000"
 npm run dev
 ```
 
+## Стили и дизайн-система
+
+- Все CSS-переменные (tokens) находятся в `src/styles/tokens.css`. Импорт этих токенов производится первым в `src/main.js` — используйте переменные оттуда для цветов, отступов и размеров.
+- Утилитарные классы в `src/styles/utilities.css` — предпочитайте их вместо inline-стилей.
+-
+-### Быстрый список утилит
+-
+- - `p-sm`, `p-md`, `p-lg` — отступы внутри элементов (padding).
+- - `m-sm`, `m-md` — внешние отступы (margin).
+- - `control`, `control-sm` — высота/размер контролов (используют `--control-height`).
+- - `items-center`, `justify-between` — вспомогательные flex-утилиты.
+- - `text-h1`, `text-h2`, `text-body` — типографические утилиты, мапятся на токены.
+-
+-Примеры использования:
+
+- В `AppHeader.vue` мы теперь используем `p-md` и `control` для согласованных отступов и высот контролов.
+- В карточках (`SmetaCardsSection.vue`, `SummaryKpiSection.vue`) добавлен `p-md` для унифицированной внутренней заливки.
+
+По мере рефакторинга добавляйте утилиты к шаблонам и постепенно уменьшайте локальные / scoped-правила.
+
+- Общие компоненты и правила размещены в `src/styles/components.css`.
+
+Пример: прогресс‑бар теперь унифицирован. Используйте класс `progress__fill` и передавайте значение ширины через CSS‑переменную `--progress`, например в компоненте:
+
+```html
+<div class="progress__bar">
+	<div class="progress__fill" :style="{ '--progress': value + '%' }"></div>
+</div>
+```
+
+Это уменьшает дублирование правил и упрощает изменение внешнего вида прогресс‑баров централизованно.
+
+
 All frontend API calls use the `/api/dashboard/...` paths and rely on the backend routes implemented in `app/backend`.
 
 If the backend is already deployed and `DB_DSN` is configured in the backend environment, the frontend will show live numbers from that backend host.

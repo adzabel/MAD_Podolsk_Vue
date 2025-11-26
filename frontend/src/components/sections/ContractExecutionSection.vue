@@ -1,5 +1,5 @@
 <template>
-  <section class="panel contract-execution">
+  <section class="panel contract-execution p-md">
     <div class="panel-header">
       <div class="panel-title-group">
         <h3 class="panel-title">Исполнение контракта</h3>
@@ -21,7 +21,7 @@
     <div class="contract-execution__body">
       <div class="contract-progress">
         <div class="contract-progress__bar">
-          <div class="contract-progress__fill" :style="{ width: progressPercent + '%' }" />
+          <div class="contract-progress__fill progress__fill" :style="{ '--progress': progressPercent + '%' }" />
         </div>
       </div>
     </div>

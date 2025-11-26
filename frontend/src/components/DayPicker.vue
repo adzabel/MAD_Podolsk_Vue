@@ -2,7 +2,7 @@
   <div class="day-picker" ref="root">
     <button
       type="button"
-      class="day-picker__toggle"
+      class="day-picker__toggle control"
       @click="openNative()"
       :aria-label="`Выбор даты, текущая: ${currentLabel}`"
     >

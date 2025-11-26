@@ -1,12 +1,12 @@
 <template>
   <section class="summary-grid" ref="root">
     <div class="summary-cards">
-      <article class="summary-card">
+      <article class="summary-card p-md">
         <div class="summary-label type-label">План, ₽</div>
         <div class="summary-value">{{ formatMoney(kpi?.plan_total) }}</div>
       </article>
 
-      <article class="summary-card">
+      <article class="summary-card p-md">
         <div class="summary-label type-label">Факт, ₽</div>
         <div class="summary-value">{{ formatMoney(kpi?.fact_total) }}</div>
 
@@ -16,17 +16,17 @@
             <strong>{{ percentExecuted }}%</strong>
           </div>
           <div class="summary-progress-bar" role="progressbar" :aria-valuenow="percentExecuted" aria-valuemin="0" aria-valuemax="100">
-            <div class="summary-progress-fill" :style="{ width: percentExecuted + '%' }" :class="{ overflow: rawPercent > 100 }"></div>
+            <div class="summary-progress-fill progress__fill" :style="{ '--progress': percentExecuted + '%' }" :class="{ overflow: rawPercent > 100 }"></div>
           </div>
         </div>
       </article>
 
-      <article class="summary-card">
+      <article class="summary-card p-md">
         <div class="summary-label type-label">Отклонение, ₽</div>
         <div class="summary-value" :class="{'negative': kpi && kpi.delta < 0}">{{ formatMoney(kpi?.delta) }}</div>
       </article>
 
-            <article class="summary-card summary-card-interactive daily-average" @click="$emit('open-daily')" :class="{ 'current-month': isCurrentMonth }">
+            <article class="summary-card summary-card-interactive daily-average p-md" @click="$emit('open-daily')" :class="{ 'current-month': isCurrentMonth }">
               <div class="summary-label daily-average type-label">СР.ДНЕВ. ВЫРУЧКА, ₽</div>
               <div class="summary-value">{{ formatMoney(kpi?.avg_daily_revenue) }}</div>
               <div class="summary-card-hint" aria-hidden="true" v-if="isCurrentMonth">i</div>

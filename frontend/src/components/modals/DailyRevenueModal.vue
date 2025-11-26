@@ -1,9 +1,9 @@
 <template>
-  <div v-if="visible" class="modal-backdrop visible" @click.self="$emit('close')">
-    <div class="modal" role="dialog" aria-modal="true">
-      <header class="modal-header">
-        <h3 class="modal-title">Выручка по дням</h3>
-        <button class="modal-close" @click="$emit('close')">✕</button>
+    <div v-if="visible" class="modal-backdrop visible" @click.self="$emit('close')">
+    <div class="modal p-md" role="dialog" aria-modal="true">
+      <header class="modal-header items-center">
+        <h3 class="modal-title text-h2">Выручка по дням</h3>
+        <button class="modal-close control-sm" @click="$emit('close')">✕</button>
       </header>
 
       <div class="modal-body">

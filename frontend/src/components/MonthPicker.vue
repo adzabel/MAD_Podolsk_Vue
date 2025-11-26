@@ -2,7 +2,7 @@
   <div class="month-picker" ref="root">
     <button
       type="button"
-      class="month-picker__toggle"
+      class="month-picker__toggle control"
       @click="toggle()"
       @keydown.prevent.stop="onToggleKeydown"
       :aria-expanded="String(open)"
@@ -28,7 +28,7 @@
             :aria-selected="m.value === modelValue ? 'true' : 'false'"
             @click="select(m.value)"
             @keydown.prevent.stop="onItemKeydown($event, idx)"
-            :class="{ 'is-active': m.value === modelValue, 'is-focused': idx === activeIndex }">
+            :class="{ 'is-active': m.value === modelValue, 'is-focused': idx === activeIndex }" class="text-body">
             {{ m.label }}
           </button>
         </li>

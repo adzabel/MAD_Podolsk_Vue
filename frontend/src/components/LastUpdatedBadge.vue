@@ -1,9 +1,9 @@
 <template>
-  <div class="last-updated" v-if="display">
+  <div class="last-updated items-center p-sm" v-if="display">
     <span class="last-updated__dot" aria-hidden="true"></span>
     <div class="last-updated__text">
-      <div class="last-updated__label">ДАННЫЕ ОБНОВЛЕНЫ</div>
-      <div class="last-updated__time">{{ formatted }}</div>
+      <div class="last-updated__label text-label">ДАННЫЕ ОБНОВЛЕНЫ</div>
+      <div class="last-updated__time text-body">{{ formatted }}</div>
     </div>
   </div>
 </template>

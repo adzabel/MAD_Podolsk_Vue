@@ -71,7 +71,7 @@
     
     <!-- Mobile stacked view: three rows per item -->
     <div v-if="isMobile" class="smeta-details-mobile">
-      <div v-for="(item, idx) in sortedItems" :key="item.title || item.description || item.work_name || idx" class="smeta-mobile-item" @click="$emit('select', item)">
+      <div v-for="(item, idx) in sortedItems" :key="item.title || item.description || item.work_name || idx" class="smeta-mobile-item p-sm" @click="$emit('select', item)">
         <div class="smeta-mobile-row smeta-mobile-row-title">
           <div class="smeta-title-wrapper" :data-id="idFor(item, idx)">
             <div
@@ -92,15 +92,15 @@
             </button>
           </div>
         </div>
-        <div class="smeta-mobile-row smeta-mobile-row-labels">
+          <div class="smeta-mobile-row smeta-mobile-row-labels text-label">
           <div class="lbl">План</div>
           <div class="lbl">Факт</div>
           <div class="lbl">Отклонение</div>
         </div>
         <div class="smeta-mobile-row smeta-mobile-row-values">
-          <div class="val">{{ formatMoney(item.plan) }}</div>
-          <div class="val">{{ formatMoney(item.fact) }}</div>
-          <div class="val" :class="{'negative': (Number(item.fact || 0) - Number(item.plan || 0)) < 0}">{{ formatMoney(Number(item.fact || 0) - Number(item.plan || 0)) }}</div>
+          <div class="val text-body">{{ formatMoney(item.plan) }}</div>
+          <div class="val text-body">{{ formatMoney(item.fact) }}</div>
+          <div class="val text-body" :class="{'negative': (Number(item.fact || 0) - Number(item.plan || 0)) < 0}">{{ formatMoney(Number(item.fact || 0) - Number(item.plan || 0)) }}</div>
         </div>
       </div>
     </div>

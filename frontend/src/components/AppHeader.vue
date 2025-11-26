@@ -65,15 +65,15 @@ const selectedMonth = computed({
 </script>
 
 <template>
-  <header class="app-header">
+  <header class="app-header p-md">
     <div class="app-header__left">
       <h1 class="app-header__title">СКПДИ · МАД · Подольск</h1>
       <p class="app-header__subtitle">Работы в статусе «Рассмотрено»</p>
     </div>
 
-    <div class="app-header__right">
+    <div class="app-header__right items-center">
       <!-- Переключатель режимов -->
-      <div class="app-header__mode-switch">
+      <div class="app-header__mode-switch control">
         <button
           type="button"
           class="mode-btn"
@@ -93,12 +93,12 @@ const selectedMonth = computed({
       </div>
 
       <!-- Выбор месяца / даты (костомный) -->
-      <div class="app-header__month">
+      <div class="app-header__month control">
         <MonthPicker v-if="isMonthly" v-model="selectedMonth" />
         <DayPicker v-else />
       </div>
 
-      <LastUpdatedBadge :loadedAt="monthlySummary?.value?.loaded_at" />
+      <LastUpdatedBadge class="control" :loadedAt="monthlySummary?.value?.loaded_at" />
     </div>
   </header>
 </template>

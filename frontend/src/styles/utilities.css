@@ -3,6 +3,80 @@
 :root {
   /* utilities may rely on tokens defined in tokens.css */
 }
+/* Spacing utilities (small focused set) ---------------------------------- */
+/* Note: prefer token-based sizes where possible (gap-sm, gap-md, gap-lg) */
+.p-0 { padding: 0 !important; }
+.pt-0 { padding-top: 0 !important; }
+.pr-0 { padding-right: 0 !important; }
+.pb-0 { padding-bottom: 0 !important; }
+.pl-0 { padding-left: 0 !important; }
+
+.p-sm { padding: var(--gap-sm) !important; }
+.pt-sm { padding-top: var(--gap-sm) !important; }
+.pb-sm { padding-bottom: var(--gap-sm) !important; }
+.pl-sm { padding-left: var(--gap-sm) !important; }
+.pr-sm { padding-right: var(--gap-sm) !important; }
+
+.p-md { padding: var(--gap-md) !important; }
+.pt-md { padding-top: var(--gap-md) !important; }
+.pb-md { padding-bottom: var(--gap-md) !important; }
+.pl-md { padding-left: var(--gap-md) !important; }
+.pr-md { padding-right: var(--gap-md) !important; }
+
+.p-lg { padding: var(--gap-lg) !important; }
+.m-0 { margin: 0 !important; }
+.mt-0 { margin-top: 0 !important; }
+.mb-0 { margin-bottom: 0 !important; }
+.ml-0 { margin-left: 0 !important; }
+.mr-0 { margin-right: 0 !important; }
+
+.m-sm { margin: var(--gap-sm) !important; }
+.mt-sm { margin-top: var(--gap-sm) !important; }
+.mb-sm { margin-bottom: var(--gap-sm) !important; }
+.ml-sm { margin-left: var(--gap-sm) !important; }
+.mr-sm { margin-right: var(--gap-sm) !important; }
+
+.m-md { margin: var(--gap-md) !important; }
+.mt-md { margin-top: var(--gap-md) !important; }
+.mb-md { margin-bottom: var(--gap-md) !important; }
+.ml-md { margin-left: var(--gap-md) !important; }
+.mr-md { margin-right: var(--gap-md) !important; }
+
+/* Flex/grid helpers */
+.items-center { align-items: center !important; }
+.justify-center { justify-content: center !important; }
+.justify-between { justify-content: space-between !important; }
+.flex-row { display:flex; flex-direction:row; }
+.flex-col { display:flex; flex-direction:column; }
+
+/* Size helpers */
+.w-100 { width: 100% !important; }
+.max-w-full { max-width: 100% !important; }
+.h-auto { height: auto !important; }
+.h-32 { height: 32px !important; }
+.h-56 { height: var(--control-height) !important; }
+
+/* Control sizing (use tokens) */
+.control { height: var(--control-height); min-height: var(--control-height); }
+.control-sm { height: var(--control-height-sm); min-height: var(--control-height-sm); }
+
+/* Typography helpers (map to tokens) */
+.text-h1 { font-size: var(--font-size-h1); }
+.text-h2 { font-size: var(--font-size-h2); }
+.text-h3 { font-size: var(--font-size-h3); }
+.text-body { font-size: var(--font-size-body); }
+.text-body-sm { font-size: var(--font-size-body-sm); }
+.text-caption { font-size: var(--font-size-caption); }
+.text-label { font-size: var(--font-size-label); }
+
+/* Utility for truncation with multiline clamp (2 lines) */
+.truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 /* Accessibility helpers */
 .sr-only,
@@ -27,6 +101,7 @@
     clip: rect(0, 0, 0, 0);
   }
 }
+
 
 /* Text helpers */
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

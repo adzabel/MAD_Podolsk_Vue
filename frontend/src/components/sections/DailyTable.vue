@@ -80,7 +80,17 @@ const sortedRows = computed(() => {
     const vb = Number(b.amount || 0)
     return vb - va
   })
-  return arr
+  // Ensure every item has a stable `id` field because
+  // `RecycleScroller` relies on `key-field="id"` and will
+  // throw if the key is missing. If original item has no id,
+  // generate a deterministic fallback based on index and name.
+  return arr.map((item, idx) => {
+    if (item == null) return { id: `row-${idx}` }
+    if (item.id === null || item.id === undefined || item.id === '') {
+      return { ...item, id: `row-${idx}-${String(item.name || '').slice(0,20)}` }
+    }
+    return item
+  })
 })
 
 function formatMoney(v) {
