@@ -1,12 +1,10 @@
-/* Small utility classes: text, layout, accessibility helpers */
+/* Consolidated utilities (migrated from utilities.css) */
 
 :root {
   /* utilities rely on tokens defined in `src/styles/_tokens.scss` */
 }
 
 /* Spacing utilities (small focused set) ---------------------------------- */
-
-/* Note: prefer token-based sizes where possible (gap-sm, gap-md, gap-lg) */
 .p-0 { padding: 0; }
 .pt-0 { padding-top: 0; }
 .pr-0 { padding-right: 0; }
@@ -94,11 +92,9 @@
 .py-sm { padding-top: var(--gap-sm); padding-bottom: var(--gap-sm); }
 
 @media (width <= 640px) {
-  /* on narrow screens, card columns should left-align content for readability */
   .card-col { align-items: flex-start; }
 }
 
-/* Compact variant for small screens */
 @media (width <= 640px) {
   .picker-toggle {
     width: 100%;
@@ -128,16 +124,10 @@
   text-overflow: ellipsis;
 }
 
-/* Allow disabling clamp when a component toggles expanded state */
-.truncate-2.is-expanded {
-  -webkit-line-clamp: unset;
-  display: block;
-}
+.truncate-2.is-expanded { -webkit-line-clamp: unset; display: block; }
 
 /* Accessibility helpers */
-.sr-only,
-.visually-hidden,
-.u-sr-only {
+.sr-only, .visually-hidden, .u-sr-only {
   position: absolute;
   inset: auto;
   inline-size: 1px;
@@ -151,19 +141,12 @@
 }
 
 @supports not (clip-path: inset(50%)) {
-  .sr-only,
-  .visually-hidden,
-  .u-sr-only {
-    clip: rect(0, 0, 0, 0);
-  }
+  .sr-only, .visually-hidden, .u-sr-only { clip: rect(0, 0, 0, 0); }
 }
-
 
 /* Text helpers */
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .text-center { text-align: center; }
-
-/* Additional text utilities */
 .uppercase { text-transform: uppercase; }
 .nowrap { white-space: nowrap; }
 .ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -172,8 +155,7 @@
 .align-right { text-align: right; }
 .align-left { text-align: left; }
 
-
-/* Numeric formatting helper: right align + tabular numbers */
+/* Numeric formatting helper */
 .numeric { text-align: right; font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
 
 /* Semantic/utility color helpers */
@@ -190,140 +172,45 @@
 .gap-md { gap: var(--gap-md); }
 .gap-lg { gap: var(--gap-lg); }
 
-/* Small button baseline (extend in components.css if needed) */
+/* Small button baseline */
 .btn { display:inline-flex; align-items:center; justify-content:center; gap:var(--gap-xs); cursor:pointer; border:none; background:transparent; padding:0; }
 
-/* Утилиты: доступность, переходы, скелетоны */
+/* Transitions and skeletons */
+.transition-lift, .u-transition-lift { transition: var(--transition-lift); }
+.transition-lift-fade, .u-transition-lift-fade { transition: var(--transition-lift), var(--transition-fade); }
+.transition-lift-border, .u-transition-lift-border { transition: var(--transition-lift), var(--transition-border); }
 
-.transition-lift,
-.u-transition-lift {
-  transition: var(--transition-lift);
-}
+.skeleton, .u-skeleton { position: relative; overflow: hidden; background: var(--gradient-skeleton); background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: var(--radius-sm); will-change: background-position; }
+.skeleton-line, .u-skeleton-line { height: 12px; width: 100%; margin-bottom: 10px; }
+.skeleton-line-sm, .u-skeleton-line-sm { width: 60%; }
+.skeleton-line-lg, .u-skeleton-line-lg { height: 20px; }
+.skeleton-line-xs, .u-skeleton-line-xs { width: 40%; margin-bottom: 0; }
 
-.transition-lift-fade,
-.u-transition-lift-fade {
-  transition: var(--transition-lift), var(--transition-fade);
-}
+.summary-card-skeleton, .category-card-skeleton, .work-row-skeleton { background: var(--bg-card); border: 1px solid rgb(209 214 229 / 80%); border-radius: var(--radius-lg); padding: var(--card-padding); box-shadow: var(--shadow-card); }
 
-.transition-lift-border,
-.u-transition-lift-border {
-  transition: var(--transition-lift), var(--transition-border);
-}
+.category-card-skeleton { display: flex; flex-direction: column; gap: var(--gap-md); border-radius: 20px; }
+.work-row-skeleton { display: grid; grid-template-columns: minmax(0, 3.4fr) repeat(3, minmax(0, 0.9fr)); gap: var(--gap-md); margin-bottom: var(--gap-md); }
+.work-row-skeleton .skeleton-line, .work-row-skeleton .u-skeleton-line { height: 16px; margin-bottom: 0; }
 
-.skeleton,
-.u-skeleton {
-  position: relative;
-  overflow: hidden;
-  background: var(--gradient-skeleton);
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-  border-radius: var(--radius-sm);
-  will-change: background-position;
-}
+.work-list-skeleton, .skeleton-grid, .skeleton-category { display: none; }
 
-.skeleton-line,
-.u-skeleton-line {
-  height: 12px;
-  width: 100%;
-  margin-bottom: 10px;
-}
+@keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .skeleton, .u-skeleton { animation: none; } }
 
-.skeleton-line-sm,
-.u-skeleton-line-sm {
-  width: 60%;
-}
-
-.skeleton-line-lg,
-.u-skeleton-line-lg {
-  height: 20px;
-}
-
-.skeleton-line-xs,
-.u-skeleton-line-xs {
-  width: 40%;
-  margin-bottom: 0;
-}
-
-.summary-card-skeleton,
-.category-card-skeleton,
-.work-row-skeleton {
-  background: var(--bg-card);
-  border: 1px solid rgb(209 214 229 / 80%);
-  border-radius: var(--radius-lg);
-  padding: var(--card-padding);
-  box-shadow: var(--shadow-card);
-}
-
-.category-card-skeleton {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-  border-radius: 20px;
-}
-
-.work-row-skeleton {
-  display: grid;
-  grid-template-columns: minmax(0, 3.4fr) repeat(3, minmax(0, 0.9fr));
-  gap: var(--gap-md);
-  margin-bottom: var(--gap-md);
-}
-
-.work-row-skeleton .skeleton-line,
-.work-row-skeleton .u-skeleton-line {
-  height: 16px;
-  margin-bottom: 0;
-}
-
-.work-list-skeleton,
-.skeleton-grid,
-.skeleton-category {
-  display: none;
-}
-
-@keyframes loading {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .skeleton,
-  .u-skeleton {
-    animation: none;
-  }
-}
-
-/* Pill and button helpers moved to `modules/_buttons-pills.scss` */
-
-/* Table skeleton styles (moved from components.css) */
+/* Table skeleton styles */
 .table-skeleton{display:flex;flex-direction:column;gap:12px}
 .table-skeleton__header{display:grid;grid-template-columns:1fr 120px 120px 120px;gap:12px;margin-bottom:6px}
 .table-skeleton__body{display:flex;flex-direction:column;gap:10px}
 .tr{display:grid;grid-template-columns:1fr 120px 120px 120px;gap:12px;align-items:center}
-.th,.td{height:18px;border-radius:6px;background:linear-gradient(90deg, rgb(0 0 0 / 6%) 0%, rgb(0 0 0 / 4%) 50%, rgb(0 0 0 / 6%) 100%);}
+.th,.td{height:18px;border-radius:6px;background:linear-gradient(90deg, rgb(0 0 0 / 6%) 0%, rgb(0 0 0 / 4%) 50%, rgb(0 0 0 / 6%) 100%);} 
 .th.name,.td.name{height:20px;width:100%}
 .th.numeric,.td.numeric{height:18px;width:100%;justify-self:end}
 .table-skeleton__body .tr .td{opacity:0.9}
 
-/* keep day-picker hidden input utility here for shared usage */
-.day-picker__input { position:absolute; left:0; top:0; width:1px; height:1px; opacity:0; pointer-events:none }
-
-/* Smeta title helpers (moved from `components.css`) */
+/* small helpers moved from components */
 .smeta-title-wrapper { display: flex; align-items: flex-start; gap: 8px; position: relative; }
-.smeta-title-toggle {
-  background: transparent;
-  border: none;
-  color: #9aa0a6;
-  padding: 4px;
-  margin-left: 6px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex: 0 0 auto;
-}
+.smeta-title-toggle { background: transparent; border: none; color: #9aa0a6; padding: 4px; margin-left: 6px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; flex: 0 0 auto; }
 .smeta-title-toggle:focus { outline: 2px solid rgb(11 116 222 / 18%); border-radius: 6px; }
 .smeta-title-toggle .chev { transition: transform .18s ease, color .12s ease; font-size: 14px; }
 .smeta-title-toggle .chev.rotated { transform: rotate(180deg); color: #6b7280; }
-/* ensure chevron sits to the right in table cell and doesn't push layout */
 td .smeta-title-wrapper { align-items: center; }
-

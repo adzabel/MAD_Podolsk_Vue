@@ -1,5 +1,0 @@
-/* Backwards-compat bridge: keep base.css as a thin aggregator.
-   Tokens have been migrated to `_tokens.scss` and are imported
-   from the SCSS entrypoint (`main.scss`). Do not import the legacy tokens file here.
-*/
-@import url("./layout.css");
