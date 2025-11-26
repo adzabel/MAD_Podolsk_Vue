@@ -25,7 +25,7 @@
 
 .work-list-scroller { width:100%; }
 
-.work-list-surface, .work-list.has-data, .daily-table.has-data { border:1px solid var(--border-soft); border-radius:20px; overflow:hidden; background: rgb(255 255 255 / 95%); box-shadow: var(--shadow-soft); }
+.work-list-surface, .work-list.has-data { border:1px solid var(--border-soft); border-radius:20px; overflow:hidden; background: rgb(255 255 255 / 95%); box-shadow: var(--shadow-soft); }
 
 @media (min-width: 768px) {
   .work-list.has-data .work-list-scroller .work-row:nth-child(odd) { background: var(--bg-card); }
@@ -71,19 +71,6 @@
 
 .empty-state { padding:46px 20px; text-align:center; color:var(--text-muted); font-size:var(--font-size-body); border:1px dashed var(--border-soft); border-radius:var(--radius-lg); background:var(--bg-muted); }
 
-.daily-table .work-row, .daily-skeleton .work-row-skeleton { grid-template-columns: minmax(112px, 140px) minmax(0, 3.9fr) minmax(62px, 0.52fr) minmax(78px, 0.65fr) minmax(116px, 1fr); }
-
-.daily-table .work-row-header { text-transform:uppercase; font-size:var(--font-size-label); letter-spacing:0.08em; }
-.daily-table .work-row-header div, .daily-table .work-row div { text-align:left; }
-.daily-table .work-row-header div:nth-child(n + 4), .daily-table .work-row div:nth-child(n + 4) { text-align:right; }
-.daily-table .work-row div { font-variant-numeric: tabular-nums; }
-.daily-table .work-row strong { font-weight:700; }
-
-.daily-cell { display:flex; flex-direction:column; gap:var(--gap-xs); }
-.daily-cell-label { display:none; font-size:var(--font-size-label); letter-spacing:0.06em; text-transform:uppercase; color:var(--text-muted); }
-.daily-cell-value { font-variant-numeric: tabular-nums; }
-.daily-cell-total-amount { text-align:right; }
-.daily-table .work-row-total { font-weight:700; background: rgb(0 0 0 / 2%); }
 
 .work-list-mobile-header { display:none; }
 .panel-title-desktop { display:block; }
@@ -99,7 +86,7 @@
 .work-mobile-sort-control select { width:100%; padding:var(--gap-md) var(--gap-xl) var(--gap-md) var(--card-inner-gap); border-radius:var(--radius-lg); border:1px solid var(--border-soft); background:var(--surface-base); font-weight:600; font-size:var(--font-size-body); appearance:none; color:var(--text-main); box-shadow:var(--shadow-soft); }
 .work-mobile-sort-arrow { position:absolute; top:50%; right:12px; width:10px; height:10px; border-right:2px solid var(--text-muted); border-bottom:2px solid var(--text-muted); transform:translateY(-50%) rotate(45deg); pointer-events:none; opacity:0.6; }
 
-.daily-table .work-row:last-child { border-bottom:1px solid var(--border-soft); }
+/* daily-table specific styles moved to `_daily-table.scss` */
 
 @media (max-width: 767px) {
   .work-list-header { display:none; }
@@ -131,19 +118,6 @@
   .work-row-name { grid-column: 1 / -1; }
   .work-row-money, .work-row-delta { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--gap-sm); text-align:center; }
   .work-row-label { display:block; width:100%; text-align:center; }
-  .daily-table .work-row-header { display:none; }
-  .daily-table .work-row { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-areas: "name name name" "unit volume amount"; row-gap: var(--gap-md); align-items:flex-start; padding: var(--card-frame-gap) var(--card-frame-gap) var(--gap-md); border-bottom:1px solid var(--border-soft); }
-  .daily-table .work-row-last { border-bottom:none; }
-  .daily-table .daily-cell { min-width:0; }
-  .daily-cell-label { display:block; margin-bottom: var(--gap-xs); }
-  .daily-table .daily-cell-smeta { display:none; }
-  .daily-table .daily-cell-name { grid-area: name; }
-  .daily-table .daily-cell-unit { grid-area: unit; }
-  .daily-table .daily-cell-volume { grid-area: volume; text-align:center; }
-  .daily-table .daily-cell-amount { grid-area: amount; text-align:right; }
-  .daily-table .daily-total-row { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-areas: "total-label total-label total-amount"; align-items:center; padding: var(--card-padding) var(--card-frame-gap); gap: var(--gap-md); }
-  .daily-total-row .daily-cell-total-label { grid-area: total-label; }
-  .daily-total-row .daily-cell-total-amount { grid-area: total-amount; text-align:right; }
-  .daily-total-row .daily-cell-total-gap { display:none; }
+  /* daily-table specific styles moved to `_daily-table.scss` */
 }
 }

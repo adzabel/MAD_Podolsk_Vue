@@ -178,7 +178,10 @@ const currentLabel = computed(()=>{
   const v = props.modelValue || selectedMonth.value
   if (!v) return ''
   const d = new Date(v + '-01')
-  return d.toLocaleString('ru-RU', { year: 'numeric', month: 'long' })
+  // Ensure the year abbreviation "г." stays with the year (no orphaned "г." on next line)
+  const s = d.toLocaleString('ru-RU', { year: 'numeric', month: 'long' })
+  // Replace regular space before "г." with non-breaking space, and also protect standalone year+g
+  return s.replace(/\s+г\.?$/i, '\u00A0г.')
 })
 </script>
 

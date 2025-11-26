@@ -19,20 +19,13 @@ const store = useDashboardStore()
 const { loadedAt, monthlySummary } = storeToRefs(store)
 
 const source = computed(() => {
-  // Prefer explicit prop when provided
   if (props.loadedAt) return props.loadedAt
-
-  // Check store-level timestamp set by explicit endpoint
   if (loadedAt.value) return loadedAt.value
-
-  // Accept several possible shapes from backend responses
   const s = monthlySummary.value || {}
   return s.loaded_at || s.last_updated || s.updated_at || s.lastUpdated || s.timestamp || (s.meta && (s.meta.loaded_at || s.meta.last_updated)) || null
 })
 
 const display = computed(()=> !!source.value)
-
-const MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
 
 function pad(n){ return String(n).padStart(2,'0') }
 
@@ -78,26 +71,37 @@ const formatted = computed(()=>{
 .last-updated__text {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: center;
+  gap: 6px; /* немного больше пространства для читаемости */
+  min-width: 0;
 }
 
 .last-updated__label {
-  font-size: var(--font-size-caption);
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  display: block;
+  text-align: center;
+  white-space: nowrap; /* keep single line */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.05;
   width: 100%;
   box-sizing: border-box;
+  /* Responsive but not aggressive shrink: clamp between sensible min and design size */
+  font-size: clamp(0.72rem, 1.2vw, var(--font-size-caption));
 }
 
 .last-updated__time {
-  font-size: var(--font-size-body-sm);
   font-weight: 600;
   color: var(--text-main);
-  display: block;
+  text-align: center;
+  white-space: nowrap; /* keep single line */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.05;
   width: 100%;
   box-sizing: border-box;
+  font-size: clamp(0.86rem, 1.6vw, var(--font-size-body-sm));
 }
 
 @media (max-width: 640px) {

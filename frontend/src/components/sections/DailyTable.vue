@@ -2,7 +2,10 @@
   <section class="panel smeta-panel panel--full-bleed">
       <div class="panel-header row-between">
       <div class="panel-title-group">
-        <h3 class="panel-title text-h3">Данные по выручке</h3>
+        <h3 class="panel-title text-h3">
+          Данные по выручке
+          <span v-if="displayDate" class="panel-title-date"> — {{ displayDate }}</span>
+        </h3>
       </div>
     </div>
     <div class="panel-body">

@@ -352,6 +352,13 @@
 
 .smeta-panel { padding: calc(var(--card-padding) / 2) var(--card-padding) var(--card-padding) var(--card-padding); }
 
+/* For full-bleed panels used in daily view, reduce the vertical gap
+   between the panel header and the top edge so it matches other
+   smeta panels in the Monthly view. This keeps header spacing
+   consistent across dashboard blocks. */
+/* Any panel-level full-bleed tweaks for specific components moved
+   to `_daily-table.scss` so their scope is clearer. */
+
 .dashboard__grid > .smeta-panel.smeta-details {
   flex: 1 1 100%;
   width: 100%;
