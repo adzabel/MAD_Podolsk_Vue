@@ -78,7 +78,7 @@ const selectedMonth = computed({
           <h1 class="app-header__title text-h1">СКПДИ · МАД · Подольск</h1>
         </div>
         <div class="app-header__line app-header__line--subtitle">
-          <p class="app-header__subtitle text-body-sm">Работа в статусе «Рассмотрена»</p>
+          <p class="app-header__subtitle text-body-sm">Работы в статусе «Рассмотрено»</p>
         </div>
 
         <div class="app-header__line app-header__line--switch">
