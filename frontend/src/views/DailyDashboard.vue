@@ -9,7 +9,7 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { useDashboardStore } from '../store/dashboardStore.js'
 import { storeToRefs } from 'pinia'
 import DailyTable from '../components/sections/DailyTable.vue'
@@ -21,5 +21,12 @@ onMounted(()=>{
   // пометить режим и загрузить данные за текущую выбранную дату
   store.setMode && store.setMode('daily')
   store.fetchDaily(selectedDate.value)
+  // при открытии страницы По дням ставим класс на body, чтобы можно было
+  // менять фон страницы локально (и вернуть при размонтировании)
+  try { document && document.body && document.body.classList.add('page-daily-bg') } catch(e){}
+})
+
+onUnmounted(() => {
+  try { document && document.body && document.body.classList.remove('page-daily-bg') } catch(e){}
 })
 </script>
