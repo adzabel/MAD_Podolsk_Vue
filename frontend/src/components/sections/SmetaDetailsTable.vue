@@ -251,3 +251,52 @@ watch(sortedItems, () => { checkClamped() })
 </script>
  
  
+
+<style scoped>
+/* Mobile: labels and values aligned in 3 equal columns and centered */
+.smeta-mobile-row-labels,
+.smeta-mobile-row-values {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.smeta-mobile-row-labels .lbl {
+  text-align: center;
+  font-weight: 600;
+  color: var(--color-text-muted, #6b6b6b);
+}
+
+.smeta-mobile-row-values .val {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Zebra only for the work-name cell (desktop) */
+.smeta-breakdown-table tbody tr:nth-child(odd) td:first-child {
+  background-color: rgba(0,0,0,0.05);
+}
+
+/* Zebra only for the title block inside mobile item */
+.smeta-details-mobile .smeta-mobile-row-title {
+  background-color: rgba(0,0,0,0.05);
+  padding: 8px 12px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+/* Keep numeric cells visually centered in desktop where appropriate */
+.smeta-breakdown-table td.numeric,
+.smeta-breakdown-table th.numeric {
+  text-align: right;
+  padding-right: 12px;
+}
+
+.smeta-mobile-item {
+  border-radius: 8px;
+}
+
+</style>
+
+
