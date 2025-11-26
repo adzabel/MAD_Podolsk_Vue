@@ -134,6 +134,54 @@
   justify-content: flex-start;
 }
 
+/* Mockup / demo layout helpers (migrated from mockup.css) */
+:root {
+  /* demo background used by mockups; tokenized here so it's easy to remove later */
+  --mockup-bg: linear-gradient(120deg, #f8fbff 0%, #f4f8ff 32%, #f9f9ff 100%);
+}
+
+.mockup-body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--mockup-bg);
+  color: var(--text-main);
+}
+
+.mockup-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: clamp(16px, 4vw, 42px) clamp(16px, 4vw, 48px) clamp(32px, 5vw, 64px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xl);
+}
+
+.mockup-top { display: flex; flex-direction: column; gap: var(--gap-sm); }
+
+.mockup-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: var(--gap-sm) var(--gap-md);
+  border-radius: var(--radius-xxl);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-base);
+  font-size: var(--font-size-caption);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  width: fit-content;
+  box-shadow: var(--shadow-soft);
+}
+
+.mockup-top h1 { font-size: clamp(1.6rem, 3vw, 2rem); margin: 0; }
+
+.mockup-lead { margin: var(--gap-xs) 0 0; color: var(--text-muted); max-width: 960px; line-height: 1.6; }
+
+.mockup-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: clamp(16px, 2vw, var(--gap-xl)); }
+
+.panel-subtitle { color: var(--text-muted); margin-top: var(--gap-xs); }
+
 .view-toggle {
   display: inline-flex;
   border-radius: var(--radius-xxl);

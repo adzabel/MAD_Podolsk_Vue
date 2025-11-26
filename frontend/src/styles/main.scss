@@ -17,7 +17,8 @@
 @import './utilities.css';
 @import './layout.css';
 @import './components.css';
-@import './mockup.css';
+/* `mockup.css` removed — its useful rules migrated into modules.
+   If you need the full demo styles, re-enable a dedicated demo import. */
 @import './print.css';
 @import './summary.css';
 @import './work.css';
