@@ -7,6 +7,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100vw;
   /* keep vertical padding but use container's horizontal padding to align content
      with the page grid — remove horizontal padding so header children line up
      with `.page`'s inner padding */
@@ -24,7 +27,7 @@
    so header children align exactly with page content and panels. */
 .app-header__inner {
   width: 100%;
-  max-width: var(--page-max-width);
+  max-width: min(var(--page-max-width), 100%);
   margin-left: auto;
   margin-right: auto;
   padding-left: var(--page-hpad);
@@ -34,6 +37,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--header-gap);
+  min-width: 0;
 }
 
 .app-header__left {
@@ -203,6 +207,7 @@
 
 @media (max-width: 640px) {
   .app-header { align-items: stretch; padding: var(--card-padding); }
+  .app-header__inner { max-width: 100%; width: 100%; gap: var(--gap-md); }
   .app-header__right { display: flex; flex-wrap: wrap; gap: var(--gap-md); align-items: center; }
   .app-header__mode-switch { flex: 1 1 100%; width: 100%; justify-content: flex-start; padding: 2px; min-height: var(--control-height-mobile); height: var(--control-height-mobile); border-radius: 8px; }
   .app-header__month { flex: 1 1 60%; min-width: 0; margin-right: var(--gap-md); }
