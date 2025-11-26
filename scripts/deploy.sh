@@ -21,8 +21,40 @@ cd "$REPO_DIR"
 echo "=== Step 1: ensure clean git state ==="
 # Try to update repo; if offline, continue with local state
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  git fetch --all --prune || true
-  git pull --ff-only || true
+  # fetch all remotes and prune deleted branches (don't fail whole script)
+  if ! git fetch --all --prune; then
+    echo "Warning: git fetch failed — continuing with local state"
+  fi
+
+  # determine current branch
+  BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")"
+  if [ -z "$BRANCH" ] || [ "$BRANCH" = "HEAD" ]; then
+    echo "Warning: repository is in detached HEAD or branch unknown; attempting safe pull"
+    git pull --ff-only || true
+  else
+    # determine upstream; prefer configured upstream, fallback to origin/$BRANCH
+    UPSTREAM="$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || true)"
+    if [ -z "$UPSTREAM" ]; then
+      UPSTREAM="origin/$BRANCH"
+    fi
+
+    # ensure working tree is clean before forcing reset
+    if [ -n "$(git status --porcelain)" ]; then
+      echo "Error: uncommitted changes present in repository. Commit or stash before deploying."
+      echo "Run: git status --porcelain; aborting deploy."
+      exit 1
+    fi
+
+    # reset local branch to upstream to ensure full sync
+    if git rev-parse "$UPSTREAM" >/dev/null 2>&1; then
+      echo "Resetting current branch '$BRANCH' to '$UPSTREAM'"
+      git reset --hard "$UPSTREAM"
+      git clean -fd || true
+    else
+      echo "Upstream '$UPSTREAM' not found; attempting pull --ff-only"
+      git pull --ff-only || true
+    fi
+  fi
 fi
 
 echo "=== Step 2: install dependencies (only in frontend folder) ==="
