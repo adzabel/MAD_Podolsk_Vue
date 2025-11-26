@@ -101,9 +101,9 @@
   overflow: hidden;
 }
 
-/* Contract card uses a taller progress bar visually — override only for contract */
+/* Contract card: use the same standard progress height as other bars */
 .contract-progress__bar {
-  height: calc(var(--progress-height) * 3);
+  height: var(--progress-height);
 }
 
 /* Restrict smeta card progress bar width so it visually lines up with numeric values */
