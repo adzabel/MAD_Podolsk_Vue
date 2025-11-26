@@ -122,7 +122,11 @@ const selectedMonth = computed({
   }
 
   .new-header-row--title { flex: 0 0 auto; }
-  .new-header-row--title > div { display: flex; flex-direction: column; padding-left: 0; padding-right: 0; }
+    /* Use same approach as mobile: make inner full-width and pad the title container
+      so text and controls align with card inner grid. This preserves full-width
+      header while keeping content aligned to page grid. */
+    .app-header__inner { padding-left: 0; padding-right: 0; }
+    .new-header-row--title > div { display: flex; flex-direction: column; padding-left: calc(var(--page-hpad) + var(--card-padding)); padding-right: calc(var(--page-hpad) + var(--card-padding)); }
 
   .new-header-row--switch { display: flex; align-items: center; gap: 1rem; }
 
