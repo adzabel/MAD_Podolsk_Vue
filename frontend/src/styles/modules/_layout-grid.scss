@@ -32,6 +32,28 @@
   box-sizing: border-box;
 }
 
+/* Unified panel title styles for dashboard blocks (contract execution, smeta cards, smeta details)
+   Apply within the dashboard scope so other panels keep their defaults. */
+.dashboard .panel-title,
+.dashboard .panel-title-mobile-value {
+  /* Используем DIN-стиль заголовков (при наличии — подставить реальный DIN через @font-face). */
+  font-family: var(--font-din);
+  font-size: var(--font-size-h3);
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 calc(var(--gap-sm));
+  line-height: 1.12;
+  /* чуть более компактный трекин, характерный для DIN */
+  letter-spacing: -0.02em;
+  text-transform: none;
+}
+
+/* Slightly smaller title for compact card headers (smeta cards) */
+.dashboard .smeta-card header h3,
+.dashboard .panel-title-group > h3.panel-title {
+  font-size: clamp(1.05rem, 1.6vw, var(--font-size-h3));
+}
+
 /* Remove visual separator line that may appear between panel header and body
    Some templates insert small borders or hr elements; normalize by removing
    top/bottom borders between header and body to keep panels visually clean. */
@@ -126,7 +148,22 @@
   .contract-execution .panel-meta-value { font-size: var(--font-size-h2); }
 }
 
-.contract-execution .panel-title { font-size: var(--font-size-h2); font-weight: 600; }
+.contract-execution .panel-title {
+  font-size: var(--font-size-h2);
+  font-weight: 700; /* align weight with other dashboard panel titles */
+  font-family: var(--font-din);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
+}
+
+/* Ensure any contract-card specific title variant uses the same DIN family */
+.dashboard .contract-card-title {
+  font-family: var(--font-din);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+}
 
 @media (min-width: 769px) {
   .contract-execution .panel-meta { display: block; }
