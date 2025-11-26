@@ -48,6 +48,12 @@
   text-transform: none;
 }
 
+/* Add consistent vertical gap between panel header/title and panel content
+   Use card-inner-gap so the spacing matches internal card padding. */
+.panel > .panel-header { margin-bottom: var(--card-inner-gap); }
+.panel .panel-header h3.panel-title,
+.panel h3.panel-title { margin-bottom: calc(var(--card-inner-gap) / 2); }
+
 /* Slightly smaller title for compact card headers (smeta cards) */
 .dashboard .smeta-card header h3,
 .dashboard .panel-title-group > h3.panel-title {

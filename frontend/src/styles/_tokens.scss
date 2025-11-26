@@ -2,15 +2,10 @@
   Содержит CSS custom properties, используемые как исходная база.
 */
 :root {
-  --font-sans: "Roboto", system-ui, -apple-system, blinkmacsystemfont, "Segoe UI", sans-serif;
-    /* Предпочитаемый DIN-стиль для заголовков дашборда.
-      Если точный DIN шрифт добавите в `public/fonts` — можно подключить через @font-face
-      и указать здесь его имя (например "DINNext"). Пока используем запасной стек с Roboto.
-    */
-     /* Prefer a DIN-like family; Arquivo Narrow is loaded from Google Fonts as a
-       DIN-like fallback. If you add a real DIN font to `public/fonts`, place
-       its @font-face name first here (for example: "DINNext"). */
-     --font-din: "Archivo Narrow", "DINNext", "DIN", "DIN 2014", "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Manrope", system-ui, -apple-system, blinkmacsystemfont, "Segoe UI", sans-serif;
+
+  /* Основной семейство для заголовков и специальных DIN-подобных мест. */
+  --font-din: "Manrope", "Archivo Narrow", "DINNext", "DIN", "DIN 2014", "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   /* Surfaces */
   --surface-base: #fff;
