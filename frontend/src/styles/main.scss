@@ -36,3 +36,16 @@
 
 /* Emergency visual fixes (temporary) — файл переведён в чек-лист, импорт удалён */
 /* (remove this comment when you're confident all migrations are complete) */
+
+/* Базовые ограничения для мобильных экранов */
+@layer foundations {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html, body {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  body { margin: 0; }
+}

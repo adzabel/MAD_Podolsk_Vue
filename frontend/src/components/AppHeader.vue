@@ -157,8 +157,10 @@ const selectedMonth = computed({
 /* Mobile specific layout adjustments */
 .app-header__mobile {
   display: block;
+  width: 100%;
+  min-width: 0;
 }
-.app-header__line { width: 100%; }
+.app-header__line { width: 100%; min-width: 0; }
 .app-header__line--controls {
   display: flex;
   gap: 0.5rem;
@@ -213,4 +215,20 @@ const selectedMonth = computed({
 .app-header__desktop { display: flex; width: 100%; }
 .app-header__desktop .app-header__left { flex: 0 0 auto; }
 .app-header__desktop .app-header__right { margin-left: auto; display:flex; gap:0.75rem; align-items:center; }
+
+@media (max-width: 640px) {
+  /* В мобильном режиме избегаем горизонтального переполнения */
+  .app-header__title {
+    white-space: nowrap;
+    font-size: clamp(1.125rem, 5vw, 1.5rem);
+    line-height: 1.1;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .app-header__line--controls {
+    gap: var(--gap-sm);
+  }
+}
 </style>
