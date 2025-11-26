@@ -108,9 +108,7 @@ const selectedMonth = computed({
 /* Debug outlines removed for final version */
 .app-header__title { padding: 6px 0; }
 
-/* Debug outlines to help visual QA (remove after review) */
-.new-app-header { outline: 2px dashed rgba(46, 204, 113, 0.18); }
-.app-header__title { outline: 1px dotted rgba(47,111,237,0.08); }
+/* Debug outlines removed after QA */
 
 /* Desktop layout: single row — title (stacked) on the left, controls on the right */
 @media (min-width: 641px) {
