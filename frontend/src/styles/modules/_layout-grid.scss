@@ -46,6 +46,11 @@
   /* чуть более компактный трекин, характерный для DIN */
   letter-spacing: -0.02em;
   text-transform: none;
+  /* prevent header titles from wrapping in dashboard panels; keep ellipsis
+     to avoid layout shifts when title is long. Mobile overrides below. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Ensure all dashboard panel title groups align to a common left axis
@@ -135,6 +140,16 @@
   .contract-execution .panel-meta-values .panel-meta-value { text-align: left }
 }
 
+/* On very small screens allow panel titles to wrap if mobile title variant is used */
+@media (max-width: 640px) {
+  .dashboard .panel-title,
+  .dashboard .panel-title-mobile-value {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+}
+
 /* Contract execution layout and meta (migrated from components.css) */
 .contract-execution { box-sizing: border-box; }
 
@@ -190,7 +205,9 @@
 
 /* Compact horizontal variant: reduce height and lay out meta horizontally */
 .contract-execution--compact {
-  padding: calc(var(--gap-sm) * 1.5) var(--card-padding);
+  /* tighter padding to reduce vertical height */
+  padding: 8px 16px;
+  min-height: 56px;
 }
 .contract-execution--compact .panel-header {
   display: grid;
@@ -199,8 +216,9 @@
   gap: var(--gap-md);
 }
 .contract-execution--compact .panel-title {
-  font-size: calc(var(--font-size-h3));
+  font-size: var(--font-size-body);
   margin: 0;
+  line-height: 1.05;
 }
 .contract-execution--compact .panel-meta {
   display: block;
@@ -208,7 +226,7 @@
 .contract-execution--compact .panel-meta-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+  gap: 12px;
   align-items: center;
 }
 .contract-execution--compact .panel-meta-item { min-width: 0; }
@@ -219,11 +237,14 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
-.contract-execution--compact .panel-meta-value { margin-top: 4px; text-align: right; }
+.contract-execution--compact .panel-meta-value { margin-top: 2px; text-align: right; }
 
 /* Make progress thinner */
-.contract-execution--compact .contract-progress__bar { height: 10px; border-radius: 999px; overflow: hidden; }
+.contract-execution--compact .contract-progress__bar { height: 6px; border-radius: 999px; overflow: hidden; }
 .contract-execution--compact .contract-progress__fill { height: 100%; display: block; }
+
+/* reduce header spacing for compact card */
+.contract-execution--compact > .panel-header { margin-top: 6px; margin-bottom: 6px; }
 
 @media (max-width: 640px) {
   .contract-execution--compact .panel-header { grid-template-columns: 1fr; }

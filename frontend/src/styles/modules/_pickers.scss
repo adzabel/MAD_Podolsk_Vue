@@ -88,3 +88,17 @@ select, input[type="date"] { border:none; background:transparent; font-size:var(
 
 /* Fallback for native option rendering */
 select option { font-family: var(--font-sans); }
+
+/* Ensure the native date input used by `DayPicker` is visually hidden
+   — some browsers may render the native control; keep it off-screen and
+   non-interactive so only the custom toggle is visible. */
+.day-picker__input {
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+}

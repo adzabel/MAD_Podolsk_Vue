@@ -7,7 +7,8 @@
     </div>
     <div class="panel-body">
       <div class="smeta-details-wrapper">
-        <table class="smeta-breakdown-table smeta-breakdown-table--daily">
+        <div class="smeta-breakdown-table smeta-breakdown-table--daily">
+          <table>
           <colgroup>
             <col />
             <col />
@@ -22,11 +23,12 @@
               <th class="numeric">Сумма</th>
             </tr>
           </thead>
+          <!-- increase row height to accommodate wrapped descriptions -->
           <RecycleScroller
             :items="sortedRows"
             item-tag="tr"
             wrapper-tag="tbody"
-            :item-size="72" <!-- increase row height to accommodate wrapped descriptions -->
+            :item-size="72"
             key-field="id"
             class="virtual-scroller"
           >
@@ -43,15 +45,16 @@
                 <td colspan="4" class="muted">Нет данных</td>
               </tr>
             </template>
-
-            <template #footer>
-              <tr v-if="sortedRows && sortedRows.length" class="daily-total-row">
-                <td colspan="3" class="smeta-breakdown-table__total-label">Итого</td>
-                <td class="numeric smeta-breakdown-table__total-value">{{ formatMoney(total) }}</td>
-              </tr>
-            </template>
           </RecycleScroller>
-        </table>
+
+          <tfoot>
+            <tr v-if="sortedRows && sortedRows.length" class="daily-total-row">
+              <td colspan="3" class="smeta-breakdown-table__total-label">Итого</td>
+              <td class="numeric smeta-breakdown-table__total-value">{{ formatMoney(total) }}</td>
+            </tr>
+          </tfoot>
+          </table>
+        </div>
       </div>
     </div>
   </section>
