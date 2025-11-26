@@ -22,13 +22,21 @@ async function request(path, options = {}) {
     cfg.body = JSON.stringify(cfg.body)
   }
 
-  const res = await fetch(url, cfg)
+  let res
+  try {
+    res = await fetch(url, cfg)
+  } catch (fetchErr) {
+    const err = new Error(`Network error while fetching ${url}: ${fetchErr && fetchErr.message ? fetchErr.message : String(fetchErr)}`)
+    err.cause = fetchErr
+    throw err
+  }
 
   if (!res.ok) {
     const text = await res.text().catch(() => '')
     const message = text || `${res.status} ${res.statusText}`
     const err = new Error(message)
     err.status = res.status
+    err.url = url
     throw err
   }
 

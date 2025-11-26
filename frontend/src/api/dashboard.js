@@ -191,6 +191,36 @@ export async function getAvailableMonths() {
   }
 }
 
+// Try to fetch list of available daily dates for a given month.
+// Expected to return an array of `YYYY-MM-DD` strings or an object with `dates: []`.
+export async function getAvailableDates(month) {
+  const m = normalizeMonth(month)
+  try {
+    const res = await request(`/api/dashboard/monthly/dates?month=${encodeURIComponent(m)}`)
+    if (!res) return []
+    if (Array.isArray(res)) return res.map(d => String(d).slice(0, 10))
+    if (res.dates && Array.isArray(res.dates)) return res.dates.map(d => String(d).slice(0, 10))
+    return []
+  } catch (err) {
+    // fallback: try combined endpoint and extract dates from items/rows
+    if (err && (err.status === 404 || (err.message && err.message.includes('Not Found')))) {
+      try {
+        const res = await request(`/api/dashboard?month=${encodeURIComponent(m)}`)
+        const items = (res && (res.items || res.rows)) || []
+        const set = new Set()
+        for (const it of items) {
+          const d = it && (it.date || it.day || it.work_date || it.logged_at)
+          if (d) set.add(String(d).slice(0, 10))
+        }
+        return Array.from(set).sort()
+      } catch (_){
+        return []
+      }
+    }
+    throw err
+  }
+}
+
 export async function getDaily(date) {
   return await request(`/api/dashboard/daily?date=${encodeURIComponent(date)}`)
 }

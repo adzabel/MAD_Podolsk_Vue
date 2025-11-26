@@ -3,58 +3,60 @@
 :root {
   /* utilities may rely on tokens defined in tokens.css */
 }
+
 /* Spacing utilities (small focused set) ---------------------------------- */
+
 /* Note: prefer token-based sizes where possible (gap-sm, gap-md, gap-lg) */
-.p-0 { padding: 0 !important; }
-.pt-0 { padding-top: 0 !important; }
-.pr-0 { padding-right: 0 !important; }
-.pb-0 { padding-bottom: 0 !important; }
-.pl-0 { padding-left: 0 !important; }
+.p-0 { padding: 0; }
+.pt-0 { padding-top: 0; }
+.pr-0 { padding-right: 0; }
+.pb-0 { padding-bottom: 0; }
+.pl-0 { padding-left: 0; }
 
-.p-sm { padding: var(--gap-sm) !important; }
-.pt-sm { padding-top: var(--gap-sm) !important; }
-.pb-sm { padding-bottom: var(--gap-sm) !important; }
-.pl-sm { padding-left: var(--gap-sm) !important; }
-.pr-sm { padding-right: var(--gap-sm) !important; }
+.p-sm { padding: var(--gap-sm); }
+.pt-sm { padding-top: var(--gap-sm); }
+.pb-sm { padding-bottom: var(--gap-sm); }
+.pl-sm { padding-left: var(--gap-sm); }
+.pr-sm { padding-right: var(--gap-sm); }
 
-.p-md { padding: var(--gap-md) !important; }
-.pt-md { padding-top: var(--gap-md) !important; }
-.pb-md { padding-bottom: var(--gap-md) !important; }
-.pl-md { padding-left: var(--gap-md) !important; }
-.pr-md { padding-right: var(--gap-md) !important; }
+.p-md { padding: var(--gap-md); }
+.pt-md { padding-top: var(--gap-md); }
+.pb-md { padding-bottom: var(--gap-md); }
+.pl-md { padding-left: var(--gap-md); }
+.pr-md { padding-right: var(--gap-md); }
 
-.p-lg { padding: var(--gap-lg) !important; }
-.m-0 { margin: 0 !important; }
-.mt-0 { margin-top: 0 !important; }
-.mb-0 { margin-bottom: 0 !important; }
-.ml-0 { margin-left: 0 !important; }
-.mr-0 { margin-right: 0 !important; }
+.p-lg { padding: var(--gap-lg); }
+.m-0 { margin: 0; }
+.mt-0 { margin-top: 0; }
+.mb-0 { margin-bottom: 0; }
+.ml-0 { margin-left: 0; }
+.mr-0 { margin-right: 0; }
 
-.m-sm { margin: var(--gap-sm) !important; }
-.mt-sm { margin-top: var(--gap-sm) !important; }
-.mb-sm { margin-bottom: var(--gap-sm) !important; }
-.ml-sm { margin-left: var(--gap-sm) !important; }
-.mr-sm { margin-right: var(--gap-sm) !important; }
+.m-sm { margin: var(--gap-sm); }
+.mt-sm { margin-top: var(--gap-sm); }
+.mb-sm { margin-bottom: var(--gap-sm); }
+.ml-sm { margin-left: var(--gap-sm); }
+.mr-sm { margin-right: var(--gap-sm); }
 
-.m-md { margin: var(--gap-md) !important; }
-.mt-md { margin-top: var(--gap-md) !important; }
-.mb-md { margin-bottom: var(--gap-md) !important; }
-.ml-md { margin-left: var(--gap-md) !important; }
-.mr-md { margin-right: var(--gap-md) !important; }
+.m-md { margin: var(--gap-md); }
+.mt-md { margin-top: var(--gap-md); }
+.mb-md { margin-bottom: var(--gap-md); }
+.ml-md { margin-left: var(--gap-md); }
+.mr-md { margin-right: var(--gap-md); }
 
 /* Flex/grid helpers */
-.items-center { align-items: center !important; }
-.justify-center { justify-content: center !important; }
-.justify-between { justify-content: space-between !important; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
 .flex-row { display:flex; flex-direction:row; }
 .flex-col { display:flex; flex-direction:column; }
 
 /* Size helpers */
-.w-100 { width: 100% !important; }
-.max-w-full { max-width: 100% !important; }
-.h-auto { height: auto !important; }
-.h-32 { height: 32px !important; }
-.h-56 { height: var(--control-height) !important; }
+.w-100 { width: 100%; }
+.max-w-full { max-width: 100%; }
+.h-auto { height: auto; }
+.h-32 { height: 32px; }
+.h-56 { height: var(--control-height); }
 
 /* Control sizing (use tokens) */
 .control { height: var(--control-height); min-height: var(--control-height); }
@@ -88,16 +90,16 @@
 .card-col { display:flex; flex-direction:column; min-width:0; flex:1; align-items:center; gap: var(--gap-xs); }
 
 /* Axis padding utilities (helpers for px/py) */
-.px-sm { padding-left: var(--gap-sm) !important; padding-right: var(--gap-sm) !important; }
-.py-sm { padding-top: var(--gap-sm) !important; padding-bottom: var(--gap-sm) !important; }
+.px-sm { padding-left: var(--gap-sm); padding-right: var(--gap-sm); }
+.py-sm { padding-top: var(--gap-sm); padding-bottom: var(--gap-sm); }
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   /* on narrow screens, card columns should left-align content for readability */
   .card-col { align-items: flex-start; }
 }
 
 /* Compact variant for small screens */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .picker-toggle {
     width: 100%;
     min-width: 0;
@@ -190,6 +192,7 @@
 
 /* Small button baseline (extend in components.css if needed) */
 .btn { display:inline-flex; align-items:center; justify-content:center; gap:var(--gap-xs); cursor:pointer; border:none; background:transparent; padding:0; }
+
 /* Утилиты: доступность, переходы, скелетоны */
 
 .transition-lift,
@@ -245,7 +248,7 @@
 .category-card-skeleton,
 .work-row-skeleton {
   background: var(--bg-card);
-  border: 1px solid rgba(209, 214, 229, 0.8);
+  border: 1px solid rgb(209 214 229 / 80%);
   border-radius: var(--radius-lg);
   padding: var(--card-padding);
   box-shadow: var(--shadow-card);
@@ -310,7 +313,7 @@
   background: var(--success);
   position: relative;
   flex: 0 0 auto;
-  box-shadow: 0 2px 6px rgba(15,157,88,0.18);
+  box-shadow: 0 2px 6px rgb(15 157 88 / 18%);
   isolation: isolate;
 }
 
@@ -323,7 +326,7 @@
   width: var(--control-height-sm);
   height: var(--control-height-sm);
   border-radius: var(--radius-xxl);
-  background: rgba(15,157,88,0.08);
+  background: rgb(15 157 88 / 8%);
   filter: blur(6px);
   pointer-events: none;
   z-index: -1;
@@ -363,7 +366,7 @@
 .table-skeleton__header{display:grid;grid-template-columns:1fr 120px 120px 120px;gap:12px;margin-bottom:6px}
 .table-skeleton__body{display:flex;flex-direction:column;gap:10px}
 .tr{display:grid;grid-template-columns:1fr 120px 120px 120px;gap:12px;align-items:center}
-.th,.td{height:18px;border-radius:6px;background:linear-gradient(90deg, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.04) 50%, rgba(0,0,0,0.06) 100%);}
+.th,.td{height:18px;border-radius:6px;background:linear-gradient(90deg, rgb(0 0 0 / 6%) 0%, rgb(0 0 0 / 4%) 50%, rgb(0 0 0 / 6%) 100%);}
 .th.name,.td.name{height:20px;width:100%}
 .th.numeric,.td.numeric{height:18px;width:100%;justify-self:end}
 .table-skeleton__body .tr .td{opacity:0.9}

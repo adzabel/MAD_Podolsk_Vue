@@ -210,7 +210,31 @@ export const useDashboardStore = defineStore('dashboard', {
       // start of current calendar month
       const start = new Date(today.getFullYear(), today.getMonth(), 1)
 
-      // iterate from today down to the first day of the month
+      // First, try to get list of available dates for the selected month in one call
+      try {
+        const api = await import('../api/dashboard.js')
+        const available = await api.getAvailableDates(this.selectedMonth)
+        if (available && available.length) {
+          // keep only dates within current calendar month and <= today
+          const startIso = start.toISOString().slice(0,10)
+          const todayIso = today.toISOString().slice(0,10)
+          const candidates = available
+            .map(d => String(d).slice(0,10))
+            .filter(d => d >= startIso && d <= todayIso)
+            .sort()
+          if (candidates.length) {
+            const nearest = candidates[candidates.length - 1]
+            this.setSelectedDate(nearest)
+            // preload rows using existing fetchDaily so normalization is consistent
+            await this.fetchDaily(nearest)
+            return nearest
+          }
+        }
+      } catch (err) {
+        // If backend doesn't support bulk dates or an error happened, fall back to per-day probing
+      }
+
+      // Fallback: iterate days backwards and probe with getDaily (original behavior)
       for (let d = new Date(today); d >= start; d.setDate(d.getDate() - 1)) {
         const iso = d.toISOString().slice(0, 10)
         try {
@@ -219,13 +243,18 @@ export const useDashboardStore = defineStore('dashboard', {
           if (rows.length) {
             this.setSelectedDate(iso)
             // preload rows so UI doesn't flash empty
-            this.dailyRows = rows.map(r => ({
-              date: res.date || iso,
-              name: r.description || r.name || r.work_name || '',
-              unit: r.unit || '',
-              volume: `${Number(r.volume || 0)}${r.unit ? ` (${r.unit})` : ''}`,
-              amount: Number(r.amount || 0)
-            }))
+            this.dailyRows = rows.map(r => {
+              const unit = r.unit || ''
+              const volumeNumber = Number(r.volume || 0)
+              const amount = Number(r.amount || 0)
+              return {
+                date: res.date || iso,
+                name: r.description || r.name || r.work_name || '',
+                unit,
+                volume: `${volumeNumber}${unit ? ` (${unit})` : ''}`,
+                amount
+              }
+            })
             const totalFromApi = res?.total?.amount
             this.dailyTotal = Number(totalFromApi !== undefined ? totalFromApi : this.dailyRows.reduce((s, r) => s + (Number(r.amount) || 0), 0))
             return iso

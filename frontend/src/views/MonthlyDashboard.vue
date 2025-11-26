@@ -26,8 +26,18 @@ const selectedSmetaLabel = computed(() => {
 })
 
 onMounted(async () => {
-  // загрузим основные данные для текущего месяца
-  await Promise.all([store.fetchMonthlySummary(), store.fetchSmetaCards()])
+  // загрузим основные данные для текущего месяца только если их ещё нет
+  // или они относятся к другому месяцу, и если в данный момент не идёт загрузка
+  try {
+    const loadedMonth = monthlySummary.value && (monthlySummary.value.month ? String(monthlySummary.value.month).slice(0,7) : null)
+    const needLoad = !monthlySummary.value || loadedMonth !== selectedMonth.value
+    if (needLoad && !monthlyLoading.value) {
+      await Promise.all([store.fetchMonthlySummary(), store.fetchSmetaCards()])
+    }
+  } catch (e) {
+    // на случай, если структура monthlySummary отличается — безопасно попытаться загрузить
+    if (!monthlyLoading.value) await Promise.all([store.fetchMonthlySummary(), store.fetchSmetaCards()])
+  }
 })
 
 const dailyRevenueVisible = ref(false)

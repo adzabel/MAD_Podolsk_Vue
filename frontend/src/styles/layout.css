@@ -10,7 +10,7 @@ body {
 	background: var(--gradient-page);
 	color: var(--text-main);
 	-webkit-font-smoothing: antialiased;
-	text-rendering: optimizeLegibility;
+	text-rendering: optimizelegibility;
 }
 
 /* Toasts (could be moved to a components file later) */
@@ -22,7 +22,7 @@ body {
 	padding: var(--card-padding) var(--gap-xl);
 	border-radius: var(--radius-md);
 	box-shadow: var(--shadow-soft);
-        animation: slideIn 0.3s ease;
+		animation: slide-in 0.3s ease;
         z-index: 1000;
 }
 
@@ -40,11 +40,12 @@ body {
 	border-left: 4px solid var(--danger);
 }
 
-@keyframes slideIn {
+@keyframes slide-in {
 	from {
 		transform: translateX(400px);
 		opacity: 0;
 	}
+
 	to {
 		transform: translateX(0);
 		opacity: 1;
@@ -53,6 +54,7 @@ body {
 
 .page {
 	--page-hpad: clamp(12px, 3vw, 28px);
+
 	/* pill helpers moved to utilities.css */
 	flex-wrap: wrap;
 	gap: var(--gap-md);
@@ -62,6 +64,7 @@ body {
 
 .view-toggle {
 	display: inline-flex;
+
 	/* border: 1px solid var(--border-soft); */
 	border-radius: var(--radius-xxl);
 	background: var(--bg-card);
@@ -120,6 +123,7 @@ body {
 	min-width: 146px;
 }
 		.page-header.compact .month-select label { font-size: var(--font-size-label); }
+
 .day-select-control input[type="date"] {
 	width: 100%;
 	font-family: var(--font-sans);
@@ -229,7 +233,7 @@ body {
     border: 1px solid var(--border-soft);
     border-radius: var(--radius-xxl);
     overflow: hidden;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 50%);
     position: relative;
 }
 
@@ -246,7 +250,7 @@ body {
 	background: var(--success);
 }
 
-@media (min-width: 768px) {
+@media (width >= 768px) {
 	.contract-card-header {
 		flex-direction: row;
 		align-items: center;
@@ -349,7 +353,7 @@ input[type="date"] {
         background: var(--success);
         position: relative;
         flex: 0 0 auto;
-        box-shadow: 0 2px 6px rgba(15,157,88,0.18);
+        box-shadow: 0 2px 6px rgb(15 157 88 / 18%);
         isolation: isolate;
 }
 
@@ -362,7 +366,7 @@ input[type="date"] {
 	width: var(--control-height-sm);
 	height: var(--control-height-sm);
 	border-radius: var(--radius-xxl);
-	background: rgba(15,157,88,0.08);
+	background: rgb(15 157 88 / 8%);
 	filter: blur(6px);
 	pointer-events: none;
 	z-index: -1;
@@ -428,6 +432,7 @@ input[type="date"] {
 	display: inline-flex;
 	gap: var(--gap-xs);
 	background: var(--bg-card);
+
 	/* border: 1px solid var(--border-soft); */
 	border-radius: var(--radius-md);
 	padding: var(--gap-xs);
@@ -486,30 +491,34 @@ input[type="date"] {
 	outline-offset: 2px;
 }
 
-@media (min-width: 880px) {
+@media (width >= 880px) {
 	.page-header {
 		flex-direction: row;
 		justify-content: space-between;
 		align-items: flex-end;
 	}
+
 	.page-header-right {
 		flex-direction: row;
 		align-items: stretch;
 		gap: var(--gap-lg);
 	}
+
 	.header-actions {
 		align-items: stretch;
 	}
+
 	.page-header-left {
 		flex: 1 1 auto;
 	}
 }
 
-@media (max-width: 879px) {
+@media (width <= 879px) {
 	.view-switch {
 		width: 100%;
 		min-height: 54px;
 	}
+
 		.view-tab {
 			flex: 1 1 0;
 			text-align: center;
@@ -518,6 +527,7 @@ input[type="date"] {
 		flex-direction: row;
 		gap: var(--gap-xs);
 	}
+
 	.view-tab-line1,
 	.view-tab-line2 {
 		font-size: 0.78rem;
@@ -532,47 +542,58 @@ input[type="date"] {
 }
 .page-header.compact .title-block { gap: var(--gap-xs); }
 .page-header.compact .subtitle { font-size: 0.84rem; }
+
 .page-header.compact .view-switch {
 	padding: var(--gap-xs);
 	min-height: 54px;
 }
+
 .page-header.compact .view-tab {
 	padding: var(--gap-xs) var(--gap-md);
 	font-size: 0.75rem;
 	min-width: 62px;
 }
+
 .page-header.compact .month-select,
 .page-header.compact .day-select,
 .page-header.compact .pill,
 .page-header.compact .pdf-action-desktop .btn-airy { min-height: 54px; }
+
 .page-header.compact .month-select,
 .page-header.compact .day-select { padding: var(--gap-sm) var(--card-inner-gap); }
 	.page-header.compact .pill { padding: var(--gap-sm) var(--card-inner-gap); }
 .page-header.compact .pdf-action-desktop .btn-airy.btn-pdf-compact { padding: 0 12px; }
 .btn-airy.btn-pdf-compact span { font-size: 0.85rem; letter-spacing: 0.04em; font-weight: 700; }
 .btn-airy.btn-pdf-compact { gap: var(--gap-sm); }
-@media (min-width: 880px) {
+
+@media (width >= 880px) {
 	.page-header.compact .page-header-right { gap: var(--gap-md); }
 	.page-header.compact .controls { gap: var(--gap-md); }
 }
-@media (max-width: 879px) {
+
+@media (width <= 879px) {
 	.page-header.compact .month-select label { font-size: 0.7rem; }
 	.page-header.compact .view-tab { flex: 1 1 0; }
 }
 
 /* Мобильное: месяц и pill в одну строку */
-@media (max-width: 767px) {
+@media (width <= 767px) {
 	.page-header.compact .month-info { flex-wrap: nowrap; width: 100%; }
+
 	.page-header.compact .month-info .month-select,
 	.page-header.compact .day-info .day-select { flex: 1 1 auto; min-width: 0; }
+
 	.page-header.compact .month-info .pill,
 	.page-header.compact .day-info .pill { flex: 1 1 auto; min-width: 0; }
+
 	.page-header.compact .month-info .month-select,
 	.page-header.compact .day-info .day-select,
 	.page-header.compact .month-info .pill,
 	.page-header.compact .day-info .pill { padding: var(--gap-sm) var(--gap-md); }
+
 	.page-header.compact .month-info,
 	.page-header.compact .day-info { gap: var(--gap-md); }
+
 	.pdf-action-mobile-bottom {
 		margin: var(--gap-xl) auto var(--gap-lg);
 		max-width: 1180px;
@@ -606,7 +627,7 @@ input[type="date"] {
 .btn svg {
 	width: 16px;
 	height: 16px;
-	stroke: currentColor;
+	stroke: currentcolor;
 	stroke-width: 1.6;
 }
 
@@ -626,7 +647,7 @@ input[type="date"] {
 .btn-airy {
 	background: var(--gradient-btn-airy);
 	color: var(--accent-strong);
-	border: 1px solid rgba(47, 111, 237, 0.18);
+	border: 1px solid rgb(47 111 237 / 18%);
 	box-shadow: var(--shadow-btn-airy);
 	padding: 0 16px;
 	min-height: var(--control-height);
@@ -649,7 +670,7 @@ input[type="date"] {
 	box-shadow: var(--shadow-btn-airy-active);
 }
 
-@media (min-width: 768px) {
+@media (width >= 768px) {
 	.pdf-action-desktop .btn-airy {
 		background: var(--gradient-btn-airy-desktop);
 		color: var(--text-main);
@@ -676,7 +697,7 @@ input[type="date"] {
 	box-shadow: var(--shadow-btn-primary-active);
 }
 
-@media (max-width: 767px) {
+@media (width <= 767px) {
 	.controls {
 		flex-direction: column;
 		align-items: stretch;

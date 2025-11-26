@@ -8,6 +8,7 @@
 
       <div class="modal-body">
         <div v-if="loading">Загрузка…</div>
+        <div v-else-if="error" class="dashboard__state dashboard__state--error">Ошибка: {{ error }}</div>
         <table v-else class="smeta-breakdown-table modal-table">
           <colgroup>
             <col class="col-date" />
@@ -41,6 +42,7 @@ const emit = defineEmits(['close'])
 
 const rows = ref([])
 const loading = ref(false)
+const error = ref(null)
 
 function formatDate(d){
   if (!d) return '-'
@@ -54,11 +56,16 @@ function formatDate(d){
 async function load(){
   if (!props.month) return
   loading.value = true
+  error.value = null
   try{
     const api = await import('../../api/dashboard.js')
     const res = await api.getMonthlyDailyRevenue(props.month)
     rows.value = res.rows || []
-  }finally{ loading.value = false }
+  } catch (err) {
+    console.error('Failed to load monthly daily revenue', err)
+    error.value = err && err.message ? String(err.message) : 'Ошибка при загрузке данных'
+    rows.value = []
+  } finally{ loading.value = false }
 }
 
 watch(()=>props.visible, v=>{ if (v) load() })

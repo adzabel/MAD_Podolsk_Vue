@@ -1,0 +1,17 @@
+{
+  "extends": "stylelint-config-standard",
+  "plugins": [
+    "stylelint-order"
+  ],
+  "rules": {
+    "color-no-invalid-hex": true,
+    "declaration-no-important": true,
+    "selector-class-pattern": null,
+    "declaration-block-single-line-max-declarations": null,
+    "no-duplicate-selectors": null,
+    "declaration-property-value-keyword-no-deprecated": null,
+    "property-no-deprecated": null,
+    "unit-no-unknown": true,
+    "no-descending-specificity": null
+  }
+}
