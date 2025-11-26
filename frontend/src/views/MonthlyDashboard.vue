@@ -43,8 +43,16 @@ onMounted(async () => {
   }
 })
 
-const { isOpen: isDailyModalOpen, open: openDailyRevenue, close: closeDailyRevenue } = useModal(false)
-const { isOpen: isSmetaDescOpen, open: openSmetaDescription, close: closeSmetaDescription } = useModal(false)
+const dailyRevenueModal = useModal(false)
+const smetaDescModal = useModal(false)
+
+const isDailyModalOpen = computed(() => dailyRevenueModal.isOpen.value)
+const isSmetaDescOpen = computed(() => smetaDescModal.isOpen.value)
+
+const openDailyRevenue = () => dailyRevenueModal.open()
+const closeDailyRevenue = () => dailyRevenueModal.close()
+const openSmetaDescription = () => smetaDescModal.open()
+const closeSmetaDescription = () => smetaDescModal.close()
 
 // открыть попап расшифровки при выборе description
 function refreshMonthData() {
