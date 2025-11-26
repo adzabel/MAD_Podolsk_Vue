@@ -347,12 +347,16 @@ def build_daily(date_value: str):
         raise HTTPException(status_code=400, detail="invalid date format")
 
     rows = dashboard_repo.get_daily_rows(date_value)
-    total_row = dashboard_repo.get_daily_total(date_value)
     for r in rows:
         r["volume"] = int(r["volume"] or 0)
         r["amount"] = int(r["amount"] or 0)
-    total_amount = int(total_row["total"] or 0) if total_row else 0
-    return {"date": date_value, "rows": rows, "total": {"amount": total_amount}}
+
+    # Business rule: include only rows where amount > 5
+    filtered_rows = [r for r in rows if r.get("amount", 0) > 5]
+
+    # Recompute total as sum of amounts of filtered rows
+    total_amount = sum(r.get("amount", 0) for r in filtered_rows)
+    return {"date": date_value, "rows": filtered_rows, "total": {"amount": int(total_amount)}}
 
 
 def build_last_loaded():
