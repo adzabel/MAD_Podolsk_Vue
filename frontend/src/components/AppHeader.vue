@@ -6,11 +6,14 @@ import { storeToRefs } from 'pinia'
 import LastUpdatedBadge from './LastUpdatedBadge.vue'
 import MonthPicker from './MonthPicker.vue'
 import DayPicker from './DayPicker.vue'
+import { useIsMobile } from '../composables/useIsMobile.js'
 
 const router = useRouter()
 const route = useRoute()
 const store = useDashboardStore()
 const { selectedMonth: selectedMonthRef, monthlySummary, selectedDate, loadedAt } = storeToRefs(store)
+
+const { isMobile } = useIsMobile()
 
 // выбор режима (для подсветки активной кнопки)
 const isMonthly = computed(() => route.path === '/' || route.name === 'monthly')
@@ -70,39 +73,108 @@ const selectedMonth = computed({
 <template>
   <header class="app-header p-md">
     <div class="app-header__inner">
-      <div class="app-header__left">
-      <h1 class="app-header__title text-h1">СКПДИ · МАД · Подольск</h1>
-      <p class="app-header__subtitle text-body-sm">Работы в статусе «Рассмотрено»</p>
-      </div>
-    <div class="app-header__right items-center">
-      <!-- Переключатель режимов -->
-      <div class="app-header__mode-switch control">
-        <button
-          type="button"
-          class="mode-btn"
-          :class="{ 'mode-btn--active': isMonthly }"
-          @click="goToMonthly"
-        >
-          <span class="mode-btn-text">По месяцам</span>
-        </button>
-        <button
-          type="button"
-          class="mode-btn"
-          :class="{ 'mode-btn--active': isDaily }"
-          @click="goToDaily"
-        >
-          <span class="mode-btn-text">По дням</span>
-        </button>
+      <div v-if="isMobile" class="app-header__mobile">
+        <h1 class="app-header__title text-h1">СКПДИ · МАД · Подольск</h1>
+        <p class="app-header__subtitle text-body-sm">Работы в статусе «Рассмотрено»</p>
+
+        <div class="app-header__mode-switch control mode-switch--mobile">
+          <button
+            type="button"
+            class="mode-btn"
+            :class="{ 'mode-btn--active': isMonthly }"
+            @click="goToMonthly"
+          >
+            <span class="mode-btn-text">По месяцам</span>
+          </button>
+          <button
+            type="button"
+            class="mode-btn"
+            :class="{ 'mode-btn--active': isDaily }"
+            @click="goToDaily"
+          >
+            <span class="mode-btn-text">По дням</span>
+          </button>
+        </div>
+        <div class="app-header__picker control">
+          <MonthPicker v-if="isMonthly" v-model="selectedMonth" />
+          <DayPicker v-else />
+        </div>
+
+        <div class="app-header__updated control">
+          <LastUpdatedBadge :loadedAt="monthlySummary?.value?.loaded_at || loadedAt" />
+        </div>
       </div>
 
-      <!-- Выбор месяца / даты (костомный) -->
-      <div class="app-header__month control">
-        <MonthPicker v-if="isMonthly" v-model="selectedMonth" />
-        <DayPicker v-else />
-      </div>
+      <div v-else class="app-header__desktop">
+        <div class="app-header__left">
+          <h1 class="app-header__title text-h1">СКПДИ · МАД · Подольск</h1>
+          <p class="app-header__subtitle text-body-sm">Работы в статусе «Рассмотрено»</p>
+        </div>
+        <div class="app-header__right items-center">
+          <!-- Переключатель режимов -->
+          <div class="app-header__mode-switch control">
+            <button
+              type="button"
+              class="mode-btn"
+              :class="{ 'mode-btn--active': isMonthly }"
+              @click="goToMonthly"
+            >
+              <span class="mode-btn-text">По месяцам</span>
+            </button>
+            <button
+              type="button"
+              class="mode-btn"
+              :class="{ 'mode-btn--active': isDaily }"
+              @click="goToDaily"
+            >
+              <span class="mode-btn-text">По дням</span>
+            </button>
+          </div>
 
-      <LastUpdatedBadge class="control" :loadedAt="monthlySummary?.value?.loaded_at || loadedAt" />
+          <!-- Выбор месяца / даты (костомный) -->
+          <div class="app-header__month control">
+            <MonthPicker v-if="isMonthly" v-model="selectedMonth" />
+            <DayPicker v-else />
+          </div>
+
+          <LastUpdatedBadge class="control" :loadedAt="monthlySummary?.value?.loaded_at || loadedAt" />
+        </div>
       </div>
     </div>
   </header>
 </template>
+
+<style scoped>
+/* Mobile specific layout adjustments */
+.app-header__mobile {
+  display: block;
+}
+.mode-switch--mobile {
+  display: flex;
+  width: 100%;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+.mode-switch--mobile .mode-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.app-header__picker.control,
+.app-header__updated.control {
+  width: 100%;
+  margin: 0.25rem 0;
+}
+
+/* Small spacing tweaks for mobile */
+.app-header__mobile .app-header__title { margin: 0; }
+.app-header__mobile .app-header__subtitle { margin: 0.25rem 0 0.5rem 0; }
+
+/* Ensure desktop layout unchanged but scoped rules won't leak */
+.app-header__desktop { display: flex; width: 100%; }
+.app-header__desktop .app-header__left { flex: 0 0 auto; }
+.app-header__desktop .app-header__right { margin-left: auto; display:flex; gap:0.75rem; align-items:center; }
+</style>
