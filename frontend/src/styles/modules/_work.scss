@@ -86,6 +86,11 @@
 
 .work-list-mobile-header { display:none; }
 .panel-title-desktop { display:block; }
+.panel-title-mobile { display: none; }
+
+/* Hide header controls (mobile sort) by default for smeta details panels on desktop
+  and only show them on small screens where inline column sorting isn't convenient. */
+.smeta-panel.smeta-details .panel-header-controls { display: none; }
 .work-mobile-sort { display:none; }
 
 .work-mobile-sort-label { font-size:var(--font-size-label); letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px; }
@@ -97,6 +102,11 @@
 
 @media (max-width: 767px) {
   .work-list-header { display:none; }
+  /* hide desktop H2 for smeta panels and show mobile title block */
+  .smeta-panel.smeta-details .panel-title { display: none; }
+  .smeta-panel.smeta-details .panel-title-mobile { display: flex; }
+  /* show mobile sort controls inside panel header on small screens */
+  .smeta-panel.smeta-details .panel-header-controls { display: flex !important; align-items: center; margin-left: 8px; }
   .panel-title-desktop { display:none; }
   .work-list-mobile-header { display:grid; grid-template-columns: minmax(0, 1fr) minmax(140px, 40vw); align-items:flex-start; gap: var(--gap-sm) clamp(12px, 4vw, 20px); padding: var(--card-frame-gap) var(--gap-md) var(--gap-xs); }
   .work-list-mobile-title { display:flex; flex-direction:column; gap:var(--gap-xs); flex:1; min-width:0; }

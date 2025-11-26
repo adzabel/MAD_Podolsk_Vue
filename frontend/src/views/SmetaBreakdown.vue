@@ -1,8 +1,12 @@
 <template>
-  <section class="panel smeta-breakdown">
+  <section class="panel smeta-panel smeta-details smeta-breakdown">
     <div class="panel-header">
       <div class="panel-title-group">
         <h2 class="panel-title">Расшифровка работ по смете — {{ smetaLabel }}</h2>
+        <div class="panel-title-mobile">
+          <div class="panel-title-mobile-label">РАБОТЫ ПО СМЕТЕ</div>
+          <div class="panel-title-mobile-value">{{ smetaLabel }}</div>
+        </div>
         <p class="panel-subtitle">{{ selectedMonth }}</p>
       </div>
     </div>
