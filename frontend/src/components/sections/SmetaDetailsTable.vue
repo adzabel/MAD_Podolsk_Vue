@@ -58,7 +58,11 @@
                   :aria-expanded="isExpanded(idFor(item, idx))"
                   :aria-label="isExpanded(idFor(item, idx)) ? 'Свернуть' : 'Развернуть'"
                 >
-                  <span class="chev" :class="{ rotated: isExpanded(idFor(item, idx)) }">▾</span>
+                  <span class="chev" :class="{ rotated: isExpanded(idFor(item, idx)) }" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                      <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
                 </button>
               </div>
             </td>
@@ -89,15 +93,19 @@
             >
               {{ item.title || item.description || item.work_name }}
             </div>
-            <button
-              v-if="isClamped(idFor(item, idx))"
-              class="smeta-title-toggle"
-              @click.stop="toggleExpand(idFor(item, idx))"
-              :aria-expanded="isExpanded(idFor(item, idx))"
-              :aria-label="isExpanded(idFor(item, idx)) ? 'Свернуть' : 'Развернуть'"
-            >
-              <span class="chev" :class="{ rotated: isExpanded(idFor(item, idx)) }">▾</span>
-            </button>
+                <button
+                  v-if="isClamped(idFor(item, idx))"
+                  class="smeta-title-toggle"
+                  @click.stop="toggleExpand(idFor(item, idx))"
+                  :aria-expanded="isExpanded(idFor(item, idx))"
+                  :aria-label="isExpanded(idFor(item, idx)) ? 'Свернуть' : 'Развернуть'"
+                >
+                  <span class="chev" :class="{ rotated: isExpanded(idFor(item, idx)) }" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                      <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                </button>
           </div>
         </div>
         <div class="smeta-mobile-row smeta-mobile-row-labels text-label">
@@ -222,11 +230,14 @@ function checkClamped(){
     try {
       for (const [id, el] of titleEls.entries()){
         if (!el) continue
-        const style = window.getComputedStyle(el)
-        // try to infer line-height; fallback to font-size * 1.2
-        const lh = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.2
-        const maxH = lh * 2 + 1 // two lines + tolerance
-        result[id] = el.scrollHeight > maxH
+        // Prefer a robust overflow test: compare full scrollHeight with visible clientHeight.
+        // When -webkit-line-clamp is active, clientHeight equals the clamped (visible) height,
+        // while scrollHeight equals the full content height. Use a small tolerance to avoid
+        // false positives from fractional pixels.
+        const tolerance = 2 // pixels
+        const fullH = el.scrollHeight || el.offsetHeight || 0
+        const visibleH = el.clientHeight || el.offsetHeight || 0
+        result[id] = fullH > (visibleH + tolerance)
       }
     } catch (e) {
       // silently ignore measurement errors
@@ -297,6 +308,39 @@ watch(sortedItems, () => { checkClamped() })
   border-radius: 8px;
 }
 
+/* Chevron styles: match DayPicker look & behavior (size, color, hover/focus, rotation) */
+.smeta-title-toggle {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+.smeta-title-toggle .chev {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--chevron-color, rgb(94 100 115 / 50%));
+  transition: background-color .12s ease, transform .12s ease, color .12s ease;
+  border-radius: 10px;
+}
+
+.smeta-title-toggle .chev svg { width: 18px; height: 18px; }
+
+.smeta-title-toggle:hover .chev { background: var(--surface-highlight, rgba(0,0,0,0.04)); }
+.smeta-title-toggle:active .chev { transform: scale(.98); }
+.smeta-title-toggle:focus-visible { outline: 2px solid color-mix(in srgb, var(--accent, #6b77f4) 20%, transparent); outline-offset: 2px; }
+
+.smeta-title-toggle .chev.rotated { transform: rotate(180deg); color: #6b7280; }
+
 </style>
+
 
 
