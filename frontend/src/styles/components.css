@@ -1,47 +1,7 @@
-/* Layout primitives */
-
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-lg);
-  padding: var(--card-padding);
-  box-shadow: var(--shadow-card);
-}
-
-/* Typography utility classes (use tokens from `src/styles/_tokens.scss`) */
-.type-h1 { font-size: var(--font-size-h1); }
-.type-h2 { font-size: var(--font-size-h2); }
-.type-h3 { font-size: var(--font-size-h3); }
-.type-body { font-size: var(--font-size-body); }
-.type-body-sm { font-size: var(--font-size-body-sm); }
-.type-caption { font-size: var(--font-size-caption); }
-.type-label { font-size: var(--font-size-label); }
-.type-numeric-xl { font-size: var(--font-size-h1); font-weight: 700 }
-
-
-.card--xl {
-  border-radius: var(--radius-xl);
-}
-
-.card--stacked {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-xs);
-}
-
-.card--interactive {
-  position: relative;
-  cursor: pointer;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  transition: var(--transition-lift), var(--transition-border);
-}
-
-.card--interactive:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 4px;
-}
+/* Layout primitives moved to `modules/_cards.scss` */
+/* Card, smeta-card and dashboard-card rules were extracted into the
+   module `src/styles/modules/_cards.scss`. Keep this file minimal; if
+   you need to add more card variants, prefer the module. */
 
 .layout-grid {
   display: grid;
@@ -193,6 +153,11 @@
   box-sizing: border-box;
   margin-left: 0;
   margin-right: 0;
+}
+
+/* Restore inner padding so panels have breathing space on desktop */
+.smeta-panel {
+  padding: calc(var(--card-padding) / 2) var(--card-padding) var(--card-padding) var(--card-padding);
 }
 
 /* Ensure the details panel always spans the full row and cannot be placed
@@ -639,150 +604,10 @@
 /* Use a responsive grid: 1 column on small screens, 3 columns on desktop */
 .meta-cards__list { /* keep legacy if referenced accidentally */ }
 
-.smeta-cards__list {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--grid-gap);
-  align-items: start;
-}
-
-@media (width >= 1000px) {
-  .smeta-cards__list {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (width <= 640px) {
-  /* Left-align smeta card titles on mobile for clearer hierarchy */
-  .smeta-card__head { justify-content: flex-start; align-items: flex-start; gap: var(--gap-sm); }
-  .smeta-card__title { text-align: left; font-size: var(--font-size-body); }
-  .smeta-card__meta-pill { margin-left: auto; }
-  .smeta-card__numbers { align-items: flex-start; }
-
-  /* prefer using `.card-col` utility; mobile alignment handled by utilities.css */
-  .smeta-card__label { text-align: left }
-  .smeta-card__value { text-align: left }
-}
-
-/* panel body adjustments for smeta block */
-.smeta-panel { padding: calc(var(--card-padding) / 2) var(--card-padding) var(--card-padding) var(--card-padding); }
-.smeta-panel .panel-header { margin-bottom: var(--gap-sm) }
-.smeta-panel .panel-title { font-size: var(--font-size-h2); }
-.smeta-panel .panel-body { padding: 0 var(--gap-xs) 0 var(--gap-xs) }
-
-/* smeta table styles moved to `modules/_tables-modals.scss` */
-
-/* make cards share same row and wrap as needed */
-.smeta-cards__list { align-items: stretch }
-
-/* Large smeta card to match the design */
-.smeta-card--large {
-  position: relative;
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-
-  /* padding: use standard card padding token; utilities can override with .p-* classes */
-  padding: var(--card-padding);
-  box-shadow: var(--shadow-card);
-  border: 1px solid var(--border-soft);
-  overflow: hidden;
-  box-sizing: border-box;
-}
-
-/* selected smeta card visual */
-.smeta-card.is-selected {
-  border-color: var(--accent);
-  box-shadow: 0 8px 20px rgb(47 111 237 / 8%);
-}
-
-/* accent removed: left vertical strip was removed per design */
-.smeta-card__body{ flex:1; display:flex; flex-direction:column; gap:var(--gap-xs); min-width:0 }
-.smeta-card__head{ display:flex; justify-content:space-between; align-items:center }
-.smeta-card__title{ margin:0; /* компактный заголовок внутри карточки */ font-size: var(--font-size-body); font-weight:700; color:var(--text-main) }
-.smeta-card__meta-pill{ background: rgb(15 23 42 / 6%); padding: 4px calc(var(--card-inner-gap) * 0.6); border-radius:10px; font-size:var(--font-size-caption); color:var(--text-muted) }
-
-.smeta-card__numbers{ display:flex; gap:var(--gap-md); align-items:baseline; flex-wrap:nowrap; justify-content:space-between }
-
-/* `.smeta-card__col` styling migrated to utility `.card-col` (defined in utilities.css) */
-.smeta-card__col{ /* kept as semantic hook, layout provided by `.card-col` utility where used */ }
-.smeta-card__label{ font-size: var(--font-size-label); color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em }
-.smeta-card__value{ /* ещё компактнее — значения ближе к общему телу */ font-size: var(--font-size-body); font-weight:700; color:var(--text-main); margin-top:4px }
-.smeta-card__value.delta-negative{ color:var(--danger) }
-
-.smeta-card__progress{ display:flex; flex-direction:column; gap:var(--gap-xs); width:100%; padding-inline: var(--card-inner-gap); box-sizing: border-box; }
-.smeta-card__progress-label{ font-size:11px; color:var(--text-muted); text-transform:uppercase }
-.smeta-progress__wrap{ display:flex; align-items:center; gap:var(--gap-md) }
-
-.smeta-progress-labels {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: var(--font-size-label);
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.smeta-progress-labels strong { font-size: var(--font-size-caption); color: var(--text-main); }
-
-/* Use the same visual style as summary progress bar for consistency */
-.smeta-progress__bar{
-  width: 100%;
-  height: var(--progress-height);
-  border-radius: var(--radius-xxl);
-  background: rgb(47 111 237 / 12%);
-  overflow: hidden;
-  position: relative;
-}
-
-.smeta-progress__fill{
-  position: absolute;
-  inset: 0;
-  width: 0;
-  border-radius: inherit;
-
-  --progress-color: var(--accent);
-
-  background: linear-gradient(
-    90deg,
-      color-mix(in srgb, var(--progress-color) 75%, var(--surface-base)) 0%,
-    var(--progress-color) 100%
-  );
-  box-shadow: 0 6px 12px color-mix(in srgb, var(--progress-color) 30%, transparent);
-  transition: width 0.35s ease;
-}
-.smeta-progress__fill.overflow{ box-shadow: 0 6px 16px rgb(34 197 94 / 25%); }
-.smeta-card__progress-percent{ min-width:40px; text-align:right; font-weight:700; white-space:nowrap }
-
-/* Compact variant: reduce visual height of smeta cards by ~30% */
-.smeta-cards__list .smeta-card--large {
-  /* Use consistent token-based padding; individual cards can apply .p-* utilities if needed */
-  padding: var(--card-padding);
-}
-
-.smeta-cards__list .smeta-card__body {
-  gap: calc(var(--gap-xs) * 0.7);
-}
-
-.smeta-cards__list .smeta-card__title {
-  font-size: 0.92em;
-}
-
-.smeta-cards__list .smeta-card__value {
-  font-size: 0.94em;
-  margin-top: 2px;
-}
-
-.smeta-cards__list .smeta-progress__bar {
-  height: 6px; /* from 8px -> ~6px */
-}
-
-.smeta-cards__list .smeta-card__progress-percent {
-  font-size: 0.92em;
-  min-width: 36px;
-}
+/* Smeta / card rules moved to `modules/_cards.scss` */
+/* If you notice a missing style for a smeta or dashboard card, edit
+   `src/styles/modules/_cards.scss` and then remove any temporary
+   overrides from `_overrides.scss` after QA. */
 
 /* Monthly dashboard */
 .dashboard { display: flex; flex-direction: column; gap: var(--section-gap) }
@@ -816,11 +641,7 @@
 .dashboard > .dashboard__content .dashboard__grid .panel + .panel {
   margin-top: 0;
 }
-.dashboard-card { padding: var(--card-padding); border-radius: var(--radius-sm); border: 1px solid var(--border-neutral); background: var(--surface-base); width: 320px }
-.dashboard-card__title { margin: 0 0 var(--gap-md) 0; font-size: var(--font-size-h2); font-weight: 600 }
-.dashboard-card__row { display: flex; justify-content: space-between; padding: var(--gap-xs) 0 }
-.dashboard-card__label { color: var(--text-soft) }
-.dashboard-card__value { font-weight: 500 }
+.dashboard-card { /* migrated to `modules/_cards.scss` */ }
 
 /* No extra margins between the dashboard grid and smeta panel — the
    grid `row-gap` controls vertical spacing consistently. */
@@ -856,75 +677,8 @@
   .last-updated { flex: 1 1 50%; min-width: 0 }
 }
 
-/* --- Shared picker styles (month/day) - centralized to avoid duplicates --- */
-.month-picker, .day-picker, .picker {
-  position: relative;
-  display: inline-block;
-}
-
-.month-picker__toggle, .day-picker__toggle, .picker__toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--gap-md);
-  background: var(--bg-card);
-  border: 1px solid var(--border-soft);
-  padding: 0 var(--gap-md);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  min-width: var(--picker-min-width);
-  height: var(--control-height);
-}
-
-.month-picker__label, .day-picker__label, .picker__label {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  margin-right: 6px;
-}
-
-.month-picker__current, .day-picker__current, .picker__current {
-  font-weight: 700;
-  color: var(--text-main);
-  flex: 1;
-  text-align: left;
-}
-
-.month-picker__arrow, .day-picker__arrow, .picker__arrow { color: var(--text-muted); }
-
-.month-picker__panel {
-  position: absolute;
-  top: calc(100% + var(--gap-sm));
-  left: 0;
-  background: var(--bg-card);
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--shadow-soft);
-  border-radius: var(--radius-md);
-  z-index: 40;
-  max-height: 320px;
-  overflow: auto;
-  padding: var(--gap-sm);
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.month-picker__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--gap-xs); }
-.month-picker__item button { width: 100%; text-align: left; padding: var(--gap-sm) var(--gap-md); border-radius: var(--radius-md); background: transparent; border: none; cursor: pointer; font-size: var(--font-size-body); }
-.month-picker__item button:hover, .month-picker__item button.is-focused { background: var(--bg-muted); }
-.month-picker__item button.is-active { background: var(--accent-soft); color: var(--accent-strong); font-weight: 700; }
-.month-picker__empty { padding: var(--gap-md); color: var(--text-muted); }
-
-@media (width <= 640px) {
-  .month-picker__toggle, .day-picker__toggle, .picker__toggle {
-    width: 100%;
-    min-width: 0;
-    padding: 0 var(--gap-sm);
-    min-height: var(--control-height-mobile);
-    height: var(--control-height-mobile);
-    gap: var(--gap-sm);
-  }
-  .month-picker__label, .day-picker__label { font-size: 0.64rem; margin-right: 6px }
-  .month-picker__current, .day-picker__current { font-size: 0.95rem }
-}
+/* Picker styles moved to modular SCSS: */
+/* See `frontend/src/styles/modules/_pickers.scss` for month/day/picker rules */
 
 /* small helpers moved to utilities.css */
 

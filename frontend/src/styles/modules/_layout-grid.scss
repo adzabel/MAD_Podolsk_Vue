@@ -1,3 +1,115 @@
+/* Layout grid, containers and panel primitives extracted from layout.css */
+
+/* Toasts (global) */
+.toast {
+  position: fixed;
+  bottom: var(--fab-offset);
+  right: var(--fab-offset);
+  background: var(--bg-card);
+  padding: var(--card-padding) var(--gap-xl);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  animation: slide-in 0.3s ease;
+  z-index: 1000;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast { animation: none; }
+}
+.toast.success { border-left: 4px solid var(--success); }
+.toast.error   { border-left: 4px solid var(--danger); }
+
+/* Panel primitive: generic surface for sections and panels used across views
+   Panels are layout primitives and belong to the layout module so they
+   consistently inherit tokens for background, border and shadow. */
+.panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-soft);
+  border-radius: var(--radius-lg);
+  padding: var(--card-padding);
+  box-sizing: border-box;
+}
+
+/* Smeta panel (specific tweaks used in dashboard views) */
+.smeta-panel {
+  /* keep default panel appearance but allow smeta-specific padding rules
+     to be overridden in `components.css` where layout interactions exist */
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-card);
+  border-radius: var(--radius-lg);
+}
+
+/* Contract card + progress bar */
+.contract-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-card);
+  padding: clamp(14px, 2vw, var(--gap-lg));
+  display: grid;
+  gap: var(--gap-md);
+  margin-bottom: var(--section-gap);
+  min-height: var(--control-height);
+}
+
+.contract-card-header { display:flex; flex-direction:column; gap:var(--gap-sm); }
+.contract-card-title { font-weight:700; font-size:var(--font-size-h3); display:flex; align-items:baseline; gap:var(--gap-xs); }
+.contract-card-values { display:flex; gap:var(--gap-sm); font-size:var(--font-size-body-sm); flex-wrap:nowrap }
+.contract-card-values > div { flex:1 1 0; min-width:0 }
+.contract-card-values .label { font-size:0.75rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-muted); display:block; margin-bottom:2px }
+
+.contract-progress { padding-inline: var(--card-inner-gap); box-sizing: border-box; }
+.contract-progress-bar {
+  width:100%;
+  height: var(--progress-height);
+  background: var(--bg-muted);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xxl);
+  overflow:hidden;
+  position:relative;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 50%);
+}
+.contract-progress-fill { height:100%; width:var(--progress,0%); background:var(--accent); transition: width 0.35s ease, background-color 0.2s ease; border-radius:var(--radius-xxl); box-shadow:var(--shadow-card); }
+.contract-progress-fill.overflow { background: var(--success); }
+
+@media (width >= 768px) {
+  .contract-card-header { flex-direction:row; align-items:center; justify-content:space-between }
+  .contract-card-values { gap: clamp(12px, 2vw, 18px); }
+}
+
+/* Page header and view switch */
+.page-header {
+  display:flex; flex-direction:column; gap:var(--gap-lg); margin-bottom: var(--grid-gap);
+  padding: clamp(var(--gap-md), 2vw, var(--gap-lg)) 0;
+}
+.page-header-left { display:flex; flex-direction:column; gap:var(--gap-md) }
+.page-header-right { display:flex; flex-direction:column; gap:var(--gap-md); align-items:stretch }
+.header-actions { display:flex; align-items:center }
+
+.view-switch { display:inline-flex; gap:var(--gap-xs); background:var(--bg-card); border-radius:var(--radius-md); padding:var(--gap-xs); box-shadow:var(--shadow-card); width:fit-content; min-height:var(--control-height); }
+.view-tab { background:transparent; border:none; padding:var(--gap-xs) var(--gap-md); font-size:var(--font-size-label); font-weight:600; letter-spacing:0.02em; border-radius:var(--radius-sm); cursor:pointer; color:var(--text-muted); display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:64px }
+.view-tab.is-active { background:var(--accent); color:var(--text-inverse); box-shadow:var(--shadow-btn-primary) }
+
+@media (width >= 880px) {
+  .page-header { flex-direction:row; justify-content:space-between; align-items:flex-end }
+  .page-header-right { flex-direction:row; gap:var(--gap-lg); align-items:stretch }
+  .page-header-left { flex:1 1 auto }
+}
+
+@media (width <= 879px) {
+  .view-switch { width:100%; min-height:54px }
+  .view-tab { flex:1 1 0; text-align:center }
+}
+
+/* Router shell transitions */
+.router-shell { position:relative; width:100% }
+.fade-slide-enter-active, .fade-slide-leave-active { transition: opacity .18s ease, transform .18s ease; will-change: opacity, transform }
+.fade-slide-enter-from { opacity:0; transform: translateY(6px) }
+.fade-slide-enter-to   { opacity:1; transform: translateY(0) }
+.fade-slide-leave-from { opacity:1; transform: translateY(0) }
+.fade-slide-leave-to   { opacity:0; transform: translateY(-6px) }
 /* Page layout, containers and small layout utilities
    Extracted from `layout.css` to keep grid & container primitives separate.
 */

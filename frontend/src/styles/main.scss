@@ -10,6 +10,7 @@
 @import './modules/_header-controls.scss';
 @import './modules/_tables-modals.scss';
 @import './modules/_buttons-pills.scss';
+@import './modules/_cards.scss';
 
 /* Затем подключаем существующие глобальные CSS (сохраняем их, минимально вмешиваясь) */
 @import './base.css';
@@ -23,6 +24,8 @@
 @import './categories.css';
 
 /* Переопределения и «минимальная логика» на SCSS/CSS-переменных */
+@import './modules/_pickers.scss';
+
 @import './_overrides.scss';
 
 /* Emergency visual fixes (temporary) — файл переведён в чек-лист, импорт удалён */
