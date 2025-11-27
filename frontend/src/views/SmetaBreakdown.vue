@@ -203,8 +203,32 @@ function openByDescription(row){
     padding-right: 6px; /* give slight room for scrollbar */
   }
 
-  .smeta-breakdown-table { width: 100%; table-layout: auto; }
-  .smeta-breakdown-table td, .smeta-breakdown-table th { word-break: break-word; }
+  .smeta-breakdown-scroll.is-mobile { overflow-x: auto; }
+
+  .smeta-breakdown-table {
+    width: 100%;
+    max-width: 100%;
+    table-layout: fixed; /* make columns respect available width */
+    border-collapse: collapse;
+    box-sizing: border-box;
+  }
+
+  .smeta-breakdown-table th,
+  .smeta-breakdown-table td {
+    min-width: 0; /* allow cells to shrink below content width */
+    white-space: normal; /* allow wrapping */
+    word-break: break-word;
+    box-sizing: border-box;
+    padding: 10px 8px;
+  }
+
+  /* Keep numeric columns compact and right-aligned, but allow wrapping if necessary */
+  .smeta-breakdown-table th.numeric,
+  .smeta-breakdown-table td.numeric {
+    width: 22%;
+    text-align: right;
+    white-space: nowrap;
+  }
 }
 </style>
 
