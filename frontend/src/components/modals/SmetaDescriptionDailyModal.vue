@@ -8,12 +8,15 @@
         </header>
 
         <div class="modal-body">
+          <div class="modal-subtitle muted" v-if="isMobile">
+            Единица измерения: <span v-if="loading">Загрузка…</span><span v-else>{{ unitValue || '-' }}</span>
+          </div>
           <div v-if="loading">Загрузка…</div>
           <table v-else class="smeta-breakdown-table modal-table" :class="{ 'is-mobile': isMobile }">
             <thead>
               <tr>
                 <th class="date-col">Дата</th>
-                <th class="unit-col">Ед.изм.</th>
+                <th class="unit-col" v-if="!isMobile">Ед.изм.</th>
                 <th class="numeric">Объём</th>
                 <th class="numeric">Сумма</th>
               </tr>
@@ -21,12 +24,12 @@
             <tbody>
               <tr v-for="r in rowsList" :key="r.date">
                 <td class="modal-row-date date-col">{{ formatDate(r.date) }}</td>
-                <td class="unit-col">{{ r.unit || '-' }}</td>
+                <td class="unit-col" v-if="!isMobile">{{ r.unit || '-' }}</td>
                 <td class="numeric">{{ r.volume }}</td>
                 <td class="numeric modal-row-value">{{ formatMoney(r.amount) }}</td>
               </tr>
               <tr v-if="rowsList.length === 0">
-                <td colspan="4" class="muted">Нет данных за выбранный период</td>
+                <td :colspan="isMobile ? 3 : 4" class="muted">Нет данных за выбранный период</td>
               </tr>
             </tbody>
           </table>
@@ -67,6 +70,13 @@ const smetaDescriptionQuery = useQuery({
 
 const rowsList = computed(() => smetaDescriptionQuery.data.value || [])
 const loading = computed(() => smetaDescriptionQuery.isLoading.value || smetaDescriptionQuery.isFetching.value)
+
+const unitValue = computed(() => {
+  const rows = rowsList.value || []
+  if (!rows.length) return ''
+  const units = Array.from(new Set(rows.map(r => (r && r.unit) || '').filter(Boolean)))
+  return units.length ? units[0] : ''
+})
 
 function formatDate(d){
   if (!d) return '-'
@@ -134,6 +144,12 @@ function formatMoney(v){
 .modal-table td.unit-col {
   padding-left: 0.3rem;
   padding-right: 0.3rem;
+}
+
+/* Mobile subtitle styling */
+.modal-subtitle {
+  margin-bottom: 0.36rem;
+  font-size: 0.875rem;
 }
 
 /* Mobile: reduce modal title font to match column headers */
