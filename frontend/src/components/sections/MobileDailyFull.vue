@@ -1,6 +1,5 @@
 <template>
   <section class="mobile-daily">
-    <div class="mobile-daily__spacer" ref="spacerRef" aria-hidden="true"></div>
     <div class="mobile-daily__constrain" ref="constrainRef">
       <div class="mobile-daily__card">
         <header class="mobile-daily__header">
@@ -94,7 +93,6 @@ const displayDateShort = computed(() => {
 })
 
 const constrainRef = ref(null)
-const spacerRef = ref(null)
 
 function formatMoney(v) {
   if (v === null || v === undefined) return '-'
@@ -174,39 +172,17 @@ function checkClamped(){
 }
 
 
-function applyHeaderRect() {
-  const el = constrainRef.value
-  const spacer = spacerRef.value
-  if (!el) return
-  const header = document.querySelector('.app-header__inner')
-  if (!header) return
-  const r = header.getBoundingClientRect()
-  const ownRect = el.getBoundingClientRect()
-  // switch to fixed positioning so the element can align exactly with header
-  // and preserve its place in the document using the spacer
-  el.style.position = 'fixed'
-  el.style.left = `${Math.round(r.left)}px`
-  el.style.top = `${Math.round(ownRect.top)}px`
-  el.style.width = `${Math.round(r.width)}px`
-  el.style.zIndex = '100'
-  el.style.paddingLeft = '0px'
-  el.style.paddingRight = '0px'
-  // keep a spacer in flow so layout doesn't collapse
-  if (spacer) spacer.style.height = `${Math.round(ownRect.height)}px`
-}
+// Removed fixed/sticky positioning applied via JS so element stays in flow.
+// Layout adjustments are handled in CSS (mobile-only overrides below).
 
 let handler = null
 onMounted(async () => {
   await nextTick()
   // check clamped titles and align with header on mount
   checkClamped()
-  applyHeaderRect()
-  handler = () => {
-    applyHeaderRect()
-    checkClamped()
-  }
+  // we only need to re-check clamped state on resize
+  handler = () => { checkClamped() }
   window.addEventListener('resize', handler)
-  window.addEventListener('scroll', handler, { passive: true })
 })
 
 // Re-check clamped state when rows change
@@ -215,7 +191,6 @@ watch(sortedRows, () => { checkClamped() })
 onBeforeUnmount(() => {
   if (handler) {
     window.removeEventListener('resize', handler)
-    window.removeEventListener('scroll', handler)
   }
 })
 </script>
@@ -231,6 +206,19 @@ onBeforeUnmount(() => {
   padding-left: var(--page-hpad);
   padding-right: var(--page-hpad);
   box-sizing: border-box;
+}
+
+/* Mobile: make this component full-bleed while preserving internal padding removal
+   so it spans the full viewport width without side gaps when not positioned fixed. */
+@media (max-width: 767.98px) {
+  .mobile-daily__constrain {
+    max-width: 100vw;
+    width: calc(100% + (var(--page-hpad) * 2));
+    margin-left: calc(var(--page-hpad) * -1);
+    margin-right: calc(var(--page-hpad) * -1);
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 .mobile-daily__card {
