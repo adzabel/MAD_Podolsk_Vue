@@ -7,6 +7,7 @@ import { storeToRefs } from 'pinia'
 import TableSkeleton from '../components/ui/TableSkeleton.vue'
 import DailyRevenueModal from '../components/modals/DailyRevenueModal.vue'
 import SmetaDescriptionDailyModal from '../components/modals/SmetaDescriptionDailyModal.vue'
+import SmetaPanelNote from '../components/ui/SmetaPanelNote.vue'
 
 const ContractExecutionSection = defineAsyncComponent(() => import('../components/sections/ContractExecutionSection.vue'))
 const SummaryKpiSection = defineAsyncComponent(() => import('../components/sections/SummaryKpiSection.vue'))
@@ -85,8 +86,8 @@ function onSmetaSelect(key){
                   <section v-if="smetaDetailsLoading || (smetaDetails && smetaDetails.length)" class="panel smeta-panel smeta-details">
                     <div class="panel-header">
                       <div class="panel-title-group">
-                        <h3 class="panel-title">{{ selectedSmetaDesktopTitle }}</h3>
-                        <p class="panel-note">Детали по виду работы при нажатии</p>
+                        <h3 v-if="!isMobile" class="panel-title">{{ selectedSmetaDesktopTitle }}</h3>
+                        <SmetaPanelNote :label="selectedSmetaLabel" />
                       </div>
                     </div>
                     <div class="panel-body" v-show="!isSmetaCollapsed">

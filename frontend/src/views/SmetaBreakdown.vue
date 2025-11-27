@@ -2,6 +2,7 @@
   <section class="panel smeta-panel smeta-details smeta-breakdown">
     <div class="panel-header row-between">
       <div class="panel-title-group">
+        <SmetaPanelNote :label="smetaLabel" />
         <h3 class="panel-title text-h3">{{ smetaLabel }}</h3>
       </div>
     </div>
@@ -104,6 +105,7 @@ const smetaLabel = computed(() => {
 
 import { ref } from 'vue'
 import { useIsMobile } from '../composables/useIsMobile.js'
+import SmetaPanelNote from '../components/ui/SmetaPanelNote.vue'
 
 // Sorting state for the table — used by mobile sort control and desktop headers if needed
 const sortKeyRef = ref('plan')
