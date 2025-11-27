@@ -120,6 +120,7 @@ function formatMoney(v){
 .smeta-breakdown-table.modal-table thead th {
   padding: 0.36rem 0.5rem;
   font-weight: 600;
+  font-size: 0.875rem; /* column header font size (≈14px) */
 }
 
 /* Keep date column wide enough to show full date, but don't let it add extra spacing */
@@ -133,5 +134,11 @@ function formatMoney(v){
 .modal-table td.unit-col {
   padding-left: 0.3rem;
   padding-right: 0.3rem;
+}
+
+/* Mobile: reduce modal title font to match column headers */
+.modal.is-mobile .modal-title {
+  font-size: 0.875rem;
+  line-height: 1.2;
 }
 </style>
