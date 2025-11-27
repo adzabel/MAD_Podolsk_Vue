@@ -62,7 +62,8 @@ const months = computed(() => {
   // map store.availableMonths (array of YYYY-MM) to {value,label}
   const arr = (availableMonths.value || []).map(v => {
     const d = new Date(v + '-01')
-    const label = d.toLocaleString('ru-RU', { year: 'numeric', month: 'long' })
+    // produce "ноябрь 2025" (remove trailing " г.")
+    const label = d.toLocaleString('ru-RU', { year: 'numeric', month: 'long' }).replace(/\s+г\.?$/i, '')
     return { value: v, label }
   })
   return arr
@@ -193,10 +194,9 @@ const currentLabel = computed(()=>{
   const v = props.modelValue || selectedMonth.value
   if (!v) return ''
   const d = new Date(v + '-01')
-  // Ensure the year abbreviation "г." stays with the year (no orphaned "г." on next line)
+  // produce "ноябрь 2025" (remove trailing " г.")
   const s = d.toLocaleString('ru-RU', { year: 'numeric', month: 'long' })
-  // Replace regular space before "г." with non-breaking space, and also protect standalone year+g
-  return s.replace(/\s+г\.?$/i, '\u00A0г.')
+  return s.replace(/\s+г\.?$/i, '')
 })
 </script>
 
@@ -213,8 +213,10 @@ const currentLabel = computed(()=>{
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
-  min-width: 100%;
-  width: auto;
+  /* Force dropdown to match the width of the root picker element */
+  width: 100%;
+  /* Use a smaller base font for the dropdown so items and empty states start smaller */
+  font-size: var(--font-size-small);
   box-sizing: border-box;
   background: var(--bg-card);
   border: 1px solid var(--border-soft);
@@ -245,7 +247,11 @@ const currentLabel = computed(()=>{
   background: transparent;
   text-align: left;
   cursor: pointer;
-  font-size: var(--font-size-body);
+  /* Desktop: smaller month label and no wrapping so it stays on one line */
+  font-size: var(--font-size-small);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-family: var(--font-sans);
 }
 

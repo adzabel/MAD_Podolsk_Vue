@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "copy:vendor": "mkdir -p public/vendor && cp node_modules/html2pdf.js/dist/html2pdf.bundle.min.js public/vendor/html2pdf.bundle.min.js",
+    "postinstall": "npm run copy:vendor || true",
     "build:analyze": "ANALYZE=true vite build",
     "preview": "vite preview",
     "lint:css": "stylelint \"src/**/*.{css,scss}\"",
@@ -16,7 +18,8 @@
     "@tanstack/vue-virtual": "*",
     "pinia": "^3.0.4",
     "vue": "^3.5.25",
-    "vue-router": "^4.6.3"
+    "vue-router": "^4.6.3",
+    "html2pdf.js": "^0.10.1"
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^7.0.2",

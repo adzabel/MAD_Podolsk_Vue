@@ -7,6 +7,7 @@ import { storeToRefs } from 'pinia'
 import LastUpdatedBadge from './LastUpdatedBadge.vue'
 import MonthPicker from './MonthPicker.vue'
 import DayPicker from './DayPicker.vue'
+// ExportPdfButton temporarily disabled in header during report work-in-progress
 
 const { isMobile } = useIsMobile()
 const innerRef = ref(null)
@@ -101,6 +102,9 @@ const selectedMonth = computed({
 
           <div class="app-header__updated control">
             <LastUpdatedBadge :loadedAt="monthlySummary?.value?.loaded_at || loadedAt" />
+          </div>
+          <div class="app-header__export control" v-if="false">
+            <!-- ExportPdfButton temporarily disabled while report is being refined -->
           </div>
         </div>
       </div>
