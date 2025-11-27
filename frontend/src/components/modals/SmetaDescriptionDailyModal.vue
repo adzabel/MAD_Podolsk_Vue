@@ -3,7 +3,7 @@
     <div class="modal-backdrop visible" @click.self="$emit('close')">
       <div class="modal p-md" :class="{ 'is-mobile': isMobile }" role="dialog" aria-modal="true">
         <header class="modal-header items-center row-between">
-          <h3 class="modal-title text-h2">Расшифровка — {{ description }}</h3>
+          <h3 class="modal-title text-h2">{{ description }}</h3>
           <button class="modal-close control-sm" @click="$emit('close')">✕</button>
         </header>
 
@@ -12,7 +12,8 @@
           <table v-else class="smeta-breakdown-table modal-table" :class="{ 'is-mobile': isMobile }">
             <thead>
               <tr>
-                <th>Дата</th>
+                <th class="date-col">Дата</th>
+                <th class="unit-col">Ед.изм.</th>
                 <th class="numeric">Объём</th>
                 <th class="numeric">Сумма</th>
               </tr>
@@ -20,11 +21,12 @@
             <tbody>
               <tr v-for="r in rowsList" :key="r.date">
                 <td class="modal-row-date">{{ formatDate(r.date) }}</td>
-                <td class="numeric">{{ r.volume }} <span class="modal-value-unit">{{ r.unit }}</span></td>
+                <td class="unit-col">{{ r.unit || '-' }}</td>
+                <td class="numeric">{{ r.volume }}</td>
                 <td class="numeric modal-row-value">{{ formatMoney(r.amount) }}</td>
               </tr>
               <tr v-if="rowsList.length === 0">
-                <td colspan="3" class="muted">Нет данных за выбранный период</td>
+                <td colspan="4" class="muted">Нет данных за выбранный период</td>
               </tr>
             </tbody>
           </table>
@@ -86,3 +88,25 @@ function formatMoney(v){
   return n.toLocaleString('ru-RU', { maximumFractionDigits: 0, minimumFractionDigits: 0 })
 }
 </script>
+
+<style scoped>
+.smeta-breakdown-table.modal-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.smeta-breakdown-table.modal-table th,
+.smeta-breakdown-table.modal-table td {
+  width: 25%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.modal-table th.unit-col,
+.modal-table td.unit-col {
+  text-align: center;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+</style>
