@@ -219,6 +219,19 @@ onBeforeUnmount(() => {
     padding-left: 0;
     padding-right: 0;
   }
+  /* Totals row: slightly darker than the zebra row background used for titles */
+  .smeta-mobile-totals {
+    background: transparent;
+    margin-top: 8px;
+  }
+  /* apply background and bottom radiuses to inner grid so its left/right
+     padding aligns exactly with zebra rows which also use inner padding */
+  .smeta-mobile-totals .totals-grid {
+    background-color: rgba(0,0,0,0.16);
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    padding: 8px 12px;
+  }
 }
 
 .mobile-daily__card {
@@ -263,7 +276,6 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 12px;
   padding: 8px 12px;
-  background: transparent;
 }
 .smeta-mobile-totals .totals-label {
   grid-column: 1 / span 2;
