@@ -12,27 +12,29 @@
             Единица измерения: <span v-if="loading">Загрузка…</span><span v-else>{{ unitValue || '-' }}</span>
           </div>
           <div v-if="loading">Загрузка…</div>
-          <table v-else class="smeta-breakdown-table modal-table" :class="{ 'is-mobile': isMobile }">
+          <div v-else class="smeta-breakdown-table__modal-wrapper">
+            <table class="smeta-breakdown-table modal-table smeta-breakdown-table--modal" :class="{ 'is-mobile': isMobile }">
             <thead>
               <tr>
-                <th class="date-col">Дата</th>
-                <th class="unit-col" v-if="!isMobile">Ед.изм.</th>
-                <th class="numeric">Объём</th>
-                <th class="numeric">Сумма</th>
+                <th class="date-col"><div class="cell-inner">Дата</div></th>
+                <th class="unit-col" v-if="!isMobile"><div class="cell-inner">Ед.изм.</div></th>
+                <th class="numeric"><div class="cell-inner">Объём</div></th>
+                <th class="numeric"><div class="cell-inner">Сумма</div></th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="r in rowsList" :key="r.date">
-                <td class="modal-row-date date-col">{{ formatDate(r.date) }}</td>
-                <td class="unit-col" v-if="!isMobile">{{ r.unit || '-' }}</td>
-                <td class="numeric">{{ r.volume }}</td>
-                <td class="numeric modal-row-value">{{ formatMoney(r.amount) }}</td>
+                <td class="modal-row-date date-col"><div class="cell-inner">{{ formatDate(r.date) }}</div></td>
+                <td class="unit-col" v-if="!isMobile"><div class="cell-inner">{{ r.unit || '-' }}</div></td>
+                <td class="numeric"><div class="cell-inner">{{ r.volume }}</div></td>
+                <td class="numeric modal-row-value"><div class="cell-inner">{{ formatMoney(r.amount) }}</div></td>
               </tr>
               <tr v-if="rowsList.length === 0">
                 <td :colspan="isMobile ? 3 : 4" class="muted">Нет данных за выбранный период</td>
               </tr>
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -100,50 +102,107 @@ function formatMoney(v){
 </script>
 
 <style scoped>
-/* Reduce horizontal gaps: table sizes to content and paddings are smaller */
+/* Base table layout: keep compact look but allow overrides for mobile */
 .smeta-breakdown-table.modal-table {
-  table-layout: auto; /* allow columns to size to content */
-  width: auto; /* don't stretch to full modal width */
+  table-layout: auto;
+  width: auto;
   max-width: calc(100% - 24px);
   margin: 0 auto;
-  border-collapse: collapse; /* remove default cell spacing */
+  border-collapse: collapse;
+  display: inline-table;
 }
 
 .modal-body {
-  overflow-x: auto; /* keep horizontal scroll if content still wider */
+  overflow-x: auto; /* horizontal scrolling when needed */
   text-align: center; /* center inline-table inside modal body */
+  padding-bottom: 1.2rem; /* reserve space so scrollbar doesn't overlap content */
+  scrollbar-gutter: stable both-edges; /* reserves space for scrollbar in supported browsers */
 }
 
-/* Reduce paddings to shrink inter-column gaps */
-.smeta-breakdown-table.modal-table {
-  display: inline-table; /* allow centering via text-align on parent */
-}
-
+/* Cells: compact padding and centered content */
 .smeta-breakdown-table.modal-table th,
 .smeta-breakdown-table.modal-table td {
   padding: 0.32rem 0.5rem;
   text-align: center;
   vertical-align: middle;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .smeta-breakdown-table.modal-table thead th {
   padding: 0.36rem 0.5rem;
   font-weight: 600;
-  font-size: 0.875rem; /* column header font size (≈14px) */
+  font-size: 0.875rem;
 }
 
-/* Keep date column wide enough to show full date, but don't let it add extra spacing */
-.smeta-breakdown-table.modal-table th.date-col,
-.smeta-breakdown-table.modal-table td.date-col {
-  min-width: 110px;
-  width: auto;
+/* Mobile-specific: make columns equal width and ensure scrollbar space reserved */
+
+/* Mobile — self-contained rules for modal table (no !important) */
+.modal.is-mobile .smeta-breakdown-table__modal-wrapper {
+  overflow-x: auto; /* allow table to scroll horizontally if needed */
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 1.2rem; /* reserve space so vertical scrollbar won't overlap rows */
+  scrollbar-gutter: stable both-edges; /* reserve scrollbar gutter where supported */
 }
 
-.modal-table th.unit-col,
-.modal-table td.unit-col {
-  padding-left: 0.3rem;
-  padding-right: 0.3rem;
+.modal.is-mobile .smeta-breakdown-table--modal {
+  table-layout: fixed;
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+}
+
+/* Expect 3 visible columns on mobile (date / volume / amount). Equal widths, centered content */
+.modal.is-mobile .smeta-breakdown-table--modal thead th,
+.modal.is-mobile .smeta-breakdown-table--modal tbody td {
+  width: calc(100% / 3);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modal.is-mobile .smeta-breakdown-table--modal thead th.date-col,
+.modal.is-mobile .smeta-breakdown-table--modal tbody td.date-col {
+  min-width: 0;
+  text-align: center;
+}
+
+/* Cell inner wrapper: use flex centering so header and data are aligned
+   even when global rules set different text-align on th/td */
+.smeta-breakdown-table--modal th .cell-inner,
+.smeta-breakdown-table--modal td .cell-inner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* Keep date column centered too */
+.smeta-breakdown-table--modal td.date-col .cell-inner,
+.smeta-breakdown-table--modal th.date-col .cell-inner {
+  justify-content: center;
+}
+
+/* Desktop / non-mobile: when 4 columns are present, distribute equally but keep date min-width */
+@media (min-width: 641px) {
+  .smeta-breakdown-table.modal-table {
+    table-layout: fixed;
+    width: 100%;
+    display: table;
+  }
+  .smeta-breakdown-table.modal-table th,
+  .smeta-breakdown-table.modal-table td {
+    width: calc(100% / 4);
+  }
+  .smeta-breakdown-table.modal-table th.date-col,
+  .smeta-breakdown-table.modal-table td.date-col {
+    min-width: 110px;
+    width: auto;
+  }
 }
 
 /* Mobile subtitle styling */
