@@ -363,5 +363,90 @@ watch(sortedItems, () => { checkClamped() })
 }
 </style>
 
+<style scoped>
+/* Responsive fixes to ensure the desktop table does not overflow modal on narrow screens.
+   Uses fixed table layout, prevents numeric values from wrapping and applies ellipsis.
+   Keeps title truncation behavior but allows the numeric columns to shrink to fit. */
+@media (max-width: 767px) {
+  .smeta-breakdown-table {
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: fixed; /* allow columns to respect width constraints */
+    box-sizing: border-box;
+    border-collapse: collapse;
+    word-break: normal;
+    overflow: hidden;
+  }
+
+  /* Give the title column priority but allow it to shrink (min-width:0 is important to enable flex-shrink behavior) */
+  .smeta-breakdown-table col:nth-child(1) { width: 58%; min-width: 0; }
+  .smeta-breakdown-table col:nth-child(2),
+  .smeta-breakdown-table col:nth-child(3),
+  .smeta-breakdown-table col:nth-child(4) { width: 14%; min-width: 0; }
+
+  /* Prevent wrapping in header/cell values and use ellipsis if needed */
+  .smeta-breakdown-table th,
+  .smeta-breakdown-table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+  }
+
+  /* Keep numeric cells right-aligned but slightly reduce right padding for small widths */
+  .smeta-breakdown-table td.numeric,
+  .smeta-breakdown-table th.numeric {
+    padding-right: 8px;
+  }
+
+  /* Ensure the title cell contents can be truncated (keep existing clamp behavior) */
+  .smeta-breakdown-table td:first-child .truncate-2 {
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Safety: make sure the table can shrink inside flex/stacked modal containers */
+  .smeta-breakdown-table, .smeta-breakdown-table * { min-width: 0; box-sizing: border-box; }
+}
+
+/* On very narrow screens prefer shrinking numeric font-size instead of showing ellipsis */
+@media (max-width: 420px) {
+  .smeta-breakdown-table td.numeric,
+  .smeta-breakdown-table th.numeric {
+    /* slightly smaller, still readable: adjust as needed */
+    font-size: 13px;
+    line-height: 1.1;
+    padding-right: 6px;
+    /* keep nowrap but avoid ellipsis for numbers: clip if still overflowing */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* If even 13px is too wide on very tiny devices, drop to 12px */
+  @media (max-width: 360px) {
+    .smeta-breakdown-table td.numeric,
+    .smeta-breakdown-table th.numeric {
+      font-size: 12px;
+    }
+  }
+}
+
+/* Ensure mobile stacked containers also use border-box so padding doesn't add width */
+@media (max-width: 767px) {
+  .smeta-details-mobile,
+  .smeta-mobile-item,
+  .smeta-mobile-totals--highlight {
+    box-sizing: border-box;
+    width: 100%;
+  }
+}
+</style>
+
 
 
