@@ -121,10 +121,7 @@
       </div>
 
       <!-- Mobile totals (single block after list) -->
-      <div class="smeta-mobile-totals p-sm">
-        <div class="smeta-mobile-row smeta-mobile-row-labels text-label">
-          <div class="lbl">Итого</div>
-        </div>
+      <div class="smeta-mobile-totals p-sm smeta-mobile-totals--highlight">
         <div class="smeta-mobile-row smeta-mobile-row-labels text-label">
           <div class="lbl">План</div>
           <div class="lbl">Факт</div>
@@ -345,6 +342,25 @@ watch(sortedItems, () => { checkClamped() })
 
 .smeta-title-toggle .chev.rotated { transform: rotate(180deg); color: #6b7280; }
 
+</style>
+
+<style scoped>
+/* Highlighted totals block for mobile to visually indicate "Итого" */
+.smeta-mobile-totals--highlight {
+  background-color: rgba(0,0,0,0.12);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 12px;
+}
+
+.smeta-mobile-totals--highlight .smeta-mobile-row-labels .lbl {
+  color: var(--color-text-muted, #4b5563);
+  font-weight: 600;
+}
+
+.smeta-mobile-totals--highlight .smeta-mobile-row-values .val {
+  font-weight: 700;
+}
 </style>
 
 
