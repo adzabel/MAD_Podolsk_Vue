@@ -1,4 +1,6 @@
-from typing import Optional
+from typing import Optional, Dict, Any
+import os
+import time
 import psycopg2
 from psycopg2 import pool
 from psycopg2.extras import RealDictCursor
@@ -8,11 +10,20 @@ _pool: Optional[pool.ThreadedConnectionPool] = None
 _lock = threading.Lock()
 
 
-def init_db(dsn: str, minconn: int = 1, maxconn: int = 5):
+def init_db(dsn: str, minconn: int | None = None, maxconn: int | None = None):
+    """Initialize a threaded connection pool.
+
+    If `minconn`/`maxconn` are not provided, try to read `DB_POOL_MIN`/`DB_POOL_MAX`
+    from environment variables. Defaults to min=1, max=10.
+    """
     global _pool
     with _lock:
         if _pool is None:
-            _pool = psycopg2.pool.ThreadedConnectionPool(minconn, maxconn, dsn)
+            env_min = os.environ.get("DB_POOL_MIN")
+            env_max = os.environ.get("DB_POOL_MAX")
+            minc = minconn if minconn is not None else int(env_min) if env_min else 1
+            maxc = maxconn if maxconn is not None else int(env_max) if env_max else 10
+            _pool = psycopg2.pool.ThreadedConnectionPool(minc, maxc, dsn)
 
 
 def close_db():
@@ -23,11 +34,33 @@ def close_db():
             _pool = None
 
 
-def get_conn():
+def _get_conn_raw():
+    """Return a raw connection from the pool or raise RuntimeError if uninitialized."""
     global _pool
     if _pool is None:
         raise RuntimeError("DB pool is not initialized")
     return _pool.getconn()
+
+
+def get_conn(timeout: float = 5.0, retry_interval: float = 0.05):
+    """Get a connection from pool with retries until `timeout` seconds.
+
+    Raises psycopg2.pool.PoolError if no connection becomes available.
+    """
+    start = time.time()
+    last_exc: Exception | None = None
+    while True:
+        try:
+            return _get_conn_raw()
+        except Exception as e:
+            # If pool is not initialized, raise immediately
+            if isinstance(e, RuntimeError):
+                raise
+            last_exc = e
+            if time.time() - start >= timeout:
+                # re-raise the last exception (likely PoolError)
+                raise
+            time.sleep(retry_interval)
 
 
 def put_conn(conn):
@@ -35,6 +68,26 @@ def put_conn(conn):
     if _pool is None:
         return
     _pool.putconn(conn)
+
+
+def pool_status() -> Dict[str, Any]:
+    """Return diagnostic information about the pool (best-effort).
+
+    Uses internal attributes if available; never required for normal operation.
+    """
+    global _pool
+    if _pool is None:
+        return {"initialized": False}
+    status: Dict[str, Any] = {"initialized": True}
+    try:
+        status["minconn"] = getattr(_pool, "minconn", None)
+        status["maxconn"] = getattr(_pool, "maxconn", None)
+        # private attributes may exist
+        status["num_free"] = len(getattr(_pool, "_pool", []))
+        status["num_used"] = len(getattr(_pool, "_used", []))
+    except Exception:
+        pass
+    return status
 
 
 def query(sql: str, params: tuple = ()):  # returns list[dict]
