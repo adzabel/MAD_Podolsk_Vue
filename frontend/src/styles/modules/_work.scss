@@ -43,7 +43,7 @@
 .work-row-header div:first-child { text-align:left; }
 .work-row-header div { text-align:right; }
 
-.work-sort-button { border:none; background:none; color:inherit; font:inherit; letter-spacing:inherit; text-transform:inherit; display:inline-flex; align-items:center; justify-content:flex-end; gap:var(--gap-sm); cursor:pointer; padding: var(--gap-xs) var(--gap-sm); border-radius:999px; transition: background-color 0.2s ease, color 0.2s ease; }
+.work-sort-button { border:none; background:none; color:inherit; font:inherit; letter-spacing:inherit; text-transform:inherit; display:inline-flex; align-items:center; justify-content:flex-end; gap:var(--gap-sm); cursor:pointer; padding: var(--gap-xs) var(--gap-sm); border-radius:var(--radius-xxl); transition: background-color 0.2s ease, color 0.2s ease; }
 .work-sort-button .sort-indicator { width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:7px solid currentcolor; opacity:0.4; transform-origin:center; transition: opacity 0.2s ease; }
 .work-sort-button .sort-indicator.desc { transform: rotate(180deg); }
 .work-sort-button.active { color: var(--accent-strong); background-color: rgb(47 111 237 / 10%); }
