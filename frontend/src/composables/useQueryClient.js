@@ -79,11 +79,15 @@ function createQueryClient(defaultOptions = {}) {
     }
   }
 
-  function useQuery({ queryKey, queryFn, enabled = true, staleTime, refetchOnWindowFocus }) {
+  function useQuery({ queryKey, queryFn, enabled = true, staleTime, refetchOnWindowFocus, keepPreviousData = true }) {
     const resolvedEnabled = computed(() => Boolean(unref(enabled)))
     const keyRef = computed(() => normalizeKey(unref(queryKey)))
     const entry = computed(() => getEntry(keyRef.value))
     const staleFor = computed(() => (staleTime ?? defaults.staleTime))
+
+    // Сохраняем предыдущие данные для плавного перехода между ключами
+    const previousData = ref(null)
+    const previousKey = ref(null)
 
     const isStale = computed(() => (now() - entry.value.updatedAt.value) > staleFor.value)
 
@@ -96,7 +100,15 @@ function createQueryClient(defaultOptions = {}) {
 
     if (resolvedEnabled.value) triggerFetch()
 
-    watch([keyRef, resolvedEnabled], () => {
+    watch([keyRef, resolvedEnabled], ([newKey], [oldKey]) => {
+      // Сохраняем предыдущие данные перед переключением на новый ключ
+      if (keepPreviousData && oldKey && newKey !== oldKey) {
+        const oldEntry = cache.get(oldKey)
+        if (oldEntry && oldEntry.data.value !== null) {
+          previousData.value = oldEntry.data.value
+          previousKey.value = oldKey
+        }
+      }
       triggerFetch()
     })
 
@@ -108,14 +120,36 @@ function createQueryClient(defaultOptions = {}) {
       onScopeDispose(() => window.removeEventListener('visibilitychange', handler))
     }
 
-    const data = computed(() => entry.value.data.value)
+    // Возвращаем актуальные данные или предыдущие (если текущие ещё загружаются)
+    const data = computed(() => {
+      const current = entry.value.data.value
+      if (current !== null) {
+        // Сбрасываем предыдущие данные, когда текущие загрузились
+        if (previousData.value !== null) {
+          previousData.value = null
+          previousKey.value = null
+        }
+        return current
+      }
+      // Показываем предыдущие данные пока загружаются новые
+      if (keepPreviousData && previousData.value !== null) {
+        return previousData.value
+      }
+      return null
+    })
+    
+    // isPreviousData - показывает, что сейчас отображаются старые данные
+    const isPreviousData = computed(() => {
+      return entry.value.data.value === null && previousData.value !== null
+    })
+    
     const error = computed(() => entry.value.error.value)
     const isLoading = computed(() => entry.value.status.value === 'loading' || entry.value.status.value === 'idle')
     const isFetching = computed(() => entry.value.status.value === 'loading' || entry.value.status.value === 'refetching')
 
     const refetch = () => execute(entry.value, keyRef.value, queryFn, { staleTime, refetchOnWindowFocus })
 
-    return { data, error, isLoading, isFetching, status: computed(() => entry.value.status.value), refetch }
+    return { data, error, isLoading, isFetching, isPreviousData, status: computed(() => entry.value.status.value), refetch }
   }
 
   return { cache, useQuery, invalidateQueries }

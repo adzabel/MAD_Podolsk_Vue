@@ -71,7 +71,7 @@ function onSmetaSelect(key){
           <template v-else>
             <Suspense>
               <template #default>
-                <div v-if="monthlySummary" class="dashboard__grid">
+                <div v-if="monthlySummary" class="dashboard__grid" :class="{ 'is-loading': monthlyLoading }">
                   <!-- Исполнение контракта -->
                   <ContractExecutionSection :contract="monthlySummary.contract" />
 

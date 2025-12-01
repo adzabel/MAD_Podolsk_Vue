@@ -2,12 +2,14 @@
   <main class="page">
     <section class="page-content">
 
-      <div v-if="dailyLoading">Загрузка...</div>
+      <div v-if="dailyLoading && !dailyRows.length">Загрузка...</div>
       <template v-else>
         <!-- Printable report removed; export button kept in AppHeader -->
 
-        <MobileDailyFull v-if="isMobile || forceMobile" :rows="dailyRows" :total-amount="dailyTotal" :date="selectedDate" />
-        <DailyTable v-else :rows="dailyRows" :total-amount="dailyTotal" :date="selectedDate" />
+        <div :class="{ 'is-loading': dailyLoading }">
+          <MobileDailyFull v-if="isMobile || forceMobile" :rows="dailyRows" :total-amount="dailyTotal" :date="selectedDate" />
+          <DailyTable v-else :rows="dailyRows" :total-amount="dailyTotal" :date="selectedDate" />
+        </div>
       </template>
     </section>
   </main>
@@ -40,3 +42,12 @@ onMounted(()=>{
   store.fetchDaily(selectedDate.value)
 })
 </script>
+
+<style scoped>
+.is-loading {
+  opacity: 0.7;
+  filter: saturate(0.85);
+  pointer-events: none;
+  transition: opacity 200ms ease, filter 200ms ease;
+}
+</style>

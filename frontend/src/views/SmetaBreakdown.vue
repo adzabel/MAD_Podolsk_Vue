@@ -13,9 +13,9 @@
       </div>
     </template>
 
-    <div v-if="loading" class="skeleton">Загрузка...</div>
+    <div v-if="loading && !filteredRows.length" class="skeleton">Загрузка...</div>
 
-    <div v-if="!loading" class="smeta-breakdown-scroll" :class="{ 'is-mobile': isMobile }">
+    <div v-else class="smeta-breakdown-scroll" :class="{ 'is-mobile': isMobile, 'is-loading': loading }">
       <SmetaDetails :items="filteredRows" :sort-key="sortKey" :sort-dir="sortDir" @select="openByDescription" />
     </div>
   </PageSection>
@@ -93,7 +93,16 @@ function openByDescription(row) {
 }
 
 /* Make the smeta breakdown table scroll and fit inside mobile modal/viewports */
-.smeta-breakdown-scroll { width: 100%; }
+.smeta-breakdown-scroll { 
+  width: 100%; 
+  transition: opacity 200ms ease, filter 200ms ease;
+}
+
+.smeta-breakdown-scroll.is-loading {
+  opacity: 0.7;
+  filter: saturate(0.85);
+  pointer-events: none;
+}
 
 @media (max-width: 640px) {
   .smeta-breakdown-scroll.is-mobile {
