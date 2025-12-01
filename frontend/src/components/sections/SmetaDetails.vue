@@ -127,12 +127,7 @@ function isVneregKey(key) {
   return k.includes('vne') || k === 'vnereg' || k === 'vner1' || k === 'vner2' || k === 'vnereglement' || k === 'vnereglement'
 }
 
-function formatMoney(v){
-  if (v === null || v === undefined) return '-'
-  const n = Number(v)
-  if (Number.isNaN(n)) return '-'
-  return n.toLocaleString('ru-RU', { maximumFractionDigits: 0, minimumFractionDigits: 0 })
-}
+import { formatMoney } from '../../utils/format.js'
 
 // Sorting state: default by plan desc — can be overridden by parent via props
 const compareRows = (a, b, key, dir) => {

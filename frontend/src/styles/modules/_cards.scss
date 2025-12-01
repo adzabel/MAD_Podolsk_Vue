@@ -210,7 +210,7 @@
 
 .mockup-card .summary-grid { margin-top: var(--gap-xs); }
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .mockup-card .summary-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 }
 }

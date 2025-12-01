@@ -88,7 +88,7 @@
 
 /* daily-table specific styles moved to `_daily-table.scss` */
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .work-list-header { display:none; }
   /* hide desktop H2 for smeta panels and show mobile title block */
   .smeta-panel.smeta-details .panel-title { display: none; }

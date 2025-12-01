@@ -69,7 +69,7 @@
   }
 
   /* mobile: stack cells simply */
-  @media (max-width: 767px) {
+  @media (max-width: 768px) {
     .smeta-breakdown-table--daily thead { display: none; }
     .smeta-breakdown-table--daily table { table-layout: auto; }
     .smeta-breakdown-table--daily tbody td { display: block; width: 100%; }

@@ -210,7 +210,7 @@
 .month-selector__select{ padding:var(--gap-sm) var(--gap-md); border-radius:6px }
 
 /* Compact header adjustments (migrated from components.css) */
-@media (max-width: 900px) {
+@media (max-width: 879px) {
   .app-header__right > * { height: 32px; min-height: 32px; }
   .app-header__mode-switch { height: 32px; min-height: 32px; padding: 2px; border-radius: 8px; box-sizing: border-box; }
   .app-header__mode-switch .mode-btn { height: 100%; min-height: 28px; padding: 4px 8px; }

@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useDashboardStore } from '../../store/dashboardStore.js'
 import { CardsGrid, PageSection } from '../layouts'
+import { formatNumber } from '../../utils/format.js'
 
 const store = useDashboardStore()
 // use storeToRefs to subscribe only to specific refs, reducing re-renders
@@ -16,8 +17,6 @@ function onCardClick(key) {
   // Notify parent to load details and update store; keeps this component presentational
   emit('select', key)
 }
-
-function formatNumber(v){ if (v === null || v === undefined) return '-'; return Number(v).toLocaleString('ru-RU') }
 </script>
 
 <template>

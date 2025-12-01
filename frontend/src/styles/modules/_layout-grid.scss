@@ -211,7 +211,7 @@
   line-height: 1.12;
 }
 
-@media (min-width: 769px) {
+@media (min-width: 768px) {
   .contract-execution .panel-meta { display: block; }
   .contract-execution .panel-meta-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px; align-items: center; }
   .contract-execution .panel-meta-row.panel-meta-labels .panel-meta-item,

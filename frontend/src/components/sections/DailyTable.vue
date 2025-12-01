@@ -90,12 +90,7 @@ const sortedRows = computed(() => {
   })
 })
 
-function formatMoney(v) {
-  if (v === null || v === undefined) return '-'
-  const n = Number(v)
-  if (Number.isNaN(n)) return '-'
-  return n.toLocaleString('ru-RU', { maximumFractionDigits: 0, minimumFractionDigits: 0 })
-}
+import { formatMoney } from '../../utils/format.js'
 
 function formatVolume(v) {
   if (v === null || v === undefined) return ''

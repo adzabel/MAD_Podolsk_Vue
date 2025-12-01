@@ -34,21 +34,14 @@
 <script setup>
 import { computed } from 'vue'
 import { useIsMobile } from '../../composables/useIsMobile.js'
+import { formatMoney, formatPercent } from '../../utils/format.js'
 
 const props = defineProps({ contract: { type: Object, default: () => ({}) } })
 
 const { isMobile } = useIsMobile()
 
-function formatMoney(v){
-  if (v === null || v === undefined) return '-'
-  const n = Number(v)
-  if (Number.isNaN(n)) return '-'
-  return n.toLocaleString('ru-RU', { maximumFractionDigits: 0, minimumFractionDigits: 0 })
-}
-
-function percent(v){
-  if (v === undefined || v === null) return '-'
-  return Math.round(v * 100) + ' %'
+function percent(v) {
+  return formatPercent(v, true)
 }
 
 const progressPercent = computed(()=>{
