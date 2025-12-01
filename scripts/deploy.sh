@@ -75,33 +75,14 @@ fi
 echo "=== Step 2: install dependencies (only in frontend folder) ==="
 if [ -d frontend ]; then
   pushd frontend >/dev/null
-  if [ -f package-lock.json ]; then
-    echo "Running: npm ci (will fallback to npm install on failure)"
-    # Try a clean install first. If lockfile is out of sync or npm reports an error,
-    # fall back to `npm install` which may update `package-lock.json` locally.
-    if npm ci --no-audit --no-fund; then
-      echo "npm ci succeeded"
-    else
-      echo "npm ci failed — falling back to npm install (this may update package-lock.json)"
-      npm install --no-audit --no-fund
-    fi
-  else
-    npm install --no-audit --no-fund
-  fi
+  # Use npm install directly to avoid cross-platform lockfile issues
+  echo "Running: npm install"
+  npm install --no-audit --no-fund
   popd >/dev/null
 else
   echo "Warning: frontend folder not found, running install in repo root"
-  if [ -f package-lock.json ]; then
-    echo "Running: npm ci (will fallback to npm install on failure)"
-    if npm ci --no-audit --no-fund; then
-      echo "npm ci succeeded"
-    else
-      echo "npm ci failed — falling back to npm install (this may update package-lock.json)"
-      npm install --no-audit --no-fund
-    fi
-  else
-    npm install --no-audit --no-fund
-  fi
+  echo "Running: npm install"
+  npm install --no-audit --no-fund
 fi
 
 echo "=== Step 3: build ==="
