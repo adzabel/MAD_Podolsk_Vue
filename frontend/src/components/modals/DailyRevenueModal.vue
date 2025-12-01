@@ -40,6 +40,7 @@
 import { computed, watch } from 'vue'
 import { useIsMobile } from '../../composables/useIsMobile.js'
 import { useQuery } from '../../composables/useQueryClient.js'
+import { formatMoney } from '../../utils/format.js'
 
 const props = defineProps({ visible: Boolean, month: String })
 const emit = defineEmits(['close'])
@@ -74,6 +75,4 @@ function formatDate(d){
 
 watch(()=>props.visible, v=>{ if (v) dailyRevenueQuery.refetch() })
 watch(()=>props.month, (v)=>{ if (props.visible && v) dailyRevenueQuery.refetch() })
-
-function formatMoney(v){ if (v === null || v === undefined) return '-'; return Number(v).toLocaleString('ru-RU') }
 </script>

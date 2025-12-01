@@ -45,6 +45,7 @@
 import { computed, watch } from 'vue'
 import { useIsMobile } from '../../composables/useIsMobile.js'
 import { useQuery } from '../../composables/useQueryClient.js'
+import { formatMoney } from '../../utils/format.js'
 
 const props = defineProps({ visible: Boolean, month: String, smeta_key: String, description: String })
 const emit = defineEmits(['close'])
@@ -92,13 +93,6 @@ watch(()=>props.visible, v=>{ if (v) smetaDescriptionQuery.refetch() })
 watch(() => [props.month, props.smeta_key, props.description], () => {
   if (props.visible) smetaDescriptionQuery.refetch()
 })
-
-function formatMoney(v){
-  if (v === null || v === undefined) return '-'
-  const n = Number(v)
-  if (Number.isNaN(n)) return '-'
-  return n.toLocaleString('ru-RU', { maximumFractionDigits: 0, minimumFractionDigits: 0 })
-}
 </script>
 
 <style scoped>
