@@ -9,14 +9,7 @@
   box-shadow: var(--shadow-card);
 }
 
-.type-h1 { font-size: var(--font-size-h1); }
-.type-h2 { font-size: var(--font-size-h2); }
-.type-h3 { font-size: var(--font-size-h3); }
-.type-body { font-size: var(--font-size-body); }
-.type-body-sm { font-size: var(--font-size-body-sm); }
-.type-caption { font-size: var(--font-size-caption); }
-.type-label { font-size: var(--font-size-label); }
-.type-numeric-xl { font-size: var(--font-size-h1); font-weight: 700 }
+/* Typography utilities moved to _utilities.scss (.text-h1, .text-h2, etc.) */
 
 .card--xl { border-radius: var(--radius-xl); }
 
@@ -79,7 +72,7 @@
 .smeta-card__body { flex:1; display:flex; flex-direction:column; gap:var(--gap-xs); min-width:0 }
 .smeta-card__head { display:flex; justify-content:space-between; align-items:center }
 .smeta-card__title { margin:0; font-size: var(--font-size-body); font-weight:700; color:var(--text-main) }
-.smeta-card__meta-pill { background: rgb(15 23 42 / 6%); padding: 4px calc(var(--card-inner-gap) * 0.6); border-radius:10px; font-size:var(--font-size-caption); color:var(--text-muted) }
+/* .smeta-card__meta-pill moved to _buttons-pills.scss */
 
 .smeta-card__numbers { display:flex; gap:var(--gap-md); align-items:baseline; flex-wrap:nowrap; justify-content:space-between }
 
@@ -91,19 +84,14 @@
 .smeta-card__progress-label{ font-size:11px; color:var(--text-muted); text-transform:uppercase }
 .smeta-progress__wrap{ display:flex; align-items:center; gap:var(--gap-md) }
 
-.smeta-progress__bar{ width: 100%; height: var(--progress-height); border-radius: var(--radius-xxl); background: rgb(47 111 237 / 12%); overflow: hidden; position: relative; }
-.smeta-progress__fill{
-  position: absolute;
-  inset: 0;
-  width: var(--progress, 0%);
-  border-radius: inherit;
-  --progress-color: var(--accent);
-  background: linear-gradient(90deg, color-mix(in srgb, var(--progress-color) 75%, var(--surface-base)) 0%, var(--progress-color) 100%);
-  box-shadow: 0 6px 12px color-mix(in srgb, var(--progress-color) 30%, transparent);
-  transition: width 0.35s ease;
-}
+/* ═══════════════════════════════════════════════════════════════════════════
+   UNIFIED PROGRESS BAR SYSTEM
+   Base classes for all progress bars in the app. Individual components
+   can extend these via BEM modifiers or additional selectors.
+   ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Shared progress bar primitives (migrated from components.css) */
+/* Base progress bar container */
+.progress-bar,
 .progress__bar,
 .summary-progress-bar,
 .contract-progress__bar,
@@ -114,33 +102,33 @@
   border-radius: 999px;
   border: 1px solid var(--border-soft);
   overflow: hidden;
+  position: relative;
 }
 
-/* Contract card: use the same standard progress height as other bars */
-.contract-progress__bar {
-  height: var(--progress-height);
-}
-
-/* Restrict smeta card progress bar width so it visually lines up with numeric values */
-.smeta-card__progress .smeta-progress__bar {
-  width: 100%;
-}
-
+/* Base progress fill */
+.progress-fill,
 .progress__fill,
 .summary-progress-fill,
 .contract-progress__fill,
 .smeta-progress__fill {
+  --progress-color: var(--accent);
   width: var(--progress, 0%);
   height: 100%;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--progress-color) 75%, var(--surface-base)) 0%, var(--progress-color) 100%);
+  box-shadow: 0 6px 12px color-mix(in srgb, var(--progress-color) 30%, transparent);
   transition: width 0.35s ease;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--progress-color, var(--accent)) 75%, var(--surface-base)) 0%, var(--progress-color, var(--accent)) 100%);
-  box-shadow: 0 6px 12px color-mix(in srgb, var(--progress-color, var(--accent)) 30%, transparent);
-  position: relative;
 }
 
+/* Overflow state (>100%) */
+.progress-fill.overflow,
 .progress__fill.overflow,
 .summary-progress-fill.overflow,
-.smeta-progress__fill.overflow { box-shadow: 0 6px 16px rgb(34 197 94 / 25%); }
+.smeta-progress__fill.overflow {
+  box-shadow: 0 6px 16px rgb(34 197 94 / 25%);
+}
 
 /* Progress labels: label on the left, percent on the right (same line) */
 .smeta-progress-labels {

@@ -1,9 +1,7 @@
-/* Typography & base reset moved out of large files */
+/* Typography & base body styles */
 
 @layer foundations {
-  *, *::before, *::after {
-    box-sizing: border-box;
-  }
+  /* box-sizing reset is in main.scss */
 
   body {
     margin: 0;
