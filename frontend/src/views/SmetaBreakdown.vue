@@ -16,111 +16,39 @@
 </template>
 
 <script setup>
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDashboardStore } from '../store/dashboardStore.js'
 import { storeToRefs } from 'pinia'
 import { PageSection } from '../components/layouts'
+import { useIsMobile } from '../composables/useIsMobile.js'
+import { useSmetaBreakdown } from '../composables/useSmetaBreakdown.js'
+import SmetaPanelNote from '../components/ui/SmetaPanelNote.vue'
+import SmetaDetails from '../components/sections/SmetaDetails.vue'
 
 const route = useRoute()
 const router = useRouter()
 const store = useDashboardStore()
-const { smetaDetailsLoading, smetaDetails, selectedMonth: selectedMonthRef, smetaCards, selectedSmeta } = storeToRefs(store)
-
-const smetaKey = computed(() => route.params.smetaKey || selectedSmeta.value || 'leto')
-
-onMounted(async () => {
-  // set selected smeta in store for other components and fetch details
-  store.setSelectedSmeta(smetaKey.value)
-  await store.fetchSmetaDetails(smetaKey.value)
-  console.log('[SmetaBreakdown] mounted, smetaKey=', smetaKey.value)
-})
-
-const loading = computed(() => smetaDetailsLoading.value)
-const rows = computed(() => smetaDetails.value)
-const selectedMonth = computed(() => selectedMonthRef.value)
-
-// show only rows where plan>1 or fact>1
-// Special rule: if selected smeta is vnerereg (внерегламент) then Plan should be shown as 0
-const filteredRows = computed(() => {
-  const key = smetaKey.value
-  const isVnereg = key && (key.toLowerCase().includes('vne') || key === 'vnereg' || key === 'vner1' || key === 'vner2')
-  const src = (rows.value || [])
-  // map rows to adjusted rows (apply Plan=0 for vnerereg) then filter
-  return src
-    .map(r => {
-      const plan = Number(r.plan || 0)
-      const fact = Number(r.fact || r.fact_amount_done || 0)
-      return {
-        ...r,
-        plan: isVnereg ? 0 : plan,
-        fact: fact
-      }
-    })
-    .filter(r => (Number(r.plan || 0) > 1) || (Number(r.fact || 0) > 1))
-})
-
-// totals for Plan / Fact / Delta
-const totals = computed(() => {
-  const arr = filteredRows.value || []
-  const plan = arr.reduce((s, r) => s + (Number(r.plan) || 0), 0)
-  const fact = arr.reduce((s, r) => s + (Number(r.fact) || 0), 0)
-  const delta = fact - plan
-  return { plan, fact, delta }
-})
-
-const smetaLabel = computed(() => {
-  // derive a human-friendly label from smetaKey or fall back
-  const key = smetaKey.value
-  const map = { leto: 'Лето', zima: 'Зима', vnereg: 'Внерегламент', vner1: 'Внерегламент' }
-  return map[key] || (smetaCards.value.find(c => c.smeta_key === key)?.label) || key
-})
-
-import { ref } from 'vue'
-import { useIsMobile } from '../composables/useIsMobile.js'
-import SmetaPanelNote from '../components/ui/SmetaPanelNote.vue'
-import SmetaDetails from '../components/sections/SmetaDetails.vue'
-
-// Sorting state for the table — used by mobile sort control and desktop headers if needed
-const sortKeyRef = ref('plan')
-const sortDirRef = ref(-1)
-
-function valueForRow(r, key){
-  if (key === 'delta') return (Number(r.fact || 0) - Number(r.plan || 0))
-  return Number(r[key] || 0)
-}
-
-function onSortChange(e){
-  // keep only metric name in control; default to descending
-  sortDirRef.value = -1
-}
-
-const sortKey = sortKeyRef
-const sortDir = sortDirRef
-
-// sorted rows used in table
-const sortedRows = computed(() => {
-  const arr = (filteredRows.value || []).slice()
-  arr.sort((a,b)=>{
-    const va = valueForRow(a, sortKey.value)
-    const vb = valueForRow(b, sortKey.value)
-    const diff = va - vb
-    if (diff === 0) return 0
-    return sortDir.value * Math.sign(diff)
-  })
-  return arr
-})
-
+const { selectedSmeta } = storeToRefs(store)
 const { isMobile } = useIsMobile()
 
-// header uses simple panel-title markup; no local component registration required
+// Ключ сметы из URL или store
+const smetaKey = computed(() => route.params.smetaKey || selectedSmeta.value || 'leto')
 
-import { formatMoney } from '../utils/format.js'
+// Бизнес-логика вынесена в composable
+const { loading, filteredRows, smetaLabel } = useSmetaBreakdown(smetaKey)
 
-function openByDescription(row){
-  // set selected description and navigate to modal/view for daily breakdown
+// Сортировка
+const sortKey = ref('plan')
+const sortDir = ref(-1)
+
+onMounted(async () => {
+  store.setSelectedSmeta(smetaKey.value)
+  await store.fetchSmetaDetails(smetaKey.value)
+})
+
+function openByDescription(row) {
   store.setSelectedDescription(row.title || row.description)
-  // we can navigate to a daily-details route in future; for now open /daily and keep selection
   router.push({ path: '/daily' })
 }
 </script>

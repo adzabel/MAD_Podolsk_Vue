@@ -113,6 +113,8 @@ import { useIsMobile } from '../../composables/useIsMobile.js'
 import { useSort } from '../../composables/useSort.js'
 import { useDashboardStore } from '../../store/dashboardStore.js'
 import { storeToRefs } from 'pinia'
+import { isVneregKey } from '../../composables/useSmetaBreakdown.js'
+import { formatMoney } from '../../utils/format.js'
 import SmetaDetailsMobile from './SmetaDetailsMobile.vue'
 
 const { isMobile } = useIsMobile()
@@ -120,14 +122,6 @@ const { isMobile } = useIsMobile()
 // detect selected smeta from global store so we can apply smeta-specific defaults
 const store = useDashboardStore()
 const { selectedSmeta } = storeToRefs(store)
-
-function isVneregKey(key) {
-  if (!key) return false
-  const k = String(key).toLowerCase()
-  return k.includes('vne') || k === 'vnereg' || k === 'vner1' || k === 'vner2' || k === 'vnereglement' || k === 'vnereglement'
-}
-
-import { formatMoney } from '../../utils/format.js'
 
 // Sorting state: default by plan desc — can be overridden by parent via props
 const compareRows = (a, b, key, dir) => {
