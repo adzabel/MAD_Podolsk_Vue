@@ -1,9 +1,11 @@
 <template>
-  <section
-    class="panel contract-execution contract-execution--compact p-md"
+  <PageSection
+    title="Исполнение контракта"
+    variant="panel"
+    class="contract-execution contract-execution--compact p-md"
     :class="{ 'is-mobile': isMobile }"
   >
-    <div class="panel-header row-between">
+    <template #header>
       <div class="panel-title-group">
         <h3 class="panel-title">Исполнение контракта</h3>
       </div>
@@ -19,7 +21,7 @@
           <div class="panel-meta-item"><div class="panel-meta-value">{{ percent(contract?.contract_planfact_pct) }}</div></div>
         </div>
       </div>
-    </div>
+    </template>
 
     <div class="contract-execution__body">
       <div class="contract-progress">
@@ -28,10 +30,14 @@
         </div>
       </div>
     </div>
-  </section>
+  </PageSection>
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { useIsMobile } from '../../composables/useIsMobile.js'
+import { PageSection } from '../layouts'
+
 const props = defineProps({ contract: { type: Object, default: () => ({}) } })
 
 const { isMobile } = useIsMobile()
@@ -53,8 +59,5 @@ const progressPercent = computed(()=>{
   if (v === undefined || v === null) return 0
   return Math.round(v * 100)
 })
-
-import { computed } from 'vue'
-import { useIsMobile } from '../../composables/useIsMobile.js'
 </script>
 

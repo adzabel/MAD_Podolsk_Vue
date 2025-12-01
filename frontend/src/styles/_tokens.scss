@@ -124,6 +124,10 @@
   /* Dashboard card defaults */
   --dashboard-card-width: 320px;
 
+  /* Layout grid tokens for auto-fit responsive columns */
+  --card-min-width: 280px;
+  --cards-columns: repeat(auto-fit, minmax(var(--card-min-width), 1fr));
+
   /* Smeta card compact progress height */
   --smeta-compact-progress-height: 6px;
 

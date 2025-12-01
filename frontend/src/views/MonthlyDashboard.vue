@@ -8,6 +8,7 @@ import TableSkeleton from '../components/ui/TableSkeleton.vue'
 import DailyRevenueModal from '../components/modals/DailyRevenueModal.vue'
 import SmetaDescriptionDailyModal from '../components/modals/SmetaDescriptionDailyModal.vue'
 import SmetaPanelNote from '../components/ui/SmetaPanelNote.vue'
+import { PageSection } from '../components/layouts'
 
 const ContractExecutionSection = defineAsyncComponent(() => import('../components/sections/ContractExecutionSection.vue'))
 const SummaryKpiSection = defineAsyncComponent(() => import('../components/sections/SummaryKpiSection.vue'))
@@ -83,20 +84,23 @@ function onSmetaSelect(key){
                   <SmetaCardsSection @select="onSmetaSelect" />
 
                   <!-- Детали сметы (появляются при выборе сметы) -->
-                  <section v-if="smetaDetailsLoading || (smetaDetails && smetaDetails.length)" class="panel smeta-panel smeta-details">
-                    <div class="panel-header">
+                  <PageSection
+                    v-if="smetaDetailsLoading || (smetaDetails && smetaDetails.length)"
+                    variant="panel"
+                    class="smeta-panel smeta-details"
+                  >
+                    <template #header>
                       <div class="panel-title-group">
                         <h3 v-if="!isMobile" class="panel-title">{{ selectedSmetaDesktopTitle }}</h3>
                         <SmetaPanelNote :label="selectedSmetaLabel" />
                       </div>
+                    </template>
+
+                    <div v-show="!isSmetaCollapsed" class="smeta-details-wrapper" :class="{ 'is-loading': smetaDetailsLoading }">
+                      <SmetaDetails :items="smetaDetails" :sort-key="smetaSortKey" :sort-dir="smetaSortDir" @sort-changed="(p)=>{ smetaSortKey = p.key; smetaSortDir = p.dir }" @select="(item)=> onSelectDescription(item)" />
+                      <TableSkeleton v-if="smetaDetailsLoading" class="overlay-skeleton" />
                     </div>
-                    <div class="panel-body" v-show="!isSmetaCollapsed">
-                      <div class="smeta-details-wrapper" :class="{ 'is-loading': smetaDetailsLoading }">
-                        <SmetaDetails :items="smetaDetails" :sort-key="smetaSortKey" :sort-dir="smetaSortDir" @sort-changed="(p)=>{ smetaSortKey = p.key; smetaSortDir = p.dir }" @select="(item)=> onSelectDescription(item)" />
-                        <TableSkeleton v-if="smetaDetailsLoading" class="overlay-skeleton" />
-                      </div>
-                    </div>
-                  </section>
+                  </PageSection>
 
                   <!-- Дневная таблица теперь показывается в отдельном режиме "По дням" -->
 

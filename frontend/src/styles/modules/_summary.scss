@@ -1,19 +1,24 @@
 @layer components {
 /* Summary / KPI cards styles (migrated from summary.css) */
 
+/* Summary/KPI cards: фиксированная сетка 2 колонки на мобилке, 4 на desktop.
+   Для KPI-карточек важна одинаковая высота и симметрия, поэтому используем
+   фиксированное количество колонок вместо auto-fit. */
 .summary-cards {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--card-frame-gap);
   width: 100%;
+  align-items: stretch;
+  grid-auto-rows: 1fr;
+  margin-bottom: 0;
 }
 
 .summary-cards .summary-label,
 .summary-cards .summary-sub { font-size: var(--summary-label-fs, var(--font-size-h2)); }
 
-.summary-cards { margin-bottom: 0; align-items: stretch; grid-auto-rows: 1fr; }
-
-@media (min-width: 1024px) {
+/* Desktop: 4 карточки в ряд */
+@media (min-width: 768px) {
   .summary-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 

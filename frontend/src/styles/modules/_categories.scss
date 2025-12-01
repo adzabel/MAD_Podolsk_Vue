@@ -1,9 +1,17 @@
 @layer components {
 /* Category grid and cards (migrated from categories.css) */
 
-.category-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin-top: var(--grid-gap); align-items: stretch; grid-auto-rows: 1fr; }
+/* Auto-fit: адаптивная сетка без медиазапросов */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  margin-top: var(--grid-gap);
+  align-items: stretch;
+  grid-auto-rows: 1fr;
+  gap: var(--grid-gap);
+}
 
-@media (min-width: 1024px) { .category-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* Медиазапрос удалён — auto-fit обеспечивает адаптивность */
 
 .transition-lift-border, .category-card, .summary-card-interactive { transition: var(--transition-lift), var(--transition-border); }
 

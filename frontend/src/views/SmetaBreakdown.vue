@@ -1,20 +1,18 @@
 <template>
-  <section class="panel smeta-panel smeta-details smeta-breakdown">
-    <div class="panel-header row-between">
+  <PageSection variant="panel" class="smeta-panel smeta-details smeta-breakdown">
+    <template #header>
       <div class="panel-title-group">
         <SmetaPanelNote :label="smetaLabel" />
         <h3 class="panel-title text-h3">{{ smetaLabel }}</h3>
       </div>
-    </div>
+    </template>
 
-      <div class="panel-body">
-      <div v-if="loading" class="skeleton">Загрузка...</div>
+    <div v-if="loading" class="skeleton">Загрузка...</div>
 
-      <div v-if="!loading" class="smeta-breakdown-scroll" :class="{ 'is-mobile': isMobile }">
-        <SmetaDetails :items="filteredRows" :sort-key="sortKey" :sort-dir="sortDir" @select="openByDescription" />
-      </div>
+    <div v-if="!loading" class="smeta-breakdown-scroll" :class="{ 'is-mobile': isMobile }">
+      <SmetaDetails :items="filteredRows" :sort-key="sortKey" :sort-dir="sortDir" @select="openByDescription" />
     </div>
-  </section>
+  </PageSection>
 </template>
 
 <script setup>
@@ -22,6 +20,7 @@ import { onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDashboardStore } from '../store/dashboardStore.js'
 import { storeToRefs } from 'pinia'
+import { PageSection } from '../components/layouts'
 
 const route = useRoute()
 const router = useRouter()

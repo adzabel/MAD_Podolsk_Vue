@@ -1,8 +1,8 @@
 <script setup>
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
-// Details table moved out to keep panels separate
 import { useDashboardStore } from '../../store/dashboardStore.js'
+import { CardsGrid, PageSection } from '../layouts'
 
 const store = useDashboardStore()
 // use storeToRefs to subscribe only to specific refs, reducing re-renders
@@ -21,17 +21,10 @@ function formatNumber(v){ if (v === null || v === undefined) return '-'; return 
 </script>
 
 <template>
-  <section class="panel smeta-panel">
-    <div class="panel-header row-between">
-      <div class="panel-title-group">
-        <h3 class="panel-title text-h3">Работы в разрезе смет</h3>
-      </div>
-    </div>
+  <PageSection title="Работы в разрезе смет" variant="panel" class="smeta-panel">
+    <div v-if="isInitialLoading" class="dashboard__state">Загружаем карточки…</div>
 
-    <div class="panel-body">
-      <div v-if="isInitialLoading" class="dashboard__state">Загружаем карточки…</div>
-
-      <div v-else class="smeta-cards__list" :class="{ 'is-loading': smetaCardsLoading }">
+    <CardsGrid v-else :loading="smetaCardsLoading" min-width="280px">
       <article v-for="c in cards" :key="c.smeta_key" :class="['smeta-card','smeta-card--large','card--interactive','p-md', { 'is-selected': selectedSmeta === c.smeta_key } ]" @click="onCardClick(c.smeta_key)">
         <div class="smeta-card__body">
           <header class="smeta-card__head">
@@ -65,13 +58,6 @@ function formatNumber(v){ if (v === null || v === undefined) return '-'; return 
           </div>
         </div>
       </article>
-        <div v-if="smetaCardsLoading" class="smeta-cards__overlay">
-          <span>Обновляем данные…</span>
-        </div>
-        </div>
-
-        <!-- Details are rendered as a separate block in the parent view -->
-      </div>
-  </section>
-
+    </CardsGrid>
+  </PageSection>
 </template>
