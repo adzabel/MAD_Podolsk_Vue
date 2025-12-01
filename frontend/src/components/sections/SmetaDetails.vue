@@ -89,12 +89,6 @@
       :totals-plan="totalsPlan"
       :totals-fact="totalsFact"
       :totals-delta="totalsDelta"
-      :register-title-ref="registerTitleRef"
-      :is-clamped="isClamped"
-      :is-expanded="isExpanded"
-      :toggle-expand="toggleExpand"
-      :id-for="idFor"
-      :format-money="formatMoney"
       @select="$emit('select', $event)"
     />
   </div>
@@ -108,9 +102,10 @@ const props = defineProps({
 })
 const emit = defineEmits(['select','sort-changed'])
 
-import { computed, ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { computed, watch } from 'vue'
 import { useIsMobile } from '../../composables/useIsMobile.js'
 import { useSort } from '../../composables/useSort.js'
+import { useTitleExpansion } from '../../composables/useTitleExpansion.js'
 import { useDashboardStore } from '../../store/dashboardStore.js'
 import { storeToRefs } from 'pinia'
 import { isVneregKey } from '../../composables/useSmetaBreakdown.js'
@@ -142,6 +137,9 @@ const { sortKey, sortDir, sortedItems, setSort, toggleSort: toggleSortKey } = us
   }
 )
 
+// Title expansion logic (для раскрытия обрезанного текста)
+const { idFor, registerTitleRef, isExpanded, isClamped, toggleExpand } = useTitleExpansion(sortedItems)
+
 // If selected smeta changes to a vnereg-like key, default-sort by `fact` (unless already set)
 watch(selectedSmeta, (newKey) => {
   if (isVneregKey(newKey) && sortKey.value !== 'fact') {
@@ -171,58 +169,6 @@ const totalsFact = computed(() => {
 const totalsDelta = computed(() => {
   return totalsFact.value - totalsPlan.value
 })
-
-const expanded = ref(new Set())
-const clamped = ref({})
-const titleEls = new Map()
-
-function idFor(item, idx){
-  return `${idx}-${String(item.title || item.description || item.work_name || '')}`
-}
-
-function registerTitleRef(el, id){
-  if (el) titleEls.set(id, el)
-  else titleEls.delete(id)
-}
-
-function isExpanded(id){ return expanded.value.has(id) }
-function isClamped(id){ return !!(clamped.value && clamped.value[id]) }
-
-function toggleExpand(id){
-  const s = new Set(expanded.value)
-  if (s.has(id)) s.delete(id)
-  else s.add(id)
-  expanded.value = s
-}
-
-function checkClamped(){
-  nextTick(() => {
-    const result = {}
-    try {
-      for (const [id, el] of titleEls.entries()){
-        if (!el) continue
-        const tolerance = 2
-        const fullH = el.scrollHeight || el.offsetHeight || 0
-        const visibleH = el.clientHeight || el.offsetHeight || 0
-        result[id] = fullH > (visibleH + tolerance)
-      }
-    } catch (e) {
-      // ignore
-    }
-    clamped.value = result
-  })
-}
-
-onMounted(() => {
-  checkClamped()
-  window.addEventListener('resize', checkClamped)
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', checkClamped)
-})
-
-watch(sortedItems, () => { checkClamped() })
 </script>
 
 <style scoped>

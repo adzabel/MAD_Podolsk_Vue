@@ -54,20 +54,21 @@
 </template>
 
 <script setup>
+import { useTitleExpansion } from '../../composables/useTitleExpansion.js'
+import { formatMoney } from '../../utils/format.js'
+
 const props = defineProps({
   sortedItems: { type: Array, default: () => [] },
   totalsPlan: { type: Number, default: 0 },
   totalsFact: { type: Number, default: 0 },
-  totalsDelta: { type: Number, default: 0 },
-  // functions passed from parent to handle clamping/expansion and refs
-  registerTitleRef: { type: Function, required: true },
-  isClamped: { type: Function, required: true },
-  isExpanded: { type: Function, required: true },
-  toggleExpand: { type: Function, required: true },
-  idFor: { type: Function, required: true },
-  formatMoney: { type: Function, required: true }
+  totalsDelta: { type: Number, default: 0 }
 })
 const emit = defineEmits(['select'])
+
+// Title expansion logic
+const { idFor, registerTitleRef, isExpanded, isClamped, toggleExpand } = useTitleExpansion(
+  () => props.sortedItems
+)
 </script>
 
 <style scoped>
