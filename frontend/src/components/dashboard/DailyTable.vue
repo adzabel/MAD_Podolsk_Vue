@@ -132,7 +132,9 @@ const { isMobile } = useIsMobile()
 
 .smeta-mobile-row-values .val {
   text-align: center;
+  /* uses global .tabular-nums from _utilities.scss */
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
 .smeta-details-mobile .smeta-mobile-row-title {
@@ -188,7 +190,9 @@ const { isMobile } = useIsMobile()
 .smeta-mobile-totals .totals-value {
   text-align: center;
   grid-column: 3 / 4;
+  /* uses global .tabular-nums from _utilities.scss */
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
 .debug-width-badge {

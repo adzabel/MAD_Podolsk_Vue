@@ -81,7 +81,7 @@ const { idFor, registerTitleRef, isExpanded, isClamped, toggleExpand } = useTitl
   align-items: center;
 }
 .smeta-mobile-row-labels .lbl { text-align: center; font-weight: 600; color: var(--color-text-muted, #6b6b6b); }
-.smeta-mobile-row-values .val { text-align: center; font-variant-numeric: tabular-nums; }
+.smeta-mobile-row-values .val { text-align: center; font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
 .smeta-details-mobile .smeta-mobile-row-title { background-color: rgba(0,0,0,0.05); padding: 8px 12px; border-top-left-radius: 8px; border-top-right-radius: 8px; }
 .smeta-mobile-item { border-radius: 8px; }
 .smeta-title-toggle { background: transparent; border: none; padding: 0; margin-left: 6px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 10px; }

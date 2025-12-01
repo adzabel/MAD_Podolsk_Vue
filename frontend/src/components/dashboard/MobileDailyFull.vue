@@ -256,7 +256,9 @@ onBeforeUnmount(() => {
 }
 .smeta-mobile-row-values .val {
   text-align: center;
+  /* uses global .tabular-nums from _utilities.scss */
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 .smeta-details-mobile .smeta-mobile-row-title {
   background-color: rgba(0,0,0,0.05);
@@ -282,7 +284,9 @@ onBeforeUnmount(() => {
 .smeta-mobile-totals .totals-value {
   text-align: center;
   grid-column: 3 / 4;
+  /* uses global .tabular-nums from _utilities.scss */
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
 /* Truncate to 2 lines and expanded state */

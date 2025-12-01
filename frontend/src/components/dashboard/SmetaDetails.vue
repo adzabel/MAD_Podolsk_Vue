@@ -181,7 +181,7 @@ const totalsDelta = computed(() => {
   align-items: center;
 }
 .smeta-mobile-row-labels .lbl { text-align: center; font-weight: 600; color: var(--color-text-muted, #6b6b6b); }
-.smeta-mobile-row-values .val { text-align: center; font-variant-numeric: tabular-nums; }
+.smeta-mobile-row-values .val { text-align: center; font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
 .smeta-breakdown-table tbody tr:nth-child(odd) { background-color: rgba(0,0,0,0.03); }
 .smeta-breakdown-table td.numeric, .smeta-breakdown-table th.numeric { text-align: right; padding-right: 12px; }
 .smeta-title-toggle { background: transparent; border: none; padding: 0; margin-left: 6px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 10px; }
