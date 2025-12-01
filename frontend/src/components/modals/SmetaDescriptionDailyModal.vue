@@ -102,7 +102,7 @@ function formatMoney(v){
 </script>
 
 <style scoped>
-/* Base table layout: keep compact look but allow overrides for mobile */
+/* ===== DESKTOP STYLES ===== */
 .smeta-breakdown-table.modal-table {
   table-layout: auto;
   width: auto;
@@ -113,13 +113,12 @@ function formatMoney(v){
 }
 
 .modal-body {
-  overflow-x: auto; /* horizontal scrolling when needed */
-  text-align: center; /* center inline-table inside modal body */
-  padding-bottom: 1.2rem; /* reserve space so scrollbar doesn't overlap content */
-  scrollbar-gutter: stable both-edges; /* reserves space for scrollbar in supported browsers */
+  overflow-x: auto;
+  text-align: center;
+  padding-bottom: 1.2rem;
+  scrollbar-gutter: stable both-edges;
 }
 
-/* Cells: compact padding and centered content */
 .smeta-breakdown-table.modal-table th,
 .smeta-breakdown-table.modal-table td {
   padding: 0.32rem 0.5rem;
@@ -136,61 +135,7 @@ function formatMoney(v){
   font-size: 0.875rem;
 }
 
-/* Mobile-specific: make columns equal width and ensure scrollbar space reserved */
-
-/* Mobile — self-contained rules for modal table (no !important) */
-.modal.is-mobile .modal-body {
-  overflow-x: visible; /* не прячем правый край таблицы: данные влезают */
-  padding-bottom: 0; /* убираем лишний отступ под воображаемый скролл */
-}
-
-.modal.is-mobile .smeta-breakdown-table__modal-wrapper {
-  overflow: visible; /* скрываем искусственную границу справа в мобильном модальном окне */
-  padding-bottom: 0;
-}
-
-.modal.is-mobile .smeta-breakdown-table--modal {
-  table-layout: fixed;
-  width: 100%;
-  max-width: 100%;
-  border-collapse: collapse;
-}
-
-/* Expect 3 visible columns on mobile (date / volume / amount). Equal widths, centered content */
-.modal.is-mobile .smeta-breakdown-table--modal thead th,
-.modal.is-mobile .smeta-breakdown-table--modal tbody td {
-  width: calc(100% / 3);
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.modal.is-mobile .smeta-breakdown-table--modal thead th.date-col,
-.modal.is-mobile .smeta-breakdown-table--modal tbody td.date-col {
-  min-width: 0;
-  text-align: center;
-}
-
-/* Cell inner wrapper: use flex centering so header and data are aligned
-   even when global rules set different text-align on th/td */
-.smeta-breakdown-table--modal th .cell-inner,
-.smeta-breakdown-table--modal td .cell-inner {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-}
-
-/* Keep date column centered too */
-.smeta-breakdown-table--modal td.date-col .cell-inner,
-.smeta-breakdown-table--modal th.date-col .cell-inner {
-  justify-content: center;
-}
-
-/* Desktop / non-mobile: when 4 columns are present, distribute equally but keep date min-width */
+/* Desktop media query */
 @media (min-width: 641px) {
   .smeta-breakdown-table.modal-table {
     table-layout: fixed;
@@ -214,9 +159,72 @@ function formatMoney(v){
   font-size: 0.875rem;
 }
 
-/* Mobile: reduce modal title font to match column headers */
+/* Mobile: reduce modal title font */
 .modal.is-mobile .modal-title {
   font-size: 0.875rem;
   line-height: 1.2;
+}
+</style>
+
+<!-- 
+  Глобальные стили для мобильной версии модального окна.
+  Без scoped, чтобы гарантированно переопределить глобальные стили _tables-modals.scss и _utilities.scss
+-->
+<style>
+/* ===== MOBILE TABLE STYLES ===== */
+/* Контейнер modal-body: без паддингов, без горизонтального скролла */
+.modal.is-mobile .modal-body {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  padding: 0 !important;
+}
+
+/* Wrapper таблицы */
+.modal.is-mobile .smeta-breakdown-table__modal-wrapper {
+  width: 100%;
+  padding: 0;
+  overflow: visible;
+}
+
+/* Таблица: фиксированная раскладка, 100% ширины */
+.modal.is-mobile .smeta-breakdown-table--modal.is-mobile {
+  table-layout: fixed !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  border-collapse: collapse;
+}
+
+/* Все ячейки: равная ширина (3 колонки), центрирование */
+.modal.is-mobile .smeta-breakdown-table--modal.is-mobile th,
+.modal.is-mobile .smeta-breakdown-table--modal.is-mobile td {
+  width: 33.333% !important;
+  text-align: center !important;
+  padding: 0.3rem 0.15rem !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+}
+
+/* Сбрасываем display: flex на .modal-row-value, чтобы td оставался table-cell */
+.modal.is-mobile .smeta-breakdown-table--modal.is-mobile td.modal-row-value {
+  display: table-cell !important;
+}
+
+/* Убираем min-width из глобальных стилей */
+.modal.is-mobile .smeta-breakdown-table--modal.is-mobile th:first-child,
+.modal.is-mobile .smeta-breakdown-table--modal.is-mobile td:first-child,
+.modal.is-mobile .smeta-breakdown-table--modal.is-mobile th:nth-child(2),
+.modal.is-mobile .smeta-breakdown-table--modal.is-mobile td:nth-child(2) {
+  min-width: 0 !important;
+}
+
+/* .cell-inner: flexbox с центрированием */
+.modal.is-mobile .smeta-breakdown-table--modal.is-mobile .cell-inner {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100%;
+  text-align: center !important;
 }
 </style>
