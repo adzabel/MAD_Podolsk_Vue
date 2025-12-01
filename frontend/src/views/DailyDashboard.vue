@@ -17,8 +17,7 @@
 import { onMounted } from 'vue'
 import { useDashboardStore } from '../store/dashboardStore.js'
 import { storeToRefs } from 'pinia'
-import DailyTable from '../components/sections/DailyTable.vue'
-import MobileDailyFull from '../components/sections/MobileDailyFull.vue'
+import { DailyTable, MobileDailyFull } from '../components/dashboard'
 import { useBodyClass } from '../composables/useBodyClass.js'
 import { useIsMobile } from '../composables/useIsMobile.js'
 

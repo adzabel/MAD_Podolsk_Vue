@@ -23,7 +23,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useDashboardStore } from '../store/dashboardStore.js'
+import { useDashboardStore } from '../../store/dashboardStore.js'
 import { storeToRefs } from 'pinia'
 
 const store = useDashboardStore()

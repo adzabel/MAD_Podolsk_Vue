@@ -1,6 +1,5 @@
 <script setup>
-// Temporary: use new header component for iterative rebuild and testing
-import AppHeader from './components/AppHeader.vue'
+import { AppHeader } from './components/layouts'
 import { useDashboardStore } from './store/dashboardStore.js'
 import { ref, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'

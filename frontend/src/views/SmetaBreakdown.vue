@@ -23,8 +23,8 @@ import { storeToRefs } from 'pinia'
 import { PageSection } from '../components/layouts'
 import { useIsMobile } from '../composables/useIsMobile.js'
 import { useSmetaBreakdown } from '../composables/useSmetaBreakdown.js'
-import SmetaPanelNote from '../components/ui/SmetaPanelNote.vue'
-import SmetaDetails from '../components/sections/SmetaDetails.vue'
+import { SmetaPanelNote } from '../components/common'
+import { SmetaDetails } from '../components/dashboard'
 
 const route = useRoute()
 const router = useRouter()

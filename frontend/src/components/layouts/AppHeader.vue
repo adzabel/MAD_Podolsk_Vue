@@ -1,12 +1,11 @@
 <script setup>
-import { useIsMobile } from '../composables/useIsMobile.js'
+import { useIsMobile } from '../../composables/useIsMobile.js'
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useDashboardStore } from '../store/dashboardStore.js'
+import { useDashboardStore } from '../../store/dashboardStore.js'
 import { storeToRefs } from 'pinia'
-import LastUpdatedBadge from './LastUpdatedBadge.vue'
-import MonthPicker from './MonthPicker.vue'
-import DayPicker from './DayPicker.vue'
+import { LastUpdatedBadge } from '../common'
+import { MonthPicker, DayPicker } from '../pickers'
 // ExportPdfButton temporarily disabled in header during report work-in-progress
 
 const { isMobile } = useIsMobile()

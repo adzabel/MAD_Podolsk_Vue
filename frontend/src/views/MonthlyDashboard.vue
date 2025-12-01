@@ -4,16 +4,14 @@ import { useIsMobile } from '../composables/useIsMobile.js'
 import { useModal } from '../composables/useModal.js'
 import { useDashboardStore } from '../store/dashboardStore.js'
 import { storeToRefs } from 'pinia'
-import TableSkeleton from '../components/ui/TableSkeleton.vue'
-import DailyRevenueModal from '../components/modals/DailyRevenueModal.vue'
-import SmetaDescriptionDailyModal from '../components/modals/SmetaDescriptionDailyModal.vue'
-import SmetaPanelNote from '../components/ui/SmetaPanelNote.vue'
+import { TableSkeleton, SmetaPanelNote } from '../components/common'
+import { DailyRevenueModal, SmetaDescriptionDailyModal } from '../components/modals'
 import { PageSection } from '../components/layouts'
 
-const ContractExecutionSection = defineAsyncComponent(() => import('../components/sections/ContractExecutionSection.vue'))
-const SummaryKpiSection = defineAsyncComponent(() => import('../components/sections/SummaryKpiSection.vue'))
-const SmetaCardsSection = defineAsyncComponent(() => import('../components/sections/SmetaCardsSection.vue'))
-const SmetaDetails = defineAsyncComponent(() => import('../components/sections/SmetaDetails.vue'))
+const ContractExecutionSection = defineAsyncComponent(() => import('../components/dashboard/ContractExecutionSection.vue'))
+const SummaryKpiSection = defineAsyncComponent(() => import('../components/dashboard/SummaryKpiSection.vue'))
+const SmetaCardsSection = defineAsyncComponent(() => import('../components/dashboard/SmetaCardsSection.vue'))
+const SmetaDetails = defineAsyncComponent(() => import('../components/dashboard/SmetaDetails.vue'))
 const smetaSortKey = ref('plan')
 const smetaSortDir = ref(-1)
 
