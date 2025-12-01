@@ -2,8 +2,14 @@
   <PageSection variant="panel" class="smeta-panel smeta-details smeta-breakdown">
     <template #header>
       <div class="panel-title-group">
-        <SmetaPanelNote :label="smetaLabel" />
-        <h3 class="panel-title text-h3">{{ smetaLabel }}</h3>
+        <div v-if="isMobile" class="panel-title-mobile">
+          <div class="panel-title-mobile-label">Работы по смете {{ smetaLabel }}</div>
+          <p class="panel-note">Детали по виду работы при нажатии</p>
+        </div>
+        <template v-else>
+          <p class="panel-note">Детали по виду работы при нажатии</p>
+          <h3 class="panel-title text-h3">{{ smetaLabel }}</h3>
+        </template>
       </div>
     </template>
 
@@ -23,7 +29,6 @@ import { storeToRefs } from 'pinia'
 import { PageSection } from '../components/layouts'
 import { useIsMobile } from '../composables/useIsMobile.js'
 import { useSmetaBreakdown } from '../composables/useSmetaBreakdown.js'
-import { SmetaPanelNote } from '../components/common'
 import { SmetaDetails } from '../components/dashboard'
 
 const route = useRoute()

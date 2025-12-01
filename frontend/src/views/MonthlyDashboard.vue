@@ -4,7 +4,7 @@ import { useIsMobile } from '../composables/useIsMobile.js'
 import { useModal } from '../composables/useModal.js'
 import { useDashboardStore } from '../store/dashboardStore.js'
 import { storeToRefs } from 'pinia'
-import { TableSkeleton, SmetaPanelNote } from '../components/common'
+import { TableSkeleton } from '../components/common'
 import { DailyRevenueModal, SmetaDescriptionDailyModal } from '../components/modals'
 import { PageSection } from '../components/layouts'
 
@@ -90,7 +90,11 @@ function onSmetaSelect(key){
                     <template #header>
                       <div class="panel-title-group">
                         <h3 v-if="!isMobile" class="panel-title">{{ selectedSmetaDesktopTitle }}</h3>
-                        <SmetaPanelNote :label="selectedSmetaLabel" />
+                        <div v-if="isMobile" class="panel-title-mobile">
+                          <div class="panel-title-mobile-label">Работы по смете {{ selectedSmetaLabel }}</div>
+                          <p class="panel-note">Детали по виду работы при нажатии</p>
+                        </div>
+                        <p v-else class="panel-note">Детали по виду работы при нажатии</p>
                       </div>
                     </template>
 
