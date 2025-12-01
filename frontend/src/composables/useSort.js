@@ -1,12 +1,13 @@
-import { computed, ref, unref } from 'vue'
+import { computed, shallowRef, unref } from 'vue'
 
 /**
  * Управление сортировкой: ключ + направление + готовый отсортированный список.
+ * Использует shallowRef для минимизации реактивных обновлений.
  */
 export function useSort(items, options = {}) {
   const { initialKey = null, initialDir = -1, compare } = options
-  const sortKey = ref(initialKey)
-  const sortDir = ref(initialDir)
+  const sortKey = shallowRef(initialKey)
+  const sortDir = shallowRef(initialDir)
 
   const setSort = (key, dir = sortDir.value) => {
     if (key) sortKey.value = key

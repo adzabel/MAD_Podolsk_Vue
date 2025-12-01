@@ -1,27 +1,23 @@
-import { ref, onMounted, onUnmounted } from 'vue'
+import { shallowRef, readonly } from 'vue'
 
 // Composable: useIsMobile
 // Returns a reactive `isMobile` ref that tracks `(max-width: 767px)`.
-// Works in SSR-safe way (checks window existence).
+// Singleton pattern: single matchMedia listener shared across all components.
+// Uses shallowRef for minimal reactivity overhead.
+
+const isMobile = shallowRef(false)
+let initialized = false
+
+function init() {
+  if (initialized || typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
+  initialized = true
+  const mq = window.matchMedia('(max-width: 767px)')
+  isMobile.value = mq.matches
+  // Single listener for the entire app — no cleanup needed (lives for app lifetime)
+  mq.addEventListener('change', (e) => { isMobile.value = e.matches })
+}
+
 export function useIsMobile() {
-  const isMobile = ref(false)
-  let mq = null
-  let handler = null
-
-  onMounted(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
-    mq = window.matchMedia('(max-width: 767px)')
-    isMobile.value = mq.matches
-    handler = (e) => { isMobile.value = e.matches }
-    if (mq.addEventListener) mq.addEventListener('change', handler)
-    else mq.addListener(handler)
-  })
-
-  onUnmounted(() => {
-    if (!mq || !handler) return
-    if (mq.removeEventListener) mq.removeEventListener('change', handler)
-    else mq.removeListener(handler)
-  })
-
-  return { isMobile }
+  init()
+  return { isMobile: readonly(isMobile) }
 }
