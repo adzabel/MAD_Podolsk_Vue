@@ -146,7 +146,7 @@ const groupedData = computed(() => {
   const groups = {}
   
   for (const item of items) {
-    const typeKey = item.type_of_work || 'Прочее'
+    const typeKey = item.type_of_work || 'Без категории'
     if (!groups[typeKey]) {
       groups[typeKey] = {
         type_of_work: typeKey,

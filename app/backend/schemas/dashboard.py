@@ -119,7 +119,7 @@ class DailyResponse(BaseModel):
 # --- Type of Work schemas ---
 
 class TypeOfWorkRow(BaseModel):
-    type_of_work: str
+    type_of_work: Optional[str]
     amount: int
 
 
@@ -130,7 +130,7 @@ class TypeOfWorkResponse(BaseModel):
 
 
 class SmetaDetailWithTypeRow(BaseModel):
-    type_of_work: str
+    type_of_work: Optional[str]
     description: str
     plan: int
     fact: int

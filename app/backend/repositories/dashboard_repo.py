@@ -214,7 +214,7 @@ def get_fact_by_type_of_work(month_key: str) -> List[dict]:
     return db.query(
         """
         SELECT 
-            COALESCE(t.type_of_work, 'Прочее') AS type_of_work,
+            t.type_of_work AS type_of_work,
             COALESCE(SUM(f.total_amount), 0)::int AS amount
         FROM skpdi_fact_with_money f
         LEFT JOIN spkdi_type_of_work t 
@@ -233,25 +233,29 @@ def get_smeta_details_with_type_of_work(month_key: str, smeta_codes: Sequence[st
     """Return smeta details grouped by type_of_work for the given month and smeta codes.
     
     Returns rows with: type_of_work, description, plan, fact.
-    Uses skpdi_fact_with_money for fact data with type_of_work join.
+    Uses spkdi_type_of_work for type_of_work lookup for both plan and fact data.
     """
     return db.query(
         """
-        WITH plan_agg AS (
+        WITH plan_with_type AS (
             SELECT 
                 p.smeta_code,
                 p.description,
+                t.type_of_work,
                 COALESCE(SUM(p.planned_amount), 0)::int AS plan
             FROM skpdi_plan_vs_fact_monthly p
+            LEFT JOIN spkdi_type_of_work t 
+                ON p.smeta_code = t.smeta_code 
+                AND p.description = t.smeta_section
             WHERE to_char(p.month_start, 'YYYY-MM') = %s 
                 AND p.smeta_code = ANY(%s)
-            GROUP BY p.smeta_code, p.description
+            GROUP BY p.smeta_code, p.description, t.type_of_work
         ),
         fact_with_type AS (
             SELECT 
                 f.smeta_code,
                 f.description,
-                COALESCE(t.type_of_work, 'Прочее') AS type_of_work,
+                t.type_of_work,
                 COALESCE(SUM(f.total_amount), 0)::int AS fact
             FROM skpdi_fact_with_money f
             LEFT JOIN spkdi_type_of_work t 
@@ -264,11 +268,11 @@ def get_smeta_details_with_type_of_work(month_key: str, smeta_codes: Sequence[st
         ),
         combined AS (
             SELECT 
-                COALESCE(f.type_of_work, 'Прочее') AS type_of_work,
+                COALESCE(p.type_of_work, f.type_of_work) AS type_of_work,
                 COALESCE(p.description, f.description) AS description,
                 COALESCE(p.plan, 0) AS plan,
                 COALESCE(f.fact, 0) AS fact
-            FROM plan_agg p
+            FROM plan_with_type p
             FULL OUTER JOIN fact_with_type f 
                 ON p.smeta_code = f.smeta_code 
                 AND p.description = f.description

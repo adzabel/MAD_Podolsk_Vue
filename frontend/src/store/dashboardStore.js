@@ -149,7 +149,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
       if (!res || !res.rows) return null
       // Normalize rows
       return res.rows.map(r => ({
-        type_of_work: r.type_of_work || 'Прочее',
+        type_of_work: r.type_of_work || null,
         description: r.description || '',
         plan: Number(r.plan || 0),
         fact: Number(r.fact || 0),

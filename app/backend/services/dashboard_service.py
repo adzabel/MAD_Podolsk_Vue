@@ -402,7 +402,7 @@ def build_smeta_details_with_types(month: str, smeta_key: str):
         plan = 0 if is_vnereg else r.get("plan", 0)
         fact = r.get("fact", 0)
         rows.append({
-            "type_of_work": r.get("type_of_work", "Прочее"),
+            "type_of_work": r.get("type_of_work"),
             "description": r.get("description", ""),
             "plan": plan,
             "fact": fact,
