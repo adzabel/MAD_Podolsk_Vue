@@ -234,6 +234,7 @@ def get_smeta_details_with_type_of_work(month_key: str, smeta_codes: Sequence[st
     
     Returns rows with: type_of_work, description, plan, fact.
     Uses spkdi_type_of_work for type_of_work lookup for both plan and fact data.
+    Join is done on (smeta_code, smeta_section) for both plan and fact tables.
     """
     return db.query(
         """
@@ -246,7 +247,7 @@ def get_smeta_details_with_type_of_work(month_key: str, smeta_codes: Sequence[st
             FROM skpdi_plan_vs_fact_monthly p
             LEFT JOIN spkdi_type_of_work t 
                 ON p.smeta_code = t.smeta_code 
-                AND p.description = t.smeta_section
+                AND p.smeta_section = t.smeta_section
             WHERE to_char(p.month_start, 'YYYY-MM') = %s 
                 AND p.smeta_code = ANY(%s)
             GROUP BY p.smeta_code, p.description, t.type_of_work
