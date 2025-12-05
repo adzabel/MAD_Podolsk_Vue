@@ -48,16 +48,17 @@ jobs:
             # Корневой путь из nginx-конфига:
             # root /srv/apps/mad_podolsk_vue/dist;
 
-            sudo mkdir -p /srv/apps/mad_podolsk_vue
+            echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S mkdir -p /srv/apps/mad_podolsk_vue
 
             # Бэкапим старый dist
             if [ -d /srv/apps/mad_podolsk_vue/dist ]; then
-              rm -rf /srv/apps/mad_podolsk_vue/dist_prev
-              mv /srv/apps/mad_podolsk_vue/dist /srv/apps/mad_podolsk_vue/dist_prev
+              echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S rm -rf /srv/apps/mad_podolsk_vue/dist_prev
+              echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S mv /srv/apps/mad_podolsk_vue/dist /srv/apps/mad_podolsk_vue/dist_prev
             fi
 
             # Перекладываем новый билд
-            mv /home/apps/mad_podolsk_vue_dist_new /srv/apps/mad_podolsk_vue/dist
+            echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S mv /home/apps/mad_podolsk_vue_dist_new /srv/apps/mad_podolsk_vue/dist
 
             # Nginx конфиг не менялся, достаточно reload
-            sudo systemctl reload nginx || true
+            echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S systemctl reload nginx || true
+
