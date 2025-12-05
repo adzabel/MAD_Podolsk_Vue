@@ -48,17 +48,22 @@ jobs:
             # Корневой путь из nginx-конфига:
             # root /srv/apps/mad_podolsk_vue/dist;
 
-            echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S mkdir -p /srv/apps/mad_podolsk_vue
+            echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S mkdir -p /srv/apps/mad_podolsk_vue/dist
 
             # Бэкапим старый dist
             if [ -d /srv/apps/mad_podolsk_vue/dist ]; then
               echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S rm -rf /srv/apps/mad_podolsk_vue/dist_prev
-              echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S mv /srv/apps/mad_podolsk_vue/dist /srv/apps/mad_podolsk_vue/dist_prev
+              echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S cp -r /srv/apps/mad_podolsk_vue/dist /srv/apps/mad_podolsk_vue/dist_prev
             fi
 
-            # Перекладываем новый билд
-            echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S mv /home/apps/mad_podolsk_vue_dist_new /srv/apps/mad_podolsk_vue/dist
+            # Чистим текущий dist
+            echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S rm -rf /srv/apps/mad_podolsk_vue/dist/*
+
+            # Кладём новый билд (именно содержимое)
+            echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S cp -r /home/apps/mad_podolsk_vue_dist_new/. /srv/apps/mad_pодолsk_vue/dist/
+
+            # Права на чтение nginx'ом (на всякий случай)
+            echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S chown -R www-data:www-data /srv/apps/mad_podolsk_vue/dist
 
             # Nginx конфиг не менялся, достаточно reload
             echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S systemctl reload nginx || true
-
