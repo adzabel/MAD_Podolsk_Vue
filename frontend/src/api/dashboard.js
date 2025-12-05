@@ -225,10 +225,11 @@ export async function getDaily(date) {
   return await request(`/api/dashboard/daily?date=${encodeURIComponent(date)}`)
 }
 
-export async function getSmetaDescriptionDaily(month, smeta_key, description) {
+export async function getSmetaDescriptionDaily(month, smeta_key, description_id) {
   const m = normalizeMonth(month)
   try {
-    return await request(`/api/dashboard/monthly/smeta-description-daily?month=${encodeURIComponent(m)}&smeta_key=${encodeURIComponent(smeta_key)}&description=${encodeURIComponent(description)}`)
+    // Use description_id (short hash) for URL-safe requests
+    return await request(`/api/dashboard/monthly/smeta-description-daily?month=${encodeURIComponent(m)}&smeta_key=${encodeURIComponent(smeta_key)}&description_id=${encodeURIComponent(description_id)}`)
   } catch (err) {
     if (err && (err.status === 404 || (err.message && err.message.includes('Not Found')))) {
       // try to emulate using combined endpoint (not available) — return empty

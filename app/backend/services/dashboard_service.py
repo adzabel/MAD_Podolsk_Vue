@@ -1,8 +1,9 @@
+import hashlib
 from calendar import monthrange
 from datetime import datetime
 from threading import RLock
 from time import monotonic
-from typing import List, Optional, Sequence
+from typing import Dict, List, Optional, Sequence
 
 from fastapi import HTTPException
 
@@ -42,6 +43,45 @@ class _TTLCache:
 
 _MONTHS_CACHE = _TTLCache(ttl_seconds=300)
 _LAST_LOADED_CACHE = _TTLCache(ttl_seconds=60)
+
+# Cache for description -> id and id -> description mapping
+# This is an in-memory cache that builds up during the application lifetime
+_description_id_map: Dict[str, str] = {}  # description -> id
+_id_description_map: Dict[str, str] = {}  # id -> description
+_desc_map_lock = RLock()
+
+
+def generate_description_id(description: str) -> str:
+    """Generate a short, URL-safe ID from description using SHA256 hash.
+    
+    The ID is 12 characters long (base16), which gives us ~2.8 * 10^14 
+    possible values - more than enough for our use case while keeping 
+    URLs reasonably short.
+    """
+    if not description:
+        return ""
+    # Use SHA256 and take first 12 hex chars (48 bits = plenty of uniqueness)
+    hash_bytes = hashlib.sha256(description.encode('utf-8')).hexdigest()[:12]
+    return hash_bytes
+
+
+def register_description(description: str) -> str:
+    """Register a description and return its ID. Thread-safe."""
+    if not description:
+        return ""
+    desc_id = generate_description_id(description)
+    with _desc_map_lock:
+        _description_id_map[description] = desc_id
+        _id_description_map[desc_id] = description
+    return desc_id
+
+
+def resolve_description_id(desc_id: str) -> Optional[str]:
+    """Resolve a description ID back to the original description string."""
+    if not desc_id:
+        return None
+    with _desc_map_lock:
+        return _id_description_map.get(desc_id)
 
 
 def smeta_key_to_codes(smeta_key: str) -> Sequence[str]:
@@ -313,9 +353,19 @@ def build_monthly_smeta_details(month: str, smeta_key: str):
     for v in rows_map.values():
         if (v["plan"] or 0) > 1 or (v["fact"] or 0) > 1:
             v["delta"] = v["fact"] - v["plan"]
+            # Register description and add description_id to the row
+            v["description_id"] = register_description(v["description"])
             rows.append(v)
 
     return {"month": month_key, "smeta_key": smeta_key, "rows": rows}
+
+
+def build_monthly_smeta_description_daily_by_id(month: str, smeta_key: str, description_id: str):
+    """Build smeta description daily data using description_id instead of full description string."""
+    description = resolve_description_id(description_id)
+    if not description:
+        raise HTTPException(status_code=404, detail="description_id not found - please load smeta details first")
+    return build_monthly_smeta_description_daily(month, smeta_key, description)
 
 
 def build_monthly_smeta_description_daily(month: str, smeta_key: str, description: str):
@@ -401,9 +451,11 @@ def build_smeta_details_with_types(month: str, smeta_key: str):
     for r in raw_rows:
         plan = 0 if is_vnereg else r.get("plan", 0)
         fact = r.get("fact", 0)
+        description = r.get("description", "")
         rows.append({
             "type_of_work": r.get("type_of_work"),
-            "description": r.get("description", ""),
+            "description": description,
+            "description_id": register_description(description),  # Add description_id
             "plan": plan,
             "fact": fact,
             "delta": fact - plan

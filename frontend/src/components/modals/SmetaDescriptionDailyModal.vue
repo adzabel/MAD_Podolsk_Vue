@@ -47,18 +47,26 @@ import { useIsMobile } from '../../composables/useIsMobile.js'
 import { useQuery } from '../../composables/useQueryClient.js'
 import { formatMoney } from '../../utils/format.js'
 
-const props = defineProps({ visible: Boolean, month: String, smeta_key: String, description: String })
+const props = defineProps({ 
+  visible: Boolean, 
+  month: String, 
+  smeta_key: String, 
+  description: String,
+  description_id: String  // Short hash ID for API calls
+})
 const emit = defineEmits(['close'])
 
 const { isMobile } = useIsMobile()
 
 const smetaDescriptionQuery = useQuery({
-  queryKey: () => ['smeta-description-daily', props.month, props.smeta_key, props.description],
+  // Use description_id in query key for better caching
+  queryKey: () => ['smeta-description-daily', props.month, props.smeta_key, props.description_id || props.description],
   queryFn: async () => {
-    if (!props.month || !props.smeta_key || !props.description) return []
+    if (!props.month || !props.smeta_key || (!props.description_id && !props.description)) return []
     try {
       const api = await import('../../api/dashboard.js')
-      const res = await api.getSmetaDescriptionDaily(props.month, props.smeta_key, props.description)
+      // Use description_id for API call (shorter URL)
+      const res = await api.getSmetaDescriptionDaily(props.month, props.smeta_key, props.description_id)
       return res.rows || []
     } catch (err) {
       const api2 = await import('../../api/dashboard.js')
@@ -66,7 +74,7 @@ const smetaDescriptionQuery = useQuery({
       return (r && r.rows) || []
     }
   },
-  enabled: computed(() => Boolean(props.visible && props.month && props.smeta_key && props.description)),
+  enabled: computed(() => Boolean(props.visible && props.month && props.smeta_key && (props.description_id || props.description))),
   staleTime: 2 * 60 * 1000,
   refetchOnWindowFocus: false
 })

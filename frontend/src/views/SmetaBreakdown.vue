@@ -53,7 +53,7 @@ onMounted(async () => {
 })
 
 function openByDescription(row) {
-  store.setSelectedDescription(row.title || row.description)
+  store.setSelectedDescription(row.title || row.description, row.description_id)
   router.push({ path: '/daily' })
 }
 </script>

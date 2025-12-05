@@ -56,9 +56,16 @@ def monthly_smeta_details(month: str = Query(..., description="YYYY-MM"), smeta_
 
 @router.get("/monthly/smeta-description-daily", response_model=MonthlySmetaDescriptionDailyResponse)
 def monthly_smeta_description_daily(
-    month: str = Query(..., description="YYYY-MM"), smeta_key: str = Query(...), description: str = Query(...)
+    month: str = Query(..., description="YYYY-MM"),
+    smeta_key: str = Query(...),
+    description_id: str = Query(..., description="Short 12-char hash ID of the description")
 ):
-    return dashboard_service.build_monthly_smeta_description_daily(month, smeta_key, description)
+    """Get daily breakdown for a specific work description.
+    
+    Use description_id (12-char hash) for URL-safe requests.
+    The description_id is returned in the smeta-details endpoint.
+    """
+    return dashboard_service.build_monthly_smeta_description_daily_by_id(month, smeta_key, description_id)
 
 
 @router.get("/last-loaded", response_model=LoadedAtResponse)

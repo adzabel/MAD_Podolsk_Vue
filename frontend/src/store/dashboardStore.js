@@ -79,6 +79,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const selectedDate = ref(new Date().toISOString().slice(0, 10))
   const selectedSmeta = ref(null)
   const selectedDescription = ref(null)
+  const selectedDescriptionId = ref(null)
 
   // --------------------------------------------------------------------------
   // MONTHLY QUERIES (summary, smeta cards, smeta details)
@@ -147,10 +148,11 @@ export const useDashboardStore = defineStore('dashboard', () => {
     queryFn: async () => {
       const res = await getSmetaDetailsWithTypes(selectedMonth.value, selectedSmeta.value)
       if (!res || !res.rows) return null
-      // Normalize rows
+      // Normalize rows, preserving description_id
       return res.rows.map(r => ({
         type_of_work: r.type_of_work || null,
         description: r.description || '',
+        description_id: r.description_id || '',  // Preserve description_id from backend
         plan: Number(r.plan || 0),
         fact: Number(r.fact || 0),
         delta: Number(r.delta ?? (r.fact - r.plan))
@@ -198,6 +200,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
 
   watch(selectedMonth, () => {
     selectedDescription.value = null
+    selectedDescriptionId.value = null
     invalidateQueries(['smeta-details'])
   })
 
@@ -240,7 +243,10 @@ export const useDashboardStore = defineStore('dashboard', () => {
   function setSelectedMonth(month) { if (month) selectedMonth.value = month }
   function setSelectedDate(date) { if (date) selectedDate.value = date }
   function setSelectedSmeta(key) { selectedSmeta.value = key }
-  function setSelectedDescription(desc) { selectedDescription.value = desc }
+  function setSelectedDescription(desc, descId = null) {
+    selectedDescription.value = desc
+    selectedDescriptionId.value = descId
+  }
   function setLoadedAt(ts) { if (ts) invalidateQueries(['last-loaded']); return ts }
 
   // Data fetchers
@@ -316,6 +322,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     selectedDate,
     selectedSmeta,
     selectedDescription,
+    selectedDescriptionId,
     
     // Monthly data
     availableMonths,

@@ -48,6 +48,7 @@ class MonthlyDailyRevenueResponse(BaseModel):
 
 class SmetaDetailRow(BaseModel):
     description: str
+    description_id: str  # Short hash ID for URL-safe references
     plan: int
     fact: int
     delta: int
@@ -132,6 +133,7 @@ class TypeOfWorkResponse(BaseModel):
 class SmetaDetailWithTypeRow(BaseModel):
     type_of_work: Optional[str]
     description: str
+    description_id: str  # Short hash ID for URL-safe references
     plan: int
     fact: int
     delta: int

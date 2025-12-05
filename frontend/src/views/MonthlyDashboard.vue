@@ -20,7 +20,7 @@ const smetaSortDir = ref(-1)
 const { isMobile } = useIsMobile()
 
 const store = useDashboardStore()
-const { monthlyLoading, monthlyError, monthlySummary, smetaDetails, smetaDetailsLoading, selectedMonth, selectedSmeta, selectedDescription, smetaCards } = storeToRefs(store)
+const { monthlyLoading, monthlyError, monthlySummary, smetaDetails, smetaDetailsLoading, selectedMonth, selectedSmeta, selectedDescription, selectedDescriptionId, smetaCards } = storeToRefs(store)
 
 // Watch for smeta changes to set default sort key
 // Лето и Зима - сортировка по План, Внерегламент - сортировка по Факт
@@ -66,7 +66,8 @@ const closeTypeOfWorkModal = () => typeOfWorkModal.close()
 
 // открыть попап расшифровки при выборе description
 function onSelectDescription(item){
-  store.setSelectedDescription(item.title || item.description)
+  // Use description_id for API calls, keep description for display
+  store.setSelectedDescription(item.title || item.description, item.description_id)
   openSmetaDescription()
 }
 
@@ -124,7 +125,7 @@ function onSmetaSelect(key){
 
                   <!-- Модальные окна -->
                   <DailyRevenueModal :visible="isDailyModalOpen" :month="selectedMonth" @close="closeDailyRevenue()" />
-                  <SmetaDescriptionDailyModal :visible="isSmetaDescOpen" :month="selectedMonth" :smeta_key="selectedSmeta" :description="selectedDescription" @close="closeSmetaDescription()" />
+                  <SmetaDescriptionDailyModal :visible="isSmetaDescOpen" :month="selectedMonth" :smeta_key="selectedSmeta" :description="selectedDescription" :description_id="selectedDescriptionId" @close="closeSmetaDescription()" />
                   <TypeOfWorkModal :visible="isTypeOfWorkModalOpen" :month="selectedMonth" @close="closeTypeOfWorkModal()" />
                 </div>
 
