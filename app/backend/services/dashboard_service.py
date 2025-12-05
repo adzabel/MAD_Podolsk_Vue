@@ -3,7 +3,7 @@ from calendar import monthrange
 from datetime import datetime
 from threading import RLock
 from time import monotonic
-from typing import Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from fastapi import HTTPException
 
@@ -20,6 +20,8 @@ _SENTINEL = object()
 
 
 class _TTLCache:
+    """Simple TTL cache for a single value."""
+
     def __init__(self, ttl_seconds: int):
         self.ttl_seconds = ttl_seconds
         self._value = _SENTINEL
@@ -41,8 +43,56 @@ class _TTLCache:
             self._expires_at = 0.0
 
 
+class _KeyedTTLCache:
+    """TTL cache with keyed entries for caching by parameters (e.g., month, smeta_key)."""
+
+    def __init__(self, ttl_seconds: int, max_entries: int = 100):
+        self.ttl_seconds = ttl_seconds
+        self.max_entries = max_entries
+        self._cache: Dict[Tuple, Tuple[Any, float]] = {}  # key -> (value, expires_at)
+        self._lock = RLock()
+
+    def get_or_set(self, key: Tuple, factory):
+        now = monotonic()
+        with self._lock:
+            if key in self._cache:
+                value, expires_at = self._cache[key]
+                if now < expires_at:
+                    return value
+            # Evict expired entries and limit cache size
+            self._evict_expired(now)
+            value = factory()
+            self._cache[key] = (value, now + self.ttl_seconds)
+            return value
+
+    def _evict_expired(self, now: float):
+        """Remove expired entries and limit cache size."""
+        # Remove expired
+        expired_keys = [k for k, (_, exp) in self._cache.items() if now >= exp]
+        for k in expired_keys:
+            del self._cache[k]
+        # If still over limit, remove oldest entries
+        if len(self._cache) >= self.max_entries:
+            sorted_keys = sorted(self._cache.keys(), key=lambda k: self._cache[k][1])
+            for k in sorted_keys[: len(self._cache) - self.max_entries + 1]:
+                del self._cache[k]
+
+    def invalidate(self, key: Optional[Tuple] = None):
+        with self._lock:
+            if key is None:
+                self._cache.clear()
+            elif key in self._cache:
+                del self._cache[key]
+
+
 _MONTHS_CACHE = _TTLCache(ttl_seconds=300)
 _LAST_LOADED_CACHE = _TTLCache(ttl_seconds=60)
+
+# Keyed caches for heavy responses (TTL=120s to balance freshness and performance)
+_COMBINED_DASHBOARD_CACHE = _KeyedTTLCache(ttl_seconds=120, max_entries=24)
+_DAILY_REVENUE_CACHE = _KeyedTTLCache(ttl_seconds=120, max_entries=24)
+_SMETA_DETAILS_CACHE = _KeyedTTLCache(ttl_seconds=120, max_entries=50)
+_SMETA_DETAILS_TYPES_CACHE = _KeyedTTLCache(ttl_seconds=120, max_entries=50)
 
 # Cache for description -> id and id -> description mapping
 # This is an in-memory cache that builds up during the application lifetime
@@ -270,8 +320,8 @@ def build_monthly_by_smeta(month: str, plan_fact: Optional[dict] = None):
     return {"month": plan_fact["month_key"], "cards": cards}
 
 
-def build_combined_dashboard(month: Optional[str]):
-    month_key = normalize_month(month) if month else None
+def _build_combined_dashboard_uncached(month_key: Optional[str]):
+    """Internal uncached implementation of combined dashboard builder."""
     summary = {
         "planned_amount": None,
         "fact_amount": None,
@@ -330,7 +380,7 @@ def build_combined_dashboard(month: Optional[str]):
             last_updated = str(loaded)
 
     return {
-        "month": month or None,
+        "month": month_key or None,
         "last_updated": last_updated,
         "summary": summary,
         "items": items,
@@ -340,8 +390,18 @@ def build_combined_dashboard(month: Optional[str]):
     }
 
 
-def build_monthly_smeta_details(month: str, smeta_key: str):
-    month_key = normalize_month(month)
+def build_combined_dashboard(month: Optional[str]):
+    """Build combined dashboard with TTL caching by month."""
+    month_key = normalize_month(month) if month else None
+    cache_key = (month_key,)
+    return _COMBINED_DASHBOARD_CACHE.get_or_set(
+        cache_key,
+        lambda: _build_combined_dashboard_uncached(month_key)
+    )
+
+
+def _build_monthly_smeta_details_uncached(month_key: str, smeta_key: str):
+    """Internal uncached implementation of monthly smeta details builder."""
     codes = smeta_key_to_codes(smeta_key)
     if not codes:
         raise HTTPException(status_code=400, detail="invalid smeta_key")
@@ -371,6 +431,16 @@ def build_monthly_smeta_details(month: str, smeta_key: str):
     return {"month": month_key, "smeta_key": smeta_key, "rows": rows}
 
 
+def build_monthly_smeta_details(month: str, smeta_key: str):
+    """Build monthly smeta details with TTL caching by month and smeta_key."""
+    month_key = normalize_month(month)
+    cache_key = (month_key, smeta_key)
+    return _SMETA_DETAILS_CACHE.get_or_set(
+        cache_key,
+        lambda: _build_monthly_smeta_details_uncached(month_key, smeta_key)
+    )
+
+
 def build_monthly_smeta_description_daily_by_id(month: str, smeta_key: str, description_id: str):
     """Build smeta description daily data using description_id instead of full description string."""
     description = resolve_description_id(description_id)
@@ -390,10 +460,20 @@ def build_monthly_smeta_description_daily(month: str, smeta_key: str, descriptio
     return {"month": month_key, "smeta_key": smeta_key, "description": description, "rows": rows}
 
 
-def build_monthly_daily_revenue(month: str):
-    month_key = normalize_month(month)
+def _build_monthly_daily_revenue_uncached(month_key: str):
+    """Internal uncached implementation of monthly daily revenue builder."""
     rows = dashboard_repo.get_monthly_daily_revenue_rows(month_key)
     return {"month": month_key, "rows": rows}
+
+
+def build_monthly_daily_revenue(month: str):
+    """Build monthly daily revenue with TTL caching by month."""
+    month_key = normalize_month(month)
+    cache_key = (month_key,)
+    return _DAILY_REVENUE_CACHE.get_or_set(
+        cache_key,
+        lambda: _build_monthly_daily_revenue_uncached(month_key)
+    )
 
 
 def fetch_monthly_dates(month: str):
@@ -446,9 +526,8 @@ def build_fact_by_type_of_work(month: str):
     }
 
 
-def build_smeta_details_with_types(month: str, smeta_key: str):
-    """Build smeta details with type_of_work grouping for hierarchical display."""
-    month_key = normalize_month(month)
+def _build_smeta_details_with_types_uncached(month_key: str, smeta_key: str):
+    """Internal uncached implementation of smeta details with types builder."""
     codes = smeta_key_to_codes(smeta_key)
     if not codes:
         raise HTTPException(status_code=400, detail="invalid smeta_key")
@@ -477,3 +556,13 @@ def build_smeta_details_with_types(month: str, smeta_key: str):
         "smeta_key": smeta_key,
         "rows": rows
     }
+
+
+def build_smeta_details_with_types(month: str, smeta_key: str):
+    """Build smeta details with type_of_work grouping with TTL caching."""
+    month_key = normalize_month(month)
+    cache_key = (month_key, smeta_key)
+    return _SMETA_DETAILS_TYPES_CACHE.get_or_set(
+        cache_key,
+        lambda: _build_smeta_details_with_types_uncached(month_key, smeta_key)
+    )
