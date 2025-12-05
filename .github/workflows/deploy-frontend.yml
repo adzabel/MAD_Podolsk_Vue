@@ -18,7 +18,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22   # подставь свою версию, если другая
+          node-version: 22
 
       - name: Install deps and build
         working-directory: frontend
@@ -33,7 +33,7 @@ jobs:
           username: apps
           key: ${{ secrets.VPS_SSH_KEY_MAIN }}
           source: "frontend/dist/*"
-          target: "/home/apps/mad_podolsk_frontend_tmp"
+          target: "/home/apps/mad_podolsk_vue_dist_new"
           rm: true
 
       - name: Activate new frontend
@@ -45,15 +45,19 @@ jobs:
           script: |
             set -e
 
-            sudo mkdir -p /var/www/mad_podolsk_frontend
+            # Корневой путь из nginx-конфига:
+            # root /srv/apps/mad_podolsk_vue/dist;
 
-            rm -rf /var/www/mad_podolsk_frontend_prev
-            if [ -d /var/www/mad_podolsk_frontend ]; then
-              mv /var/www/mad_podolsk_frontend /var/www/mad_podolsk_frontend_prev
+            sudo mkdir -p /srv/apps/mad_podolsk_vue
+
+            # Бэкапим старый dist
+            if [ -d /srv/apps/mad_podolsk_vue/dist ]; then
+              rm -rf /srv/apps/mad_podolsk_vue/dist_prev
+              mv /srv/apps/mad_podolsk_vue/dist /srv/apps/mad_podolsk_vue/dist_prev
             fi
 
-            mkdir -p /var/www/mad_podolsk_frontend
-            cp -r /home/apps/mad_podolsk_frontend_tmp/* /var/www/mad_podolsk_frontend/
+            # Перекладываем новый билд
+            mv /home/apps/mad_podolsk_vue_dist_new /srv/apps/mad_podolsk_vue/dist
 
-            # Nginx часто можно не трогать, но reload безопасен
+            # Nginx конфиг не менялся, достаточно reload
             sudo systemctl reload nginx || true
