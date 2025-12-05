@@ -39,8 +39,8 @@ jobs:
           script: |
             set -e
 
-            # Останавливаем сервис
-            sudo systemctl stop mad-podolsk-api.service || true
+            # Останавливаем сервис (если его нет — не валим пайплайн)
+            echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S systemctl stop mad-podolsk-api.service || true
 
             # Бэкапим текущую версию
             if [ -d /home/apps/mad_podolsk_api ]; then
@@ -65,5 +65,6 @@ jobs:
             fi
 
             # Запуск сервиса
-            sudo systemctl start mad-podolsk-api.service
-            sudo systemctl status mad-podolsk-api.service --no-pager -l
+            echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S systemctl start mad-podolsk-api.service
+            echo "${{ secrets.VPS_SUDO_PASSWORD }}" | sudo -S systemctl status mad-podolsk-api.service --no-pager -l
+
