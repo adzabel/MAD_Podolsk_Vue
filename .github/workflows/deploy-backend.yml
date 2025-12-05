@@ -22,7 +22,7 @@ jobs:
         with:
           host: 89.104.74.37
           username: apps
-          key: ${{ secrets.VPS_SSH_KEY_MAIN }}
+          key: ${{ secrets.VPS_SSH_KEY }}
           source: |
             app
             scripts
@@ -35,7 +35,7 @@ jobs:
         with:
           host: 89.104.74.37
           username: apps
-          key: ${{ secrets.VPS_SSH_KEY_MAIN }}
+          key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             set -e
 
