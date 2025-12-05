@@ -18,6 +18,27 @@ function fallbackMonths() {
 }
 
 /**
+ * Проверяет, является ли ключ сметы "внерегламентом"
+ */
+function isVneregKey(key) {
+  if (!key) return false
+  const k = String(key).toLowerCase()
+  return k.includes('vne') || k === 'vnereg' || k === 'vner1' || k === 'vner2' || k === 'vnereglement'
+}
+
+/**
+ * Маппинг ключей смет на человекочитаемые названия
+ */
+const SMETA_LABELS = {
+  leto: 'Лето',
+  zima: 'Зима',
+  vnereg: 'Внерегламент',
+  vner1: 'Внерегламент',
+  vner2: 'Внерегламент',
+  vnereglement: 'Внерегламент'
+}
+
+/**
  * Нормализует данные сметных карточек
  */
 function normalizeSmetaCards(raw) {
@@ -222,6 +243,24 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const smetaDetailsWithTypes = computed(() => smetaDetailsWithTypesQuery.data.value || null)
   const smetaDetailsWithTypesLoading = computed(() => smetaDetailsWithTypesQuery.isLoading.value || smetaDetailsWithTypesQuery.isFetching.value)
 
+  // Centralized smeta label - derives label from cards or SMETA_LABELS
+  const selectedSmetaLabel = computed(() => {
+    const key = selectedSmeta.value
+    if (!key) return ''
+    if (SMETA_LABELS[key]) return SMETA_LABELS[key]
+    const found = (smetaCards.value || []).find(c => c.smeta_key === key)
+    return found?.label || key
+  })
+
+  // Check if selected smeta is vnereg type
+  const isSelectedSmetaVnereg = computed(() => isVneregKey(selectedSmeta.value))
+
+  // Default sort key based on smeta type (plan for regular, fact for vnereg)
+  const defaultSmetaSortKey = computed(() => isSelectedSmetaVnereg.value ? 'fact' : 'plan')
+
+  // Available dates for daily mode
+  const availableDates = computed(() => availableDatesQuery.data.value || [])
+
   // Meta
   const loadedAt = computed(() => {
     const fromLastLoaded = lastLoadedQuery.data.value && lastLoadedQuery.data.value.loaded_at
@@ -338,8 +377,12 @@ export const useDashboardStore = defineStore('dashboard', () => {
     smetaDetailsLoading,
     smetaDetailsWithTypes,
     smetaDetailsWithTypesLoading,
+    selectedSmetaLabel,
+    isSelectedSmetaVnereg,
+    defaultSmetaSortKey,
     
     // Daily data
+    availableDates,
     dailyRows,
     dailyTotal,
     dailyLoading,
@@ -358,6 +401,12 @@ export const useDashboardStore = defineStore('dashboard', () => {
     fetchSmetaDetails,
     fetchDaily,
     fetchAvailableMonths,
-    findNearestDateWithData
+    findNearestDateWithData,
+    
+    // Utilities (re-export for convenience)
+    isVneregKey
   }
 })
+
+// Re-export helper for components that need it without store
+export { isVneregKey }

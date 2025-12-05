@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import { onMounted, computed, ref } from 'vue'
+import { onMounted, computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDashboardStore } from '../store/dashboardStore.js'
 import { storeToRefs } from 'pinia'
@@ -34,7 +34,7 @@ import { SmetaDetails } from '../components/dashboard'
 const route = useRoute()
 const router = useRouter()
 const store = useDashboardStore()
-const { selectedSmeta } = storeToRefs(store)
+const { selectedSmeta, defaultSmetaSortKey } = storeToRefs(store)
 const { isMobile } = useIsMobile()
 
 // Ключ сметы из URL или store
@@ -43,9 +43,15 @@ const smetaKey = computed(() => route.params.smetaKey || selectedSmeta.value || 
 // Бизнес-логика вынесена в composable
 const { loading, filteredRows, smetaLabel } = useSmetaBreakdown(smetaKey)
 
-// Сортировка
-const sortKey = ref('plan')
+// Сортировка - теперь инициализируется из стора
+const sortKey = ref(defaultSmetaSortKey.value)
 const sortDir = ref(-1)
+
+// Обновляем сортировку при смене типа сметы
+watch(defaultSmetaSortKey, (newKey) => {
+  sortKey.value = newKey
+  sortDir.value = -1
+})
 
 onMounted(async () => {
   store.setSelectedSmeta(smetaKey.value)

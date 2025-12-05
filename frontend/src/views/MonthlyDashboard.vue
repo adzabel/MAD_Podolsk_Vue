@@ -7,40 +7,42 @@ import { storeToRefs } from 'pinia'
 import { TableSkeleton } from '../components/common'
 import { DailyRevenueModal, SmetaDescriptionDailyModal, TypeOfWorkModal } from '../components/modals'
 import { PageSection } from '../components/layouts'
-import { isVneregKey } from '../composables/useSmetaBreakdown.js'
 
 const ContractExecutionSection = defineAsyncComponent(() => import('../components/dashboard/ContractExecutionSection.vue'))
 const SummaryKpiSection = defineAsyncComponent(() => import('../components/dashboard/SummaryKpiSection.vue'))
 const SmetaCardsSection = defineAsyncComponent(() => import('../components/dashboard/SmetaCardsSection.vue'))
 const SmetaDetails = defineAsyncComponent(() => import('../components/dashboard/SmetaDetails.vue'))
-const smetaSortKey = ref('plan')
-const smetaSortDir = ref(-1)
 
 // use composable for mobile detection
 const { isMobile } = useIsMobile()
 
 const store = useDashboardStore()
-const { monthlyLoading, monthlyError, monthlySummary, smetaDetails, smetaDetailsLoading, selectedMonth, selectedSmeta, selectedDescription, selectedDescriptionId, smetaCards } = storeToRefs(store)
+const {
+  monthlyLoading,
+  monthlyError,
+  monthlySummary,
+  smetaDetails,
+  smetaDetailsLoading,
+  selectedMonth,
+  selectedSmeta,
+  selectedDescription,
+  selectedDescriptionId,
+  selectedSmetaLabel,
+  isSelectedSmetaVnereg,
+  defaultSmetaSortKey
+} = storeToRefs(store)
 
-// Watch for smeta changes to set default sort key
-// Лето и Зима - сортировка по План, Внерегламент - сортировка по Факт
-watch(selectedSmeta, (newKey) => {
-  if (isVneregKey(newKey)) {
-    smetaSortKey.value = 'fact'
-  } else {
-    smetaSortKey.value = 'plan'
-  }
+// Sorting state - now initialized from store's defaultSmetaSortKey
+const smetaSortKey = ref(defaultSmetaSortKey.value)
+const smetaSortDir = ref(-1)
+
+// Watch for smeta changes to set default sort key from store
+watch(defaultSmetaSortKey, (newKey) => {
+  smetaSortKey.value = newKey
   smetaSortDir.value = -1
 }, { immediate: true })
 
-const selectedSmetaLabel = computed(() => {
-  const key = selectedSmeta.value
-  if (!key) return ''
-  const found = (smetaCards.value || []).find(s => s.smeta_key === key)
-  const name = found ? found.label : key
-  return name
-})
-
+// Use centralized label from store
 const selectedSmetaDesktopTitle = computed(() => {
   const name = selectedSmetaLabel.value
   return name ? `Расшифровка работ по смете «${name}»` : 'Расшифровка работ по смете'

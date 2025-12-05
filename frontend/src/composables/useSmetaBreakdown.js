@@ -1,29 +1,9 @@
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useDashboardStore } from '../store/dashboardStore.js'
+import { useDashboardStore, isVneregKey } from '../store/dashboardStore.js'
 
-/**
- * Проверяет, является ли ключ сметы "внерегламентом"
- * @param {string} key - ключ сметы
- * @returns {boolean}
- */
-export function isVneregKey(key) {
-  if (!key) return false
-  const k = String(key).toLowerCase()
-  return k.includes('vne') || k === 'vnereg' || k === 'vner1' || k === 'vner2' || k === 'vnereglement'
-}
-
-/**
- * Маппинг ключей смет на человекочитаемые названия
- */
-const SMETA_LABELS = {
-  leto: 'Лето',
-  zima: 'Зима',
-  vnereg: 'Внерегламент',
-  vner1: 'Внерегламент',
-  vner2: 'Внерегламент',
-  vnereglement: 'Внерегламент'
-}
+// Re-export isVneregKey for backward compatibility
+export { isVneregKey }
 
 /**
  * Composable для работы с данными расшифровки сметы
@@ -32,7 +12,7 @@ const SMETA_LABELS = {
  */
 export function useSmetaBreakdown(smetaKeyRef) {
   const store = useDashboardStore()
-  const { smetaDetailsLoading, smetaDetails, smetaCards } = storeToRefs(store)
+  const { smetaDetailsLoading, smetaDetails, selectedSmetaLabel } = storeToRefs(store)
 
   const loading = computed(() => smetaDetailsLoading.value)
 
@@ -71,14 +51,9 @@ export function useSmetaBreakdown(smetaKeyRef) {
   })
 
   /**
-   * Человекочитаемое название сметы
+   * Человекочитаемое название сметы - теперь берём из стора
    */
-  const smetaLabel = computed(() => {
-    const key = smetaKeyRef.value
-    if (SMETA_LABELS[key]) return SMETA_LABELS[key]
-    const found = (smetaCards.value || []).find(c => c.smeta_key === key)
-    return found?.label || key
-  })
+  const smetaLabel = computed(() => selectedSmetaLabel.value)
 
   return {
     loading,

@@ -117,9 +117,8 @@ import { computed, watch } from 'vue'
 import { useIsMobile } from '../../composables/useIsMobile.js'
 import { useSort } from '../../composables/useSort.js'
 import { useTitleExpansion } from '../../composables/useTitleExpansion.js'
-import { useDashboardStore } from '../../store/dashboardStore.js'
+import { useDashboardStore, isVneregKey } from '../../store/dashboardStore.js'
 import { storeToRefs } from 'pinia'
-import { isVneregKey } from '../../composables/useSmetaBreakdown.js'
 import { formatMoney } from '../../utils/format.js'
 import SmetaDetailsMobile from './SmetaDetailsMobile.vue'
 import SmetaDetailsDesktop from './SmetaDetailsDesktop.vue'
@@ -128,7 +127,7 @@ const { isMobile } = useIsMobile()
 
 // detect selected smeta from global store so we can apply smeta-specific defaults
 const store = useDashboardStore()
-const { selectedSmeta, smetaDetailsWithTypes } = storeToRefs(store)
+const { selectedSmeta, smetaDetailsWithTypes, defaultSmetaSortKey, isSelectedSmetaVnereg } = storeToRefs(store)
 
 // Check if we have typed data for hierarchical view
 const hasTypedData = computed(() => {
@@ -159,7 +158,7 @@ const compareRows = (a, b, key, dir) => {
 const { sortKey, sortDir, sortedItems, setSort, toggleSort: toggleSortKey } = useSort(
   () => props.items,
   {
-    initialKey: props.sortKey || (isVneregKey(selectedSmeta.value) ? 'fact' : 'plan'),
+    initialKey: props.sortKey || defaultSmetaSortKey.value,
     initialDir: typeof props.sortDir === 'number' ? props.sortDir : -1,
     compare: compareRows
   }
@@ -168,13 +167,11 @@ const { sortKey, sortDir, sortedItems, setSort, toggleSort: toggleSortKey } = us
 // Title expansion logic (для раскрытия обрезанного текста)
 const { idFor, registerTitleRef, isExpanded, isClamped, toggleExpand } = useTitleExpansion(sortedItems)
 
-// If selected smeta changes to a vnereg-like key, default-sort by `fact` (unless already set)
-watch(selectedSmeta, (newKey) => {
-  if (isVneregKey(newKey) && sortKey.value !== 'fact') {
-    // set default descending by fact
-    setSort('fact', -1)
-    // notify parent about sort change
-    try { emit('sort-changed', { key: 'fact', dir: -1 }) } catch (e) { /* ignore */ }
+// Watch defaultSmetaSortKey from store for automatic sort updates
+watch(defaultSmetaSortKey, (newKey) => {
+  if (sortKey.value !== newKey) {
+    setSort(newKey, -1)
+    try { emit('sort-changed', { key: newKey, dir: -1 }) } catch (e) { /* ignore */ }
   }
 })
 
